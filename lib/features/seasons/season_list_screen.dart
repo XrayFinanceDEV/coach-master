@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/models/season.dart';
-import 'package:coachmaster/services/season_repository.dart';
+import 'package:coachmaster/core/repository_instances.dart';
 
 class SeasonListScreen extends ConsumerWidget {
   const SeasonListScreen({super.key});
@@ -14,7 +14,13 @@ class SeasonListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Seasons'),
+        title: Row(
+          children: [
+            Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            const Text('Seasons'),
+          ],
+        ),
       ),
       body: ListView.builder(
         itemCount: seasons.length,

@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coachmaster/models/match.dart';
 
 class MatchRepository {
@@ -37,5 +36,3 @@ class MatchRepository {
     return _matchBox.values.where((match) => match.seasonId == seasonId).toList();
   }
 }
-
-final matchRepositoryProvider = Provider((ref) => MatchRepository());

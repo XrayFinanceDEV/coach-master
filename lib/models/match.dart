@@ -2,6 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'match.g.dart';
 
+@HiveType(typeId: 11)
 enum MatchStatus {
   @HiveField(0)
   scheduled,
@@ -11,6 +12,7 @@ enum MatchStatus {
   completed,
 }
 
+@HiveType(typeId: 12)
 enum MatchResult {
   @HiveField(0)
   win,

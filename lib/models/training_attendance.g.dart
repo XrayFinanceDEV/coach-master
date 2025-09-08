@@ -54,3 +54,48 @@ class TrainingAttendanceAdapter extends TypeAdapter<TrainingAttendance> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+class TrainingAttendanceStatusAdapter
+    extends TypeAdapter<TrainingAttendanceStatus> {
+  @override
+  final int typeId = 10;
+
+  @override
+  TrainingAttendanceStatus read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return TrainingAttendanceStatus.present;
+      case 1:
+        return TrainingAttendanceStatus.absent;
+      case 2:
+        return TrainingAttendanceStatus.late;
+      default:
+        return TrainingAttendanceStatus.present;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, TrainingAttendanceStatus obj) {
+    switch (obj) {
+      case TrainingAttendanceStatus.present:
+        writer.writeByte(0);
+        break;
+      case TrainingAttendanceStatus.absent:
+        writer.writeByte(1);
+        break;
+      case TrainingAttendanceStatus.late:
+        writer.writeByte(2);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TrainingAttendanceStatusAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/models/team.dart';
-import 'package:coachmaster/services/team_repository.dart';
+import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/features/players/player_list_screen.dart';
 import 'package:coachmaster/features/trainings/training_list_screen.dart';
 
@@ -24,7 +24,13 @@ class TeamDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(team.name),
+        title: Row(
+          children: [
+            Icon(Icons.groups, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            Expanded(child: Text(team.name)),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -68,7 +74,6 @@ class TeamDetailScreen extends ConsumerWidget {
           children: [
             Text('Description: ${team.description ?? 'N/A'}', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 20),
-            // Display Players List
             Expanded(
               child: Column(
                 children: [
@@ -82,8 +87,7 @@ class TeamDetailScreen extends ConsumerWidget {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      // TODO: Navigate to match list for this team
-                      print('View matches for team: ${team.name}');
+                      context.go('/teams/${team.id}/matches');
                     },
                     child: const Text('View Matches'),
                   ),

@@ -25,7 +25,7 @@ class MatchStatisticAdapter extends TypeAdapter<MatchStatistic> {
       yellowCards: fields[5] as int,
       redCards: fields[6] as int,
       minutesPlayed: fields[7] as int,
-      rating: fields[8] as int,
+      rating: fields[8] as double?,
       position: fields[9] as String?,
       notes: fields[10] as String?,
     );

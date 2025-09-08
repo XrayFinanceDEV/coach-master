@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/models/season.dart';
-import 'package:coachmaster/services/season_repository.dart';
+import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/features/teams/team_list_screen.dart';
 
 class SeasonDetailScreen extends ConsumerWidget {

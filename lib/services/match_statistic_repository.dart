@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coachmaster/models/match_statistic.dart';
 
 class MatchStatisticRepository {
@@ -42,6 +41,30 @@ class MatchStatisticRepository {
         .where((stat) => stat.matchId == matchId && stat.playerId == playerId)
         .toList();
   }
-}
 
-final matchStatisticRepositoryProvider = Provider((ref) => MatchStatisticRepository());
+  // Batch operations for saving multiple player stats for a match
+  Future<void> saveMatchStatistics(List<MatchStatistic> statistics) async {
+    for (final stat in statistics) {
+      await _statisticBox.put(stat.id, stat);
+    }
+  }
+
+  Future<void> updateMatchStatistics(String matchId, List<MatchStatistic> newStatistics) async {
+    // Delete existing statistics for this match
+    final existingStats = getStatisticsForMatch(matchId);
+    for (final stat in existingStats) {
+      await _statisticBox.delete(stat.id);
+    }
+    
+    // Add new statistics
+    await saveMatchStatistics(newStatistics);
+  }
+
+  // Delete all statistics for a match (when match is deleted)
+  Future<void> deleteStatisticsForMatch(String matchId) async {
+    final matchStats = getStatisticsForMatch(matchId);
+    for (final stat in matchStats) {
+      await _statisticBox.delete(stat.id);
+    }
+  }
+}

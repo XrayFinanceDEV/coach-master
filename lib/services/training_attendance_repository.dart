@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coachmaster/models/training_attendance.dart';
 
 class TrainingAttendanceRepository {
@@ -37,5 +36,3 @@ class TrainingAttendanceRepository {
     return _attendanceBox.values.where((att) => att.playerId == playerId).toList();
   }
 }
-
-final trainingAttendanceRepositoryProvider = Provider((ref) => TrainingAttendanceRepository());

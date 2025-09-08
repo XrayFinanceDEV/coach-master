@@ -21,7 +21,7 @@ class MatchStatistic {
   @HiveField(7)
   final int minutesPlayed;
   @HiveField(8)
-  final int rating;
+  final double? rating;
   @HiveField(9)
   final String? position;
   @HiveField(10)
@@ -36,7 +36,7 @@ class MatchStatistic {
     this.yellowCards = 0,
     this.redCards = 0,
     this.minutesPlayed = 0,
-    this.rating = 0,
+    this.rating,
     this.position,
     this.notes,
   });
@@ -49,7 +49,7 @@ class MatchStatistic {
     int yellowCards = 0,
     int redCards = 0,
     int minutesPlayed = 0,
-    int rating = 0,
+    double? rating,
     String? position,
     String? notes,
   }) {

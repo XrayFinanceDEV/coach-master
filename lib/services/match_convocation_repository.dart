@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coachmaster/models/match_convocation.dart';
 
 class MatchConvocationRepository {
@@ -37,5 +36,3 @@ class MatchConvocationRepository {
     return _convocationBox.values.where((conv) => conv.playerId == playerId).toList();
   }
 }
-
-final matchConvocationRepositoryProvider = Provider((ref) => MatchConvocationRepository());

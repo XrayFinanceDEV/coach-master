@@ -72,3 +72,96 @@ class MatchAdapter extends TypeAdapter<Match> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+class MatchStatusAdapter extends TypeAdapter<MatchStatus> {
+  @override
+  final int typeId = 11;
+
+  @override
+  MatchStatus read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return MatchStatus.scheduled;
+      case 1:
+        return MatchStatus.live;
+      case 2:
+        return MatchStatus.completed;
+      default:
+        return MatchStatus.scheduled;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, MatchStatus obj) {
+    switch (obj) {
+      case MatchStatus.scheduled:
+        writer.writeByte(0);
+        break;
+      case MatchStatus.live:
+        writer.writeByte(1);
+        break;
+      case MatchStatus.completed:
+        writer.writeByte(2);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MatchStatusAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class MatchResultAdapter extends TypeAdapter<MatchResult> {
+  @override
+  final int typeId = 12;
+
+  @override
+  MatchResult read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return MatchResult.win;
+      case 1:
+        return MatchResult.loss;
+      case 2:
+        return MatchResult.draw;
+      case 3:
+        return MatchResult.none;
+      default:
+        return MatchResult.win;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, MatchResult obj) {
+    switch (obj) {
+      case MatchResult.win:
+        writer.writeByte(0);
+        break;
+      case MatchResult.loss:
+        writer.writeByte(1);
+        break;
+      case MatchResult.draw:
+        writer.writeByte(2);
+        break;
+      case MatchResult.none:
+        writer.writeByte(3);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MatchResultAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}

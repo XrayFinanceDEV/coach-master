@@ -2,6 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'match_convocation.g.dart';
 
+@HiveType(typeId: 13)
 enum PlayerMatchStatus {
   @HiveField(0)
   convoked,

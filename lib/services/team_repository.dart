@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coachmaster/models/team.dart';
 
 class TeamRepository {
@@ -33,5 +32,3 @@ class TeamRepository {
     return _teamBox.values.where((team) => team.seasonId == seasonId).toList();
   }
 }
-
-final teamRepositoryProvider = Provider((ref) => TeamRepository());

@@ -27,13 +27,20 @@ class PlayerAdapter extends TypeAdapter<Player> {
       photoPath: fields[7] as String?,
       medicalInfo: (fields[8] as Map?)?.cast<String, dynamic>(),
       emergencyContact: (fields[9] as Map?)?.cast<String, dynamic>(),
+      goals: fields[10] as int,
+      assists: fields[11] as int,
+      yellowCards: fields[12] as int,
+      redCards: fields[13] as int,
+      totalMinutes: fields[14] as int,
+      avgRating: fields[15] as double?,
+      absences: fields[16] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Player obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +60,21 @@ class PlayerAdapter extends TypeAdapter<Player> {
       ..writeByte(8)
       ..write(obj.medicalInfo)
       ..writeByte(9)
-      ..write(obj.emergencyContact);
+      ..write(obj.emergencyContact)
+      ..writeByte(10)
+      ..write(obj.goals)
+      ..writeByte(11)
+      ..write(obj.assists)
+      ..writeByte(12)
+      ..write(obj.yellowCards)
+      ..writeByte(13)
+      ..write(obj.redCards)
+      ..writeByte(14)
+      ..write(obj.totalMinutes)
+      ..writeByte(15)
+      ..write(obj.avgRating)
+      ..writeByte(16)
+      ..write(obj.absences);
   }
 
   @override

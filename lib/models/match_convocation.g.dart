@@ -48,3 +48,52 @@ class MatchConvocationAdapter extends TypeAdapter<MatchConvocation> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+class PlayerMatchStatusAdapter extends TypeAdapter<PlayerMatchStatus> {
+  @override
+  final int typeId = 13;
+
+  @override
+  PlayerMatchStatus read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return PlayerMatchStatus.convoked;
+      case 1:
+        return PlayerMatchStatus.playing;
+      case 2:
+        return PlayerMatchStatus.substitute;
+      case 3:
+        return PlayerMatchStatus.notPlaying;
+      default:
+        return PlayerMatchStatus.convoked;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, PlayerMatchStatus obj) {
+    switch (obj) {
+      case PlayerMatchStatus.convoked:
+        writer.writeByte(0);
+        break;
+      case PlayerMatchStatus.playing:
+        writer.writeByte(1);
+        break;
+      case PlayerMatchStatus.substitute:
+        writer.writeByte(2);
+        break;
+      case PlayerMatchStatus.notPlaying:
+        writer.writeByte(3);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlayerMatchStatusAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}

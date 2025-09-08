@@ -1,0 +1,2 @@
+/home/user/Musify/build/.cxx/debug/515l143a/armeabi-v7a/CMakeFiles/edit_cache.dir
+/home/user/Musify/build/.cxx/debug/515l143a/armeabi-v7a/CMakeFiles/rebuild_cache.dir

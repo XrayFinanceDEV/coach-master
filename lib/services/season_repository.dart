@@ -1,7 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coachmaster/models/season.dart';
-
 class SeasonRepository {
   late Box<Season> _seasonBox;
 
@@ -29,5 +27,3 @@ class SeasonRepository {
     await _seasonBox.delete(id);
   }
 }
-
-final seasonRepositoryProvider = Provider((ref) => SeasonRepository());

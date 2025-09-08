@@ -2,6 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'training_attendance.g.dart';
 
+@HiveType(typeId: 10)
 enum TrainingAttendanceStatus {
   @HiveField(0)
   present,

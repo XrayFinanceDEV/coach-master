@@ -75,5 +75,37 @@
   "striker": "Striker",
   "leftFoot": "Left Foot",
   "rightFoot": "Right Foot",
-  "bothFeet": "Both Feet"
+  "bothFeet": "Both Feet",
+  "welcomeTo": "Welcome to {appName}!",
+  "@welcomeTo": {
+    "description": "Welcome message",
+    "placeholders": {
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "createFirstSeasonAndTeam": "Create your first season and team to get started",
+  "noTeamsInSeason": "No teams in this season",
+  "createFirstTeam": "Create your first team to start managing players",
+  "noPlayersInTeam": "No players in this team",
+  "addFirstPlayer": "Add your first player to get started",
+  "addMatch": "Add Match",
+  "addTraining": "Add Training",
+  "addPlayer": "Add Player",
+  "season": "Season",
+  "trainingSessions": "Training Sessions",
+  "selectSeason": "Select Season",
+  "selectTeam": "Select Team",
+  "manageSeasons": "Manage Seasons",
+  "manageTeams": "Manage Teams",
+  "languageAndPreferences": "Language & Preferences",
+  "darkMode": "Dark Mode",
+  "useDarkTheme": "Use dark theme",
+  "notifications": "Notifications",
+  "receiveReminders": "Receive match and training reminders",
+  "teamManagement": "Team Management",
+  "sortByName": "Sort by Name",
+  "sortByPosition": "Sort by Position",
+  "noPlayersInTeamYet": "No players in this team yet"
 }

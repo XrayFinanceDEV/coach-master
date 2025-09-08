@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:coachmaster/l10n/app_localizations.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'dart:io';
@@ -25,17 +26,17 @@ class LeaderboardsSection extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Top 5 Leaderboards',
+            AppLocalizations.of(context)!.topLeaderboards,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 16),
-          const Card(
+          Card(
             elevation: 4,
             child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Text('No team selected'),
+              padding: const EdgeInsets.all(16),
+              child: Text(AppLocalizations.of(context)!.noTeamsInSeason),
             ),
           ),
         ],
@@ -60,7 +61,7 @@ class LeaderboardsSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Top 5 Leaderboards',
+          AppLocalizations.of(context)!.topLeaderboards,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -76,32 +77,26 @@ class LeaderboardsSection extends ConsumerWidget {
           mainAxisSpacing: 16,
           childAspectRatio: 0.8,
           children: [
-            _buildLeaderboardCard(
+            _buildDisabledLeaderboardCard(
               context,
-              title: 'Top Scorers',
+              title: AppLocalizations.of(context)!.topScorers,
               icon: Icons.sports_soccer,
-              color: Colors.green, // Keep green for goals (positive)
-              players: topScorers,
-              getStatValue: (player) => player.goals.toString(),
-              statLabel: 'goals',
+              color: Colors.green,
             ),
-            _buildLeaderboardCard(
+            _buildDisabledLeaderboardCard(
               context,
-              title: 'Top Assistors',
+              title: AppLocalizations.of(context)!.topAssistors,
               icon: Icons.assistant,
-              color: Colors.deepOrange, // Sports theme - assists
-              players: topAssistors,
-              getStatValue: (player) => player.assists.toString(),
-              statLabel: 'assists',
+              color: Colors.deepOrange,
             ),
             _buildLeaderboardCard(
               context,
-              title: 'Highest Rated',
+              title: AppLocalizations.of(context)!.highestRated,
               icon: Icons.star,
               color: Colors.amber, // Gold for highest rated (excellence)
               players: topRated,
               getStatValue: (player) => player.avgRating?.toStringAsFixed(2) ?? 'N/A',
-              statLabel: 'avg rating',
+              statLabel: AppLocalizations.of(context)!.avgRating,
             ),
             Card(
               elevation: 4,
@@ -116,7 +111,7 @@ class LeaderboardsSection extends ConsumerWidget {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            'Most Present',
+                            AppLocalizations.of(context)!.mostPresent,
                             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: const Color(0xFFFF7F00),
@@ -129,7 +124,7 @@ class LeaderboardsSection extends ConsumerWidget {
                     Expanded(
                       child: Center(
                         child: Text(
-                          'Temporarily disabled',
+                          AppLocalizations.of(context)!.temporarilyDisabled,
                           style: Theme.of(context).textTheme.bodySmall,
                           textAlign: TextAlign.center,
                         ),
@@ -149,7 +144,7 @@ class LeaderboardsSection extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Top 5 Leaderboards',
+            AppLocalizations.of(context)!.topLeaderboards,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -168,6 +163,50 @@ class LeaderboardsSection extends ConsumerWidget {
         ],
       );
     }
+  }
+
+  Widget _buildDisabledLeaderboardCard(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color, size: 20),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: Center(
+                child: Text(
+                  AppLocalizations.of(context)!.temporarilyDisabled,
+                  style: Theme.of(context).textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildLeaderboardCard(
@@ -220,7 +259,7 @@ class LeaderboardsSection extends ConsumerWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'No data yet',
+                            AppLocalizations.of(context)!.noDataYet,
                             style: TextStyle(
                               color: Colors.grey[500],
                               fontSize: 12,

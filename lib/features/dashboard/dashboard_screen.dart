@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:coachmaster/l10n/app_localizations.dart';
 import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/match.dart';
@@ -67,11 +68,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           children: [
             Icon(Icons.home, color: Theme.of(context).colorScheme.primary, size: 28),
             const SizedBox(width: 8),
-            const Text('Home'),
+            Text(AppLocalizations.of(context)!.home),
             if (selectedSeason != null) ...[
               const Text(' — '),
               Text(
-                'Season ${selectedSeason.name}',
+                '${AppLocalizations.of(context)!.season} ${selectedSeason.name}',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey[600],
@@ -138,14 +139,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Welcome to CoachMaster!',
+            AppLocalizations.of(context)!.welcomeTo(AppLocalizations.of(context)!.appTitle),
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               color: Colors.grey[600],
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Create your first season and team to get started',
+            AppLocalizations.of(context)!.createFirstSeasonAndTeam,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.grey[500],
             ),
@@ -168,14 +169,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No teams in this season',
+            AppLocalizations.of(context)!.noTeamsInSeason,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Colors.grey[600],
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Create your first team to start managing players',
+            AppLocalizations.of(context)!.createFirstTeam,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.grey[500],
             ),
@@ -197,14 +198,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No players in this team',
+            AppLocalizations.of(context)!.noPlayersInTeam,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Colors.grey[600],
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Add your first player to get started',
+            AppLocalizations.of(context)!.addFirstPlayer,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.grey[500],
             ),
@@ -224,7 +225,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             // Add Match button
             _buildSpeedDialChild(
               icon: Icons.sports_soccer,
-              label: 'Add Match',
+              label: AppLocalizations.of(context)!.addMatch,
               onTap: () => _showAddMatchDialog(),
             ),
             const SizedBox(height: 16),
@@ -232,7 +233,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             // Add Training button
             _buildSpeedDialChild(
               icon: Icons.fitness_center,
-              label: 'Add Training',
+              label: AppLocalizations.of(context)!.addTraining,
               onTap: () => _showAddTrainingDialog(),
             ),
             const SizedBox(height: 16),
@@ -240,7 +241,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             // Add Player button
             _buildSpeedDialChild(
               icon: Icons.person_add,
-              label: 'Add Player',
+              label: AppLocalizations.of(context)!.addPlayer,
               onTap: () => _showAddPlayerDialog(),
             ),
             const SizedBox(height: 16),

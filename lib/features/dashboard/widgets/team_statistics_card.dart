@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:coachmaster/l10n/app_localizations.dart';
 import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/match.dart';
@@ -35,7 +36,7 @@ class TeamStatisticsCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Team Statistics - ${team.name}',
+                  '${AppLocalizations.of(context)!.teamStatistics} - ${team.name}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -56,42 +57,42 @@ class TeamStatisticsCard extends StatelessWidget {
                 _buildStatCard(
                   context,
                   icon: Icons.people,
-                  label: 'Players',
+                  label: AppLocalizations.of(context)!.playerCount,
                   value: teamStats['players']!.toString(),
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 _buildStatCard(
                   context,
                   icon: Icons.sports_soccer,
-                  label: 'Goals For',
+                  label: AppLocalizations.of(context)!.goalsFor,
                   value: teamStats['goalsFor']!.toString(),
                   color: Colors.green,
                 ),
                 _buildStatCard(
                   context,
                   icon: Icons.shield,
-                  label: 'Goals Against',
+                  label: AppLocalizations.of(context)!.goalsAgainst,
                   value: teamStats['goalsAgainst']!.toString(),
                   color: Colors.red,
                 ),
                 _buildStatCard(
                   context,
                   icon: Icons.assistant,
-                  label: 'Total Assists',
+                  label: AppLocalizations.of(context)!.totalAssists,
                   value: teamStats['totalAssists']!.toString(),
                   color: Colors.orange,
                 ),
                 _buildStatCard(
                   context,
                   icon: Icons.warning,
-                  label: 'Yellow Cards',
+                  label: AppLocalizations.of(context)!.yellowCards,
                   value: teamStats['yellowCards']!.toString(),
                   color: Colors.amber,
                 ),
                 _buildStatCard(
                   context,
                   icon: Icons.sports,
-                  label: 'Matches',
+                  label: AppLocalizations.of(context)!.matchCount,
                   value: teamStats['matches']!.toString(),
                   color: Colors.amber,
                 ),

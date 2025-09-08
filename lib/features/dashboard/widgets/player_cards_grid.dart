@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:coachmaster/l10n/app_localizations.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
@@ -59,7 +60,7 @@ class _PlayerCardsGridState extends ConsumerState<PlayerCardsGrid> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Players - ${widget.teamName}',
+                      '${AppLocalizations.of(context)!.players} - ${widget.teamName}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -74,7 +75,7 @@ class _PlayerCardsGridState extends ConsumerState<PlayerCardsGrid> {
                   },
                   icon: const Icon(Icons.sort, size: 16),
                   label: Text(
-                    sortMode == 'position' ? 'Sort by Name' : 'Sort by Position',
+                    sortMode == 'position' ? AppLocalizations.of(context)!.sortByName : AppLocalizations.of(context)!.sortByPosition,
                     style: const TextStyle(fontSize: 12),
                   ),
                   style: OutlinedButton.styleFrom(
@@ -88,12 +89,12 @@ class _PlayerCardsGridState extends ConsumerState<PlayerCardsGrid> {
             
             // Players Carousel
             if (sortedPlayers.isEmpty)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(32),
                   child: Text(
-                    'No players in this team yet',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.noPlayersInTeamYet,
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.grey,
                     ),

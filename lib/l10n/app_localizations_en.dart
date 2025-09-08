@@ -227,4 +227,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bothFeet => 'Both Feet';
+
+  @override
+  String welcomeTo(String appName) {
+    return 'Welcome to $appName!';
+  }
+
+  @override
+  String get createFirstSeasonAndTeam =>
+      'Create your first season and team to get started';
+
+  @override
+  String get noTeamsInSeason => 'No teams in this season';
+
+  @override
+  String get createFirstTeam =>
+      'Create your first team to start managing players';
+
+  @override
+  String get addFirstPlayer => 'Add your first player to get started';
+
+  @override
+  String get addMatch => 'Add Match';
+
+  @override
+  String get addTraining => 'Add Training';
+
+  @override
+  String get addPlayer => 'Add Player';
+
+  @override
+  String get season => 'Season';
+
+  @override
+  String get trainingSessions => 'Training Sessions';
+
+  @override
+  String get selectSeason => 'Select Season';
+
+  @override
+  String get selectTeam => 'Select Team';
+
+  @override
+  String get manageSeasons => 'Manage Seasons';
+
+  @override
+  String get manageTeams => 'Manage Teams';
+
+  @override
+  String get languageAndPreferences => 'Language & Preferences';
+
+  @override
+  String get darkMode => 'Dark Mode';
+
+  @override
+  String get useDarkTheme => 'Use dark theme';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get receiveReminders => 'Receive match and training reminders';
+
+  @override
+  String get teamManagement => 'Team Management';
+
+  @override
+  String get sortByName => 'Sort by Name';
+
+  @override
+  String get sortByPosition => 'Sort by Position';
+
+  @override
+  String get noPlayersInTeamYet => 'No players in this team yet';
 }

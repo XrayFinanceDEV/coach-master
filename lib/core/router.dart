@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:io';
+import 'package:coachmaster/l10n/app_localizations.dart';
 import 'package:coachmaster/features/seasons/season_list_screen.dart';
 import 'package:coachmaster/features/seasons/season_detail_screen.dart';
 import 'package:coachmaster/features/teams/team_detail_screen.dart';
@@ -12,6 +13,7 @@ import 'package:coachmaster/features/matches/match_list_screen.dart';
 import 'package:coachmaster/features/matches/match_detail_screen.dart';
 import 'package:coachmaster/features/dashboard/dashboard_screen.dart';
 import 'package:coachmaster/core/repository_instances.dart';
+import 'package:coachmaster/core/locale_provider.dart';
 import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/training.dart';
@@ -42,7 +44,7 @@ class _PlayersScreenState extends ConsumerState<PlayersScreen> {
           children: [
             Icon(Icons.people, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 8),
-            const Text('Players'),
+            Text(AppLocalizations.of(context)!.players),
           ],
         ),
       ),
@@ -182,7 +184,7 @@ class _PlayersScreenState extends ConsumerState<PlayersScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddPlayerDialog(context),
         icon: const Icon(Icons.person_add),
-        label: const Text('Add Player'),
+        label: Text(AppLocalizations.of(context)!.addPlayer),
       ),
     );
   }
@@ -469,7 +471,7 @@ class _TrainingsScreenState extends ConsumerState<TrainingsScreen> {
           children: [
             Icon(Icons.fitness_center, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 8),
-            const Text('Training Sessions'),
+            Text(AppLocalizations.of(context)!.trainingSessions),
           ],
         ),
       ),
@@ -528,7 +530,7 @@ class _TrainingsScreenState extends ConsumerState<TrainingsScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddTrainingBottomSheet(context, ref, allTeams),
         icon: const Icon(Icons.add),
-        label: const Text('Add Training'),
+        label: Text(AppLocalizations.of(context)!.addTraining),
       ),
     );
   }
@@ -884,7 +886,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           children: [
             Icon(Icons.settings, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 8),
-            const Text('Settings'),
+            Text(AppLocalizations.of(context)!.settings),
           ],
         ),
       ),
@@ -907,7 +909,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Team Management',
+                        AppLocalizations.of(context)!.teamManagement,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -931,7 +933,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         value: selectedSeasonId,
                         isExpanded: true,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        hint: const Text('Select Season'),
+                        hint: Text(AppLocalizations.of(context)!.selectSeason),
                         onChanged: (seasonId) {
                           setState(() {
                             selectedSeasonId = seasonId;
@@ -970,7 +972,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           value: selectedTeamId,
                           isExpanded: true,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          hint: const Text('Select Team'),
+                          hint: Text(AppLocalizations.of(context)!.selectTeam),
                           onChanged: (teamId) {
                             setState(() {
                               selectedTeamId = teamId;
@@ -994,7 +996,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         child: OutlinedButton.icon(
                           onPressed: () => context.go('/seasons'),
                           icon: const Icon(Icons.calendar_today),
-                          label: const Text('Manage Seasons'),
+                          label: Text(AppLocalizations.of(context)!.manageSeasons),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -1004,7 +1006,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ? () => context.go('/teams/$selectedTeamId')
                               : null,
                           icon: const Icon(Icons.groups),
-                          label: const Text('Manage Teams'),
+                          label: Text(AppLocalizations.of(context)!.manageTeams),
                         ),
                       ),
                     ],
@@ -1032,7 +1034,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Language & Preferences',
+                        AppLocalizations.of(context)!.languageAndPreferences,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -1042,80 +1044,57 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 16),
                   
                   // Language Selection
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: 'en',
-                        isExpanded: true,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'en',
-                            child: Row(
-                              children: [
-                                Text('🇺🇸', style: TextStyle(fontSize: 20)),
-                                SizedBox(width: 12),
-                                Text('English'),
-                              ],
-                            ),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final currentLocale = ref.watch(localeProvider);
+                      return Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant,
                           ),
-                          DropdownMenuItem(
-                            value: 'it',
-                            child: Row(
-                              children: [
-                                Text('🇮🇹', style: TextStyle(fontSize: 20)),
-                                SizedBox(width: 12),
-                                Text('Italiano'),
-                              ],
-                            ),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: currentLocale.languageCode,
+                            isExpanded: true,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'en',
+                                child: Row(
+                                  children: [
+                                    Text('🇺🇸', style: TextStyle(fontSize: 20)),
+                                    SizedBox(width: 12),
+                                    Text('English'),
+                                  ],
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: 'it',
+                                child: Row(
+                                  children: [
+                                    Text('🇮🇹', style: TextStyle(fontSize: 20)),
+                                    SizedBox(width: 12),
+                                    Text('Italiano'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                ref.read(localeProvider.notifier).setLocale(Locale(value));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Language changed to: $value')),
+                                );
+                              }
+                            },
                           ),
-                          DropdownMenuItem(
-                            value: 'es',
-                            child: Row(
-                              children: [
-                                Text('🇪🇸', style: TextStyle(fontSize: 20)),
-                                SizedBox(width: 12),
-                                Text('Español'),
-                              ],
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: 'fr',
-                            child: Row(
-                              children: [
-                                Text('🇫🇷', style: TextStyle(fontSize: 20)),
-                                SizedBox(width: 12),
-                                Text('Français'),
-                              ],
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: 'de',
-                            child: Row(
-                              children: [
-                                Text('🇩🇪', style: TextStyle(fontSize: 20)),
-                                SizedBox(width: 12),
-                                Text('Deutsch'),
-                              ],
-                            ),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          // TODO: Implement language change functionality
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Language changed to: $value')),
-                          );
-                        },
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
                   
                   const SizedBox(height: 16),
@@ -1123,8 +1102,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   // Additional preference toggles
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Dark Mode'),
-                    subtitle: const Text('Use dark theme'),
+                    title: Text(AppLocalizations.of(context)!.darkMode),
+                    subtitle: Text(AppLocalizations.of(context)!.useDarkTheme),
                     value: false,
                     onChanged: (value) {
                       // TODO: Implement dark mode toggle
@@ -1136,8 +1115,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Notifications'),
-                    subtitle: const Text('Receive match and training reminders'),
+                    title: Text(AppLocalizations.of(context)!.notifications),
+                    subtitle: Text(AppLocalizations.of(context)!.receiveReminders),
                     value: true,
                     onChanged: (value) {
                       // TODO: Implement notifications toggle

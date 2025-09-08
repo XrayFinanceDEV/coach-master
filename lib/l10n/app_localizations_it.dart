@@ -228,4 +228,77 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get bothFeet => 'Entrambi i Piedi';
+
+  @override
+  String welcomeTo(String appName) {
+    return 'Benvenuto in $appName!';
+  }
+
+  @override
+  String get createFirstSeasonAndTeam =>
+      'Crea la tua prima stagione e squadra per iniziare';
+
+  @override
+  String get noTeamsInSeason => 'Nessuna squadra in questa stagione';
+
+  @override
+  String get createFirstTeam =>
+      'Crea la tua prima squadra per iniziare a gestire i giocatori';
+
+  @override
+  String get addFirstPlayer => 'Aggiungi il tuo primo giocatore per iniziare';
+
+  @override
+  String get addMatch => 'Aggiungi Partita';
+
+  @override
+  String get addTraining => 'Aggiungi Allenamento';
+
+  @override
+  String get addPlayer => 'Aggiungi Giocatore';
+
+  @override
+  String get season => 'Stagione';
+
+  @override
+  String get trainingSessions => 'Sessioni di Allenamento';
+
+  @override
+  String get selectSeason => 'Seleziona Stagione';
+
+  @override
+  String get selectTeam => 'Seleziona Squadra';
+
+  @override
+  String get manageSeasons => 'Gestisci Stagioni';
+
+  @override
+  String get manageTeams => 'Gestisci Squadre';
+
+  @override
+  String get languageAndPreferences => 'Lingua e Preferenze';
+
+  @override
+  String get darkMode => 'Modalità Scura';
+
+  @override
+  String get useDarkTheme => 'Usa tema scuro';
+
+  @override
+  String get notifications => 'Notifiche';
+
+  @override
+  String get receiveReminders => 'Ricevi promemoria per partite e allenamenti';
+
+  @override
+  String get teamManagement => 'Gestione Squadra';
+
+  @override
+  String get sortByName => 'Ordina per Nome';
+
+  @override
+  String get sortByPosition => 'Ordina per Posizione';
+
+  @override
+  String get noPlayersInTeamYet => 'Nessun giocatore in questa squadra';
 }

@@ -535,6 +535,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Both Feet'**
   String get bothFeet;
+
+  /// Welcome message
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to {appName}!'**
+  String welcomeTo(String appName);
+
+  /// No description provided for @createFirstSeasonAndTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first season and team to get started'**
+  String get createFirstSeasonAndTeam;
+
+  /// No description provided for @noTeamsInSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'No teams in this season'**
+  String get noTeamsInSeason;
+
+  /// No description provided for @createFirstTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first team to start managing players'**
+  String get createFirstTeam;
+
+  /// No description provided for @addFirstPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first player to get started'**
+  String get addFirstPlayer;
+
+  /// No description provided for @addMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Match'**
+  String get addMatch;
+
+  /// No description provided for @addTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Training'**
+  String get addTraining;
+
+  /// No description provided for @addPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Player'**
+  String get addPlayer;
+
+  /// No description provided for @season.
+  ///
+  /// In en, this message translates to:
+  /// **'Season'**
+  String get season;
+
+  /// No description provided for @trainingSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Training Sessions'**
+  String get trainingSessions;
+
+  /// No description provided for @selectSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Season'**
+  String get selectSeason;
+
+  /// No description provided for @selectTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Team'**
+  String get selectTeam;
+
+  /// No description provided for @manageSeasons.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Seasons'**
+  String get manageSeasons;
+
+  /// No description provided for @manageTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Teams'**
+  String get manageTeams;
+
+  /// No description provided for @languageAndPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Language & Preferences'**
+  String get languageAndPreferences;
+
+  /// No description provided for @darkMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get darkMode;
+
+  /// No description provided for @useDarkTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Use dark theme'**
+  String get useDarkTheme;
+
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @receiveReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive match and training reminders'**
+  String get receiveReminders;
+
+  /// No description provided for @teamManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Team Management'**
+  String get teamManagement;
+
+  /// No description provided for @sortByName.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by Name'**
+  String get sortByName;
+
+  /// No description provided for @sortByPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by Position'**
+  String get sortByPosition;
+
+  /// No description provided for @noPlayersInTeamYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No players in this team yet'**
+  String get noPlayersInTeamYet;
 }
 
 class _AppLocalizationsDelegate

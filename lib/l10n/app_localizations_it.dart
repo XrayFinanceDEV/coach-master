@@ -221,6 +221,15 @@ class AppLocalizationsIt extends AppLocalizations {
   String get striker => 'Punta';
 
   @override
+  String get fullBack => 'Terzino';
+
+  @override
+  String get wingBack => 'Quinto';
+
+  @override
+  String get winger => 'Ala';
+
+  @override
   String get leftFoot => 'Piede Sinistro';
 
   @override

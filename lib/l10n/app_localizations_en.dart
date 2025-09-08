@@ -220,6 +220,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get striker => 'Striker';
 
   @override
+  String get fullBack => 'Full-back';
+
+  @override
+  String get wingBack => 'Wing-back';
+
+  @override
+  String get winger => 'Winger';
+
+  @override
   String get leftFoot => 'Left Foot';
 
   @override

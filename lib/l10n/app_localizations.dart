@@ -518,6 +518,24 @@ abstract class AppLocalizations {
   /// **'Striker'**
   String get striker;
 
+  /// No description provided for @fullBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Full-back'**
+  String get fullBack;
+
+  /// No description provided for @wingBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Wing-back'**
+  String get wingBack;
+
+  /// No description provided for @winger.
+  ///
+  /// In en, this message translates to:
+  /// **'Winger'**
+  String get winger;
+
   /// No description provided for @leftFoot.
   ///
   /// In en, this message translates to:

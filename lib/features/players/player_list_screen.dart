@@ -190,11 +190,14 @@ class PlayerListScreen extends ConsumerWidget {
     final List<Map<String, String>> positions = [
       {'key': 'goalkeeper', 'en': 'Goalkeeper'},
       {'key': 'centerBack', 'en': 'Center Back'},
+      {'key': 'fullBack', 'en': 'Full-back'},
+      {'key': 'wingBack', 'en': 'Wing-back'},
       {'key': 'leftBack', 'en': 'Left Back'},
       {'key': 'rightBack', 'en': 'Right Back'},
       {'key': 'defensiveMidfielder', 'en': 'Defensive Midfielder'},
       {'key': 'centralMidfielder', 'en': 'Central Midfielder'},
       {'key': 'attackingMidfielder', 'en': 'Attacking Midfielder'},
+      {'key': 'winger', 'en': 'Winger'},
       {'key': 'leftWinger', 'en': 'Left Winger'},
       {'key': 'rightWinger', 'en': 'Right Winger'},
       {'key': 'striker', 'en': 'Striker'},
@@ -257,6 +260,12 @@ class PlayerListScreen extends ConsumerWidget {
                           case 'centerBack':
                             displayName = currentLocalizations?.centerBack ?? pos['en']!;
                             break;
+                          case 'fullBack':
+                            displayName = currentLocalizations?.fullBack ?? pos['en']!;
+                            break;
+                          case 'wingBack':
+                            displayName = currentLocalizations?.wingBack ?? pos['en']!;
+                            break;
                           case 'leftBack':
                             displayName = currentLocalizations?.leftBack ?? pos['en']!;
                             break;
@@ -271,6 +280,9 @@ class PlayerListScreen extends ConsumerWidget {
                             break;
                           case 'attackingMidfielder':
                             displayName = currentLocalizations?.attackingMidfielder ?? pos['en']!;
+                            break;
+                          case 'winger':
+                            displayName = currentLocalizations?.winger ?? pos['en']!;
                             break;
                           case 'leftWinger':
                             displayName = currentLocalizations?.leftWinger ?? pos['en']!;

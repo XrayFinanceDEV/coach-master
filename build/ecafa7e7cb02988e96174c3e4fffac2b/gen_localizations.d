@@ -1,1 +1,0 @@
- /home/user/Musify/lib/l10n/app_localizations_en.dart /home/user/Musify/lib/l10n/app_localizations_it.dart /home/user/Musify/lib/l10n/app_localizations.dart:  /home/user/Musify/l10n.yaml /home/user/Musify/lib/l10n/app_en.arb /home/user/Musify/lib/l10n/app_it.arb

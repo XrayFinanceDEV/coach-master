@@ -1,3 +1,7 @@
 # Folders to ignore
 docs/CoachMaster-20/
 build/
+
+# Files to ignore
+*.apk
+docs/*.zip

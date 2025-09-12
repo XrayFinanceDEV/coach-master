@@ -362,6 +362,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editConvocatedPlayers => 'Edit Convocated Players';
 
   @override
+  String get convocatedPlayers => 'Convocated Players';
+
+  @override
   String get deleteMatch => 'Delete Match';
 
   @override
@@ -406,6 +409,74 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get matchStatusUpdated => 'Match status updated successfully!';
+
+  @override
+  String get startMatchStatusForm => 'Start Match Status Form';
+
+  @override
+  String get updateMatchStatus => 'Update Match Status';
+
+  @override
+  String get matchResult => 'Match Result';
+
+  @override
+  String get enterFinalScore => 'Enter the final score';
+
+  @override
+  String get goalsDetail => 'Goals Detail';
+
+  @override
+  String get whoScoredGoals => 'Who scored the goals?';
+
+  @override
+  String get assistsCount => 'Assists Count';
+
+  @override
+  String get whoProvidedAssists => 'Who provided the assists?';
+
+  @override
+  String get cardsAndPenalties => 'Cards & Penalties';
+
+  @override
+  String get trackYellowRedCards => 'Track yellow and red cards';
+
+  @override
+  String get playingTime => 'Playing Time';
+
+  @override
+  String get choosePlayingTimeTracking => 'Choose playing time tracking';
+
+  @override
+  String get setMinutesEachPlayer => 'Set minutes for each player';
+
+  @override
+  String get playerRatings => 'Player Ratings';
+
+  @override
+  String get ratePlayerPerformance => 'Rate each player\'s performance (1-10)';
+
+  @override
+  String get yesTrackPlayingTime => 'Yes, track playing time';
+
+  @override
+  String get noSkipPlayingTime => 'No, skip playing time';
+
+  @override
+  String get trackIndividualPlayingTime =>
+      'Do you want to track individual playing time for each player?';
+
+  @override
+  String get setMinutesPlayedEachPlayer => 'Set minutes played for each player';
+
+  @override
+  String totalGoalsMustEqual(Object matchGoals, Object totalGoals) {
+    return 'Total goals ($totalGoals) must equal match result ($matchGoals)';
+  }
+
+  @override
+  String totalAssistsCannotExceed(Object totalAssists, Object totalGoals) {
+    return 'Total assists ($totalAssists) cannot be more than goals ($totalGoals)';
+  }
 
   @override
   String errorUpdatingMatch(String error) {
@@ -521,9 +592,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get result => 'Result';
 
   @override
-  String get goalsDetail => 'Goals Detail';
-
-  @override
   String get assistsDetail => 'Assists Detail';
 
   @override
@@ -534,7 +602,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get playingTimeDetail => 'Playing Time Detail';
-
-  @override
-  String get playerRatings => 'Player Ratings';
 }

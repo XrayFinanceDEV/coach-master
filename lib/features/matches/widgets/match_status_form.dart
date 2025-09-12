@@ -7,6 +7,7 @@ import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/match_statistic.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
+import 'package:coachmaster/l10n/app_localizations.dart';
 
 class MatchStatusForm extends ConsumerStatefulWidget {
   final Match match;
@@ -41,19 +42,26 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
   // Form state
   bool _addPlayingTime = false;
   bool _isLoading = false;
+  int _lastRefreshCounter = 0;
   
   List<Player> _convocatedPlayers = [];
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _loadConvocatedPlayers();
   }
 
   void _loadConvocatedPlayers() {
-    final playerRepository = ref.read(playerRepositoryProvider);
-    final convocationRepository = ref.read(matchConvocationRepositoryProvider);
-    final statisticRepository = ref.read(matchStatisticRepositoryProvider);
+    // Use watch to get fresh data on every rebuild
+    final playerRepository = ref.watch(playerRepositoryProvider);
+    final convocationRepository = ref.watch(matchConvocationRepositoryProvider);
+    final statisticRepository = ref.watch(matchStatisticRepositoryProvider);
     
     final players = playerRepository.getPlayersForTeam(widget.match.teamId);
     final convocations = convocationRepository.getConvocationsForMatch(widget.match.id);
@@ -103,6 +111,19 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
   Widget build(BuildContext context) {
     // Watch for image updates to force rebuilds
     ref.watch(playerImageUpdateProvider);
+    // Watch for refresh counter changes to trigger rebuilds with fresh data
+    final refreshCounter = ref.watch(refreshCounterProvider);
+    
+    // Only reload if refresh counter changed
+    if (_lastRefreshCounter != refreshCounter) {
+      _lastRefreshCounter = refreshCounter;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _loadConvocatedPlayers();
+        }
+      });
+    }
+    
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
@@ -196,62 +217,76 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
           const SizedBox(height: 24),
           
           Text(
-            'Match Result',
+            AppLocalizations.of(context)!.matchResult,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Enter the final score',
+            AppLocalizations.of(context)!.enterFinalScore,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Colors.grey[600],
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),
           
           const SizedBox(height: 48),
           
-          // Score input
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Goals For
-              Column(
-                children: [
-                  Text(
-                    'Goals For',
-                    style: Theme.of(context).textTheme.titleSmall,
+          // Score input - responsive layout
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                // Goals For
+                Expanded(
+                  child: Column(
+                    children: [
+                      Text(
+                        'Goals For',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildScoreCounter(_goalsFor, (value) => setState(() => _goalsFor = value)),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  _buildScoreCounter(_goalsFor, (value) => setState(() => _goalsFor = value)),
-                ],
-              ),
-              
-              const SizedBox(width: 48),
-              
-              Text(
-                ':',
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
                 ),
-              ),
-              
-              const SizedBox(width: 48),
-              
-              // Goals Against
-              Column(
-                children: [
-                  Text(
-                    'Goals Against',
-                    style: Theme.of(context).textTheme.titleSmall,
+                
+                // Colon separator
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    ':',
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 36,
+                    ),
                   ),
-                  const SizedBox(height: 12),
-                  _buildScoreCounter(_goalsAgainst, (value) => setState(() => _goalsAgainst = value)),
-                ],
-              ),
-            ],
+                ),
+                
+                // Goals Against
+                Expanded(
+                  child: Column(
+                    children: [
+                      Text(
+                        'Goals Against',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildScoreCounter(_goalsAgainst, (value) => setState(() => _goalsAgainst = value)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -263,6 +298,10 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -279,7 +318,8 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
               value.toString(),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 32,
               ),
               textAlign: TextAlign.center,
             ),
@@ -296,8 +336,8 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
 
   Widget _buildGoalsDetailStep() {
     return _buildPlayerStatStep(
-      title: 'Goals Detail',
-      subtitle: 'Who scored the goals?',
+      title: AppLocalizations.of(context)!.goalsDetail,
+      subtitle: AppLocalizations.of(context)!.whoScoredGoals,
       icon: Icons.sports_soccer,
       color: Colors.green,
       playerStats: _playerGoals,
@@ -305,7 +345,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       validation: () {
         final totalPlayerGoals = _playerGoals.values.fold<int>(0, (sum, goals) => sum + goals);
         if (totalPlayerGoals != _goalsFor) {
-          return 'Total goals ($totalPlayerGoals) must equal match result ($_goalsFor)';
+          return AppLocalizations.of(context)!.totalGoalsMustEqual(_goalsFor, totalPlayerGoals);
         }
         return null;
       },
@@ -316,8 +356,8 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
     final totalGoals = _playerGoals.values.fold<int>(0, (sum, goals) => sum + goals);
     
     return _buildPlayerStatStep(
-      title: 'Assists Count',
-      subtitle: 'Who provided the assists?',
+      title: AppLocalizations.of(context)!.assistsCount,
+      subtitle: AppLocalizations.of(context)!.whoProvidedAssists,
       icon: Icons.trending_up,
       color: Colors.blue,
       playerStats: _playerAssists,
@@ -325,7 +365,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       validation: () {
         final totalPlayerAssists = _playerAssists.values.fold<int>(0, (sum, assists) => sum + assists);
         if (totalPlayerAssists > totalGoals) {
-          return 'Total assists ($totalPlayerAssists) cannot be more than goals ($totalGoals)';
+          return AppLocalizations.of(context)!.totalAssistsCannotExceed(totalPlayerAssists, totalGoals);
         }
         return null;
       },
@@ -334,7 +374,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
 
   Widget _buildCardsStep() {
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: Column(
         children: [
           Icon(
@@ -345,16 +385,17 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
           const SizedBox(height: 16),
           
           Text(
-            'Cards & Penalties',
+            AppLocalizations.of(context)!.cardsAndPenalties,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Track yellow and red cards',
+            AppLocalizations.of(context)!.trackYellowRedCards,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Colors.grey[600],
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),
@@ -430,70 +471,86 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             ),
           ),
           
-          // Yellow card button (max 2)
-          _buildCardButton(
-            Icons.rectangle,
-            Colors.yellow[700]!,
-            _playerYellowCards[player.id] ?? 0,
-            (value) => setState(() => _playerYellowCards[player.id] = value),
-            maxCount: 2,
-          ),
-          
-          const SizedBox(width: 8),
-          
-          // Red card button (max 1) 
-          _buildCardButton(
-            Icons.rectangle,
-            Colors.red,
-            _playerRedCards[player.id] ?? 0,
-            (value) => setState(() => _playerRedCards[player.id] = value),
-            maxCount: 1,
+          // Card buttons - clickable toggle design
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Yellow cards (up to 2)
+              _buildClickableCard(
+                player.id,
+                isYellow: true,
+                cardNumber: 1,
+                isActive: (_playerYellowCards[player.id] ?? 0) >= 1,
+              ),
+              const SizedBox(width: 6),
+              _buildClickableCard(
+                player.id,
+                isYellow: true,
+                cardNumber: 2,
+                isActive: (_playerYellowCards[player.id] ?? 0) >= 2,
+              ),
+              const SizedBox(width: 12),
+              // Red card (single)
+              _buildClickableCard(
+                player.id,
+                isYellow: false,
+                cardNumber: 1,
+                isActive: (_playerRedCards[player.id] ?? 0) >= 1,
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCardButton(IconData icon, Color color, int count, ValueChanged<int> onChanged, {int maxCount = 10}) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          onPressed: count > 0 ? () => onChanged(count - 1) : null,
-          icon: const Icon(Icons.remove_circle_outline, size: 20),
-          color: color,
-          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+  Widget _buildClickableCard(String playerId, {required bool isYellow, required int cardNumber, required bool isActive}) {
+    final baseColor = isYellow ? Colors.yellow[700]! : Colors.red;
+    final inactiveColor = Colors.grey[400]!;
+    
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (isYellow) {
+            final currentCount = _playerYellowCards[playerId] ?? 0;
+            if (cardNumber == 1) {
+              // Toggle first yellow card
+              _playerYellowCards[playerId] = isActive ? 0 : 1;
+            } else if (cardNumber == 2) {
+              // Toggle second yellow card (only if first is active)
+              if (currentCount >= 1) {
+                _playerYellowCards[playerId] = isActive ? 1 : 2;
+              }
+            }
+          } else {
+            // Toggle red card
+            _playerRedCards[playerId] = isActive ? 0 : 1;
+          }
+        });
+      },
+      child: Container(
+        width: 24,
+        height: 36,
+        decoration: BoxDecoration(
+          color: isActive 
+              ? (isYellow ? Colors.yellow[100] : Colors.red[100])
+              : Colors.grey[200],
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: isActive 
+                ? (isYellow ? Colors.yellow[800]! : Colors.red[800]!)
+                : Colors.grey[400]!,
+            width: 1.5,
+          ),
         ),
-        Container(
-          width: 40,
-          height: 40,
+        child: Container(
+          margin: const EdgeInsets.all(2),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: color.withValues(alpha: 0.3)),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: color, size: 16),
-              Text(
-                count.toString(),
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-            ],
+            color: isActive ? baseColor : inactiveColor,
+            borderRadius: BorderRadius.circular(2),
           ),
         ),
-        IconButton(
-          onPressed: count < maxCount ? () => onChanged(count + 1) : null,
-          icon: const Icon(Icons.add_circle_outline, size: 20),
-          color: count < maxCount ? color : Colors.grey,
-          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-        ),
-      ],
+      ),
     );
   }
 
@@ -511,14 +568,14 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
           const SizedBox(height: 24),
           
           Text(
-            'Playing Time',
+            AppLocalizations.of(context)!.playingTime,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Do you want to track individual playing time for each player?',
+            AppLocalizations.of(context)!.trackIndividualPlayingTime,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: Colors.grey[600],
             ),
@@ -537,7 +594,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
                     _nextStep();
                   },
                   icon: const Icon(Icons.check_circle),
-                  label: const Text('Yes, track playing time'),
+                  label: Text(AppLocalizations.of(context)!.yesTrackPlayingTime),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.all(16),
                   ),
@@ -554,7 +611,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
                     _nextStep();
                   },
                   icon: const Icon(Icons.skip_next),
-                  label: const Text('No, skip playing time'),
+                  label: Text(AppLocalizations.of(context)!.noSkipPlayingTime),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.all(16),
                   ),
@@ -580,14 +637,14 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
           const SizedBox(height: 16),
           
           Text(
-            'Playing Time',
+            AppLocalizations.of(context)!.playingTime,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Set minutes played for each player',
+            AppLocalizations.of(context)!.setMinutesPlayedEachPlayer,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: Colors.grey[600],
             ),
@@ -690,14 +747,14 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
           const SizedBox(height: 16),
           
           Text(
-            'Player Ratings',
+            AppLocalizations.of(context)!.playerRatings,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Rate each player\'s performance (1-10)',
+            AppLocalizations.of(context)!.ratePlayerPerformance,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: Colors.grey[600],
             ),
@@ -800,7 +857,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             children: [
               TextButton(
                 onPressed: () => setState(() => _playerRatings[player.id] = null),
-                child: const Text('Clear'),
+                child: Text(AppLocalizations.of(context)!.clear),
               ),
               TextButton(
                 onPressed: () => setState(() => _playerRatings[player.id] = 6.0),
@@ -848,55 +905,32 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
     required Function(String playerId, int value) onStatChanged,
     String? Function()? validation,
   }) {
-    // Group players by position with more flexible matching
-    final goalkeepers = _convocatedPlayers.where((p) => 
-        p.position.toLowerCase().contains('goalkeeper') || 
-        p.position.toLowerCase().contains('keeper') || 
-        p.position.toLowerCase().contains('gk') ||
-        // Italian terms
-        p.position.toLowerCase().contains('portiere')).toList();
-    final defenders = _convocatedPlayers.where((p) => 
-        p.position.toLowerCase().contains('defense') ||
-        p.position.toLowerCase().contains('defender') || 
-        p.position.toLowerCase().contains('back') ||
-        p.position.toLowerCase().contains('cb') ||
-        p.position.toLowerCase().contains('lb') ||
-        p.position.toLowerCase().contains('rb') ||
-        // Italian terms
-        p.position.toLowerCase().contains('difensore') ||
-        p.position.toLowerCase().contains('difesa') ||
-        p.position.toLowerCase().contains('centrale') ||
-        p.position.toLowerCase().contains('terzino')).toList();
-    final midfielders = _convocatedPlayers.where((p) => 
-        p.position.toLowerCase().contains('midfield') ||
-        p.position.toLowerCase().contains('midfielder') ||
-        p.position.toLowerCase().contains('mid') ||
-        p.position.toLowerCase().contains('cm') ||
-        p.position.toLowerCase().contains('dm') ||
-        p.position.toLowerCase().contains('am') ||
-        // Italian terms
-        p.position.toLowerCase().contains('centrocampista') ||
-        p.position.toLowerCase().contains('centrocampo') ||
-        p.position.toLowerCase().contains('mediano') ||
-        p.position.toLowerCase().contains('mezzala')).toList();
-    final forwards = _convocatedPlayers.where((p) => 
-        p.position.toLowerCase().contains('forward') || 
-        p.position.toLowerCase().contains('striker') ||
-        p.position.toLowerCase().contains('attacker') ||
-        p.position.toLowerCase().contains('winger') ||
-        p.position.toLowerCase().contains('lw') ||
-        p.position.toLowerCase().contains('rw') ||
-        p.position.toLowerCase().contains('cf') ||
-        // Italian terms
-        p.position.toLowerCase().contains('attaccante') ||
-        p.position.toLowerCase().contains('centravanti') ||
-        p.position.toLowerCase().contains('ala') ||
-        p.position.toLowerCase().contains('esterno')).toList();
+    // Group players by position matching the exact same logic as player form
+    // Attacco (Attack)
+    final attackPlayers = _convocatedPlayers.where((p) => 
+        _isAttackPosition(p.position)).toList();
     
-    // If position matching fails to categorize all players, put unmatched ones in a general section
-    final categorizedPlayers = [...goalkeepers, ...defenders, ...midfielders, ...forwards];
-    final uncategorizedPlayers = _convocatedPlayers.where((p) => 
-        !categorizedPlayers.any((cp) => cp.id == p.id)).toList();
+    // Centro Campo (Midfield)
+    final midfieldPlayers = _convocatedPlayers.where((p) => 
+        _isMidfieldPosition(p.position)).toList();
+    
+    // Difesa (Defense) - all remaining players including goalkeepers
+    final defenseePlayers = _convocatedPlayers.where((p) => 
+        _isDefensePosition(p.position)).toList();
+    
+    // Debug: Print player positions and categorization (remove in production)
+    if (kDebugMode) {
+      print('🔍 Match Stats Player Categorization:');
+      for (final player in _convocatedPlayers) {
+        final category = _isAttackPosition(player.position) 
+            ? 'Attack' 
+            : _isMidfieldPosition(player.position) 
+                ? 'Midfield' 
+                : 'Defense';
+        print('  ${player.firstName} ${player.lastName}: "${player.position}" → $category');
+      }
+      print('📊 Categories: Attack(${attackPlayers.length}), Midfield(${midfieldPlayers.length}), Defense(${defenseePlayers.length})');
+    }
     
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -958,18 +992,14 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
           Expanded(
             child: ListView(
               children: [
-                // Always show all position categories (Attack → Midfield → Defense → Other)
-                _buildPositionSection('Attack', forwards, playerStats, onStatChanged, color),
+                // Always show all 3 position categories (Attack → Midfield → Defense)
+                _buildPositionSection('Attack', attackPlayers, playerStats, onStatChanged, color),
                 const SizedBox(height: 16),
                 
-                _buildPositionSection('Midfield', midfielders, playerStats, onStatChanged, color),
+                _buildPositionSection('Midfield', midfieldPlayers, playerStats, onStatChanged, color),
                 const SizedBox(height: 16),
                 
-                _buildPositionSection('Defense', defenders, playerStats, onStatChanged, color),
-                const SizedBox(height: 16),
-                
-                // Combine goalkeepers and uncategorized players into "Other" category
-                _buildPositionSection('Other', [...goalkeepers, ...uncategorizedPlayers], playerStats, onStatChanged, color),
+                _buildPositionSection('Defense', defenseePlayers, playerStats, onStatChanged, color),
               ],
             ),
           ),
@@ -1125,7 +1155,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             Expanded(
               child: OutlinedButton(
                 onPressed: _previousStep,
-                child: const Text('Previous'),
+                child: Text(AppLocalizations.of(context)!.previous),
               ),
             ),
           
@@ -1160,7 +1190,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       final totalGoals = _playerGoals.values.fold<int>(0, (sum, goals) => sum + goals);
       final totalPlayerAssists = _playerAssists.values.fold<int>(0, (sum, assists) => sum + assists);
       if (totalPlayerAssists > totalGoals) {
-        _showValidationError('Total assists cannot be more than goals');
+        _showValidationError(AppLocalizations.of(context)!.totalAssistsCannotExceed(totalPlayerAssists, totalGoals));
         return;
       }
     }
@@ -1269,8 +1299,8 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Match status updated successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.matchStatusUpdated),
             backgroundColor: Colors.green,
           ),
         );
@@ -1279,7 +1309,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error updating match status: ${e.toString()}'),
+            content: Text(AppLocalizations.of(context)!.errorUpdatingMatch(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -1289,5 +1319,59 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  // Position categorization methods matching player form logic exactly
+  bool _isAttackPosition(String position) {
+    final pos = position.toLowerCase();
+    // Match the exact same positions as in player_form_bottom_sheet.dart Attacco section
+    return pos.contains('attaccante') ||
+           pos.contains('trequartista') ||
+           pos.contains('ala sinistra') ||
+           pos.contains('ala destra') ||
+           pos.contains('ala') ||
+           pos.contains('punta') ||
+           // English equivalents from player form - exact matches
+           pos.contains('striker') ||
+           pos.contains('attacking midfielder') ||
+           pos.contains('left winger') ||
+           pos.contains('right winger') ||
+           pos.contains('winger') ||
+           pos.contains('forward');
+  }
+
+  bool _isMidfieldPosition(String position) {
+    final pos = position.toLowerCase();
+    // Match the exact same positions as in player_form_bottom_sheet.dart Centro Campo section
+    return pos.contains('centrocampista centrale') ||
+           pos.contains('centrocampista') ||
+           pos.contains('mediano') ||
+           // English equivalents from player form - exact matches
+           pos.contains('central midfielder') ||
+           pos.contains('midfielder') ||
+           pos.contains('defensive midfielder');
+  }
+
+  bool _isDefensePosition(String position) {
+    final pos = position.toLowerCase();
+    // Match the exact same positions as in player_form_bottom_sheet.dart Difesa section
+    // This includes ALL remaining positions (goalkeepers, defenders, etc.)
+    return pos.contains('portiere') ||
+           pos.contains('difensore centrale') ||
+           pos.contains('difensore') ||
+           pos.contains('terzino sinistro') ||
+           pos.contains('terzino destro') ||
+           pos.contains('terzino') ||
+           pos.contains('quinto') ||
+           // English equivalents from player form - exact matches
+           pos.contains('goalkeeper') ||
+           pos.contains('center back') ||
+           pos.contains('defender') ||
+           pos.contains('left back') ||
+           pos.contains('right back') ||
+           pos.contains('full-back') ||
+           pos.contains('wing-back') ||
+           // Catch any unmatched positions to ensure all players are categorized
+           (!_isAttackPosition(position) && !_isMidfieldPosition(position));
   }
 }

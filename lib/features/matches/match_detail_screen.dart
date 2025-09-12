@@ -51,7 +51,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
           children: [
             Icon(Icons.sports_soccer, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 8),
-            Expanded(child: Text('Match vs ${match.opponent}')),
+            Expanded(child: Text('${AppLocalizations.of(context)!.matchVs} ${match.opponent}')),
           ],
         ),
         actions: [
@@ -66,23 +66,23 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         child: Column(
           children: [
             // 1. Match Stats Card (auto-generated from statistics)
             _buildMatchStatsCard(match, team, statistics),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             
             // 2. Match Status Card 
             _buildMatchStatusCard(match),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             
             // 3. Edit Convocated Players Button
             _buildConvocationEditCard(convocatedPlayers.length),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             
             // 4. Notes Section
             _buildNotesSection(context, ref, match),
@@ -101,7 +101,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     return Card(
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -119,7 +119,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               ],
             ),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             
             // Match Info
             Container(
@@ -166,7 +166,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               ),
             ),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             
             // Auto-generated stats
             if (statistics.isNotEmpty) ...[
@@ -251,7 +251,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     return Card(
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -268,7 +268,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               ],
             ),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             
             Row(
               children: [
@@ -308,8 +308,8 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 onPressed: () => _showMatchStatusForm(match),
                 icon: const Icon(Icons.sports_score),
                 label: Text(match.status == MatchStatus.scheduled 
-                  ? 'Start Match Status Form' 
-                  : 'Update Match Status'),
+                  ? AppLocalizations.of(context)!.startMatchStatusForm 
+                  : AppLocalizations.of(context)!.updateMatchStatus),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.all(16),
                 ),
@@ -359,7 +359,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     return Card(
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -368,7 +368,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 Icon(Icons.group, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  'Convocated Players',
+                  AppLocalizations.of(context)!.convocatedPlayers,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -376,7 +376,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               ],
             ),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             
             Container(
               padding: const EdgeInsets.all(16),
@@ -415,7 +415,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               ),
             ),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             
             Text(
               'Edit convocations in case of errors or players not coming to the scheduled match.',
@@ -424,7 +424,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               ),
             ),
             
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             
             SizedBox(
               width: double.infinity,
@@ -509,12 +509,12 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Match'),
-        content: Text('Are you sure you want to delete the match vs ${match.opponent}?'),
+        title: Text(AppLocalizations.of(context)!.deleteMatch),
+        content: Text(AppLocalizations.of(context)!.deleteMatchConfirm(match.opponent)),
         actions: [
           TextButton(
             onPressed: () => context.pop(),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -544,7 +544,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 context.go('/matches');
               }
             },
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -600,7 +600,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     return Card(
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -624,7 +624,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             if (notes.isEmpty)
               Center(
                 child: Column(
@@ -694,23 +694,23 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit',
                     child: Row(
                       children: [
                         Icon(Icons.edit, size: 18),
                         SizedBox(width: 8),
-                        Text('Edit'),
+                        Text(AppLocalizations.of(context)!.edit),
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'delete',
                     child: Row(
                       children: [
                         Icon(Icons.delete, size: 18, color: Colors.red),
                         SizedBox(width: 8),
-                        Text('Delete', style: TextStyle(color: Colors.red)),
+                        Text(AppLocalizations.of(context)!.delete, style: TextStyle(color: Colors.red)),
                       ],
                     ),
                   ),
@@ -782,7 +782,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 ],
               ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               
               // Text input
               TextField(
@@ -798,7 +798,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 ),
               ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               
               // Action buttons
               Row(
@@ -806,7 +806,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -895,7 +895,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 ],
               ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               
               // Text input
               TextField(
@@ -911,7 +911,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 ),
               ),
               
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               
               // Action buttons
               Row(
@@ -919,7 +919,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -948,7 +948,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                           }
                         }
                       },
-                      child: const Text('Update Note'),
+                      child: Text(AppLocalizations.of(context)!.updateNote),
                     ),
                   ),
                 ],
@@ -965,11 +965,11 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.deleteNote),
-        content: const Text('Are you sure you want to delete this note?'),
+        content: Text(AppLocalizations.of(context)!.deleteNoteConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -984,7 +984,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 setState(() {}); // Refresh to remove deleted note
               }
             },
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),

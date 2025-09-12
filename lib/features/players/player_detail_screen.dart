@@ -54,6 +54,8 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
                   teamId: player.teamId,
                   player: player,
                   onSaved: () {
+                    // Increment refresh counter to trigger UI updates across all screens
+                    ref.read(refreshCounterProvider.notifier).increment();
                     // Force rebuild of the detail screen
                     if (mounted) {
                       setState(() {});
@@ -115,6 +117,9 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
                         ref.invalidate(noteRepositoryProvider);
                         ref.invalidate(matchStatisticRepositoryProvider);
                         ref.invalidate(matchConvocationRepositoryProvider);
+                        
+                        // Increment refresh counter to trigger UI updates
+                        ref.read(refreshCounterProvider.notifier).increment();
                         
                         if (context.mounted) {
                           context.pop(); // Close dialog

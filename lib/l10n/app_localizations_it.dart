@@ -363,6 +363,9 @@ class AppLocalizationsIt extends AppLocalizations {
   String get editConvocatedPlayers => 'Modifica Giocatori Convocati';
 
   @override
+  String get convocatedPlayers => 'Giocatori Convocati';
+
+  @override
   String get deleteMatch => 'Elimina Partita';
 
   @override
@@ -407,6 +410,77 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get matchStatusUpdated => 'Stato partita aggiornato con successo!';
+
+  @override
+  String get startMatchStatusForm => 'Inizia Modulo Stato Partita';
+
+  @override
+  String get updateMatchStatus => 'Aggiorna Stato Partita';
+
+  @override
+  String get matchResult => 'Risultato Partita';
+
+  @override
+  String get enterFinalScore => 'Inserisci il punteggio finale';
+
+  @override
+  String get goalsDetail => 'Dettaglio Goal';
+
+  @override
+  String get whoScoredGoals => 'Chi ha segnato i goal?';
+
+  @override
+  String get assistsCount => 'Conteggio Assist';
+
+  @override
+  String get whoProvidedAssists => 'Chi ha fornito gli assist?';
+
+  @override
+  String get cardsAndPenalties => 'Cartellini e Sanzioni';
+
+  @override
+  String get trackYellowRedCards => 'Traccia cartellini gialli e rossi';
+
+  @override
+  String get playingTime => 'Tempo di Gioco';
+
+  @override
+  String get choosePlayingTimeTracking =>
+      'Scegli il tracciamento del tempo di gioco';
+
+  @override
+  String get setMinutesEachPlayer => 'Imposta minuti per ogni giocatore';
+
+  @override
+  String get playerRatings => 'Valutazioni Giocatori';
+
+  @override
+  String get ratePlayerPerformance =>
+      'Valuta le prestazioni di ogni giocatore (1-10)';
+
+  @override
+  String get yesTrackPlayingTime => 'Sì, traccia tempo di gioco';
+
+  @override
+  String get noSkipPlayingTime => 'No, salta tempo di gioco';
+
+  @override
+  String get trackIndividualPlayingTime =>
+      'Vuoi tracciare il tempo di gioco individuale per ogni giocatore?';
+
+  @override
+  String get setMinutesPlayedEachPlayer =>
+      'Imposta i minuti giocati per ogni giocatore';
+
+  @override
+  String totalGoalsMustEqual(Object matchGoals, Object totalGoals) {
+    return 'Total goal ($totalGoals) deve essere uguale al risultato partita ($matchGoals)';
+  }
+
+  @override
+  String totalAssistsCannotExceed(Object totalAssists, Object totalGoals) {
+    return 'Total assist ($totalAssists) non può essere maggiore dei goal ($totalGoals)';
+  }
 
   @override
   String errorUpdatingMatch(String error) {
@@ -523,9 +597,6 @@ class AppLocalizationsIt extends AppLocalizations {
   String get result => 'Risultato';
 
   @override
-  String get goalsDetail => 'Dettaglio Goal';
-
-  @override
   String get assistsDetail => 'Dettaglio Assist';
 
   @override
@@ -536,7 +607,4 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get playingTimeDetail => 'Dettaglio Tempo di Gioco';
-
-  @override
-  String get playerRatings => 'Valutazioni Giocatori';
 }

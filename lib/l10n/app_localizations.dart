@@ -794,6 +794,12 @@ abstract class AppLocalizations {
   /// **'Edit Convocated Players'**
   String get editConvocatedPlayers;
 
+  /// No description provided for @convocatedPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Convocated Players'**
+  String get convocatedPlayers;
+
   /// No description provided for @deleteMatch.
   ///
   /// In en, this message translates to:
@@ -877,6 +883,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Match status updated successfully!'**
   String get matchStatusUpdated;
+
+  /// No description provided for @startMatchStatusForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Match Status Form'**
+  String get startMatchStatusForm;
+
+  /// No description provided for @updateMatchStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Match Status'**
+  String get updateMatchStatus;
+
+  /// No description provided for @matchResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Result'**
+  String get matchResult;
+
+  /// No description provided for @enterFinalScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the final score'**
+  String get enterFinalScore;
+
+  /// No description provided for @goalsDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals Detail'**
+  String get goalsDetail;
+
+  /// No description provided for @whoScoredGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Who scored the goals?'**
+  String get whoScoredGoals;
+
+  /// No description provided for @assistsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Assists Count'**
+  String get assistsCount;
+
+  /// No description provided for @whoProvidedAssists.
+  ///
+  /// In en, this message translates to:
+  /// **'Who provided the assists?'**
+  String get whoProvidedAssists;
+
+  /// No description provided for @cardsAndPenalties.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards & Penalties'**
+  String get cardsAndPenalties;
+
+  /// No description provided for @trackYellowRedCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Track yellow and red cards'**
+  String get trackYellowRedCards;
+
+  /// No description provided for @playingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing Time'**
+  String get playingTime;
+
+  /// No description provided for @choosePlayingTimeTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose playing time tracking'**
+  String get choosePlayingTimeTracking;
+
+  /// No description provided for @setMinutesEachPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Set minutes for each player'**
+  String get setMinutesEachPlayer;
+
+  /// No description provided for @playerRatings.
+  ///
+  /// In en, this message translates to:
+  /// **'Player Ratings'**
+  String get playerRatings;
+
+  /// No description provided for @ratePlayerPerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate each player\'s performance (1-10)'**
+  String get ratePlayerPerformance;
+
+  /// No description provided for @yesTrackPlayingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, track playing time'**
+  String get yesTrackPlayingTime;
+
+  /// No description provided for @noSkipPlayingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'No, skip playing time'**
+  String get noSkipPlayingTime;
+
+  /// No description provided for @trackIndividualPlayingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to track individual playing time for each player?'**
+  String get trackIndividualPlayingTime;
+
+  /// No description provided for @setMinutesPlayedEachPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Set minutes played for each player'**
+  String get setMinutesPlayedEachPlayer;
+
+  /// No description provided for @totalGoalsMustEqual.
+  ///
+  /// In en, this message translates to:
+  /// **'Total goals ({totalGoals}) must equal match result ({matchGoals})'**
+  String totalGoalsMustEqual(Object matchGoals, Object totalGoals);
+
+  /// No description provided for @totalAssistsCannotExceed.
+  ///
+  /// In en, this message translates to:
+  /// **'Total assists ({totalAssists}) cannot be more than goals ({totalGoals})'**
+  String totalAssistsCannotExceed(Object totalAssists, Object totalGoals);
 
   /// No description provided for @errorUpdatingMatch.
   ///
@@ -1082,12 +1214,6 @@ abstract class AppLocalizations {
   /// **'Result'**
   String get result;
 
-  /// No description provided for @goalsDetail.
-  ///
-  /// In en, this message translates to:
-  /// **'Goals Detail'**
-  String get goalsDetail;
-
   /// No description provided for @assistsDetail.
   ///
   /// In en, this message translates to:
@@ -1111,12 +1237,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Playing Time Detail'**
   String get playingTimeDetail;
-
-  /// No description provided for @playerRatings.
-  ///
-  /// In en, this message translates to:
-  /// **'Player Ratings'**
-  String get playerRatings;
 }
 
 class _AppLocalizationsDelegate

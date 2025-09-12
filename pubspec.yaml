@@ -1,0 +1,40 @@
+name: coachmaster
+description: "Professional sports team management application for coaches to manage players, training sessions, matches, and team statistics."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+  flutter_riverpod: ^3.0.0
+  go_router: ^16.2.1
+  # Keeping Hive temporarily for migration
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  # Firebase dependencies
+  firebase_core: ^4.1.0
+  firebase_auth: ^6.0.2
+  cloud_firestore: ^6.0.1
+  image_picker: ^1.1.2
+  path_provider: ^2.1.3
+  path: ^1.9.0
+  crypto: ^3.0.3
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.11
+
+
+flutter:
+  uses-material-design: true
+  generate: true

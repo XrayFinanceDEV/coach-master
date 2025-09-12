@@ -1,0 +1,595 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+CoachMaster is a modern Flutter sports team management application designed for coaches to manage players, training sessions, matches, and team statistics. Built with a professional dark theme and orange accent colors, featuring modern UI components and intuitive navigation. Currently uses local Hive storage with plans to migrate to Firebase.
+
+## Development Commands
+
+### Flutter Development
+- `flutter run` - Run the app in development mode
+- `flutter analyze` - Static analysis of Dart code
+- `flutter test` - Run unit and widget tests
+- `flutter build apk` - Build Android APK
+- `flutter build ios` - Build iOS app
+- `flutter build web` - Build web version
+
+### Code Generation
+- `flutter packages pub run build_runner build` - Generate Hive adapters and other code
+- `flutter packages pub run build_runner watch` - Watch for changes and auto-generate code
+
+### Dependencies
+- `flutter pub get` - Install dependencies
+- `flutter pub upgrade` - Upgrade dependencies
+
+## Project Architecture
+
+### Tech Stack
+- **Framework**: Flutter 3.35.2+ with Dart
+- **State Management**: Riverpod 2.5.1 for reactive state management
+- **Navigation**: GoRouter 14.1.4 with StatefulShellRoute for persistent tabs
+- **Local Storage**: Hive 2.2.3 with type adapters (migrating to Firebase)
+- **UI Framework**: Material Design 3.0 with custom dark theme
+- **Theme System**: Centralized AppColors class with orange (#FF7F00) primary color
+- **Code Generation**: build_runner for Hive adapters and model serialization
+
+### Code Structure
+
+#### Core Architecture
+- `lib/main.dart` - App entry point with Hive initialization and repository setup
+- `lib/core/` - Core app components (theme, router, initialization)
+  - `theme.dart` - Centralized dark theme with AppColors class
+  - `router.dart` - Navigation configuration with all screen definitions
+  - `repository_instances.dart` - Dependency injection for repositories
+  - `app_initialization.dart` - Startup logic and Hive setup
+- `lib/models/` - Data models with Hive type adapters (.g.dart files auto-generated)
+- `lib/services/` - Repository pattern for data access
+- `lib/features/` - Feature-based organization with screens and widgets
+  - `dashboard/` - Home screen with speed dial FAB and widgets
+  - `players/` - Enhanced player management with hero-style cards
+  - `trainings/` - Training sessions with bottom sheet forms
+  - `matches/` - Match management and statistics
+  - `seasons/` - Season administration
+  - `onboarding/` - User onboarding flow
+- `lib/l10n/` - Internationalization and localization files
+
+#### Data Layer
+The app uses a repository pattern with Hive for local storage:
+- Each model has a corresponding repository in `lib/services/`
+- Models use Hive annotations and code generation
+- All repositories follow the same pattern: `init()`, `getAll()`, `get(id)`, `add()`, `update()`, `delete()`
+
+#### Navigation Structure
+Uses GoRouter with StatefulShellRoute for persistent bottom navigation:
+- 5 main tabs: Home, Players, Trainings, Matches, Settings
+- Nested routing for detail screens
+- Tab persistence when navigating between sections
+
+### Key Models
+- **Season**: Sports seasons (July-June format)
+- **Team**: Teams within seasons
+- **Player**: Individual players with photos and statistics
+- **Training**: Training sessions with attendance tracking
+- **Match**: Matches with convocations and statistics
+- **Note**: Flexible note system for players and trainings with CRUD operations
+- **TrainingAttendance**: Attendance records for training sessions
+- **MatchConvocation**: Player convocations for matches
+- **MatchStatistic**: Individual player statistics per match
+
+## Design System & UI Patterns
+
+### Theme System
+The app uses a centralized theme system in `lib/core/theme.dart`:
+```dart
+class AppColors {
+  static const Color primary = Color(0xFFFF7F00); // Orange
+  static const Color secondary = Color(0xFF607D8B); // Blue Grey
+  static const Color darkBackground = Color(0xFF121212);
+  static const Color darkSurface = Color(0xFF1E1E1E);
+}
+
+final appTheme = ThemeData(
+  useMaterial3: true,
+  brightness: Brightness.dark,
+  colorScheme: const ColorScheme.dark(
+    primary: AppColors.primary,
+    secondary: AppColors.secondary,
+    surface: AppColors.darkSurface,
+  ),
+  // ... other theme properties
+);
+```
+
+### Modern UI Components
+
+#### Bottom Sheets (Preferred over Dialogs)
+Use `showModalBottomSheet` with `DraggableScrollableSheet` for forms:
+```dart
+showModalBottomSheet(
+  context: context,
+  isScrollControlled: true,
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  ),
+  builder: (context) => DraggableScrollableSheet(
+    initialChildSize: 0.9,
+    maxChildSize: 0.95,
+    minChildSize: 0.5,
+    expand: false,
+    builder: (context, scrollController) => Container(
+      padding: EdgeInsets.only(
+        left: 16, right: 16, top: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: // Form content with handle bar
+    ),
+  ),
+);
+```
+
+#### Carousel Components
+Use `PageView.builder` with dot indicators for card carousels:
+```dart
+PageView.builder(
+  controller: pageController,
+  onPageChanged: (page) => setState(() => currentPage = page),
+  itemCount: (items.length / 2).ceil(),
+  itemBuilder: (context, pageIndex) {
+    // Show 2 cards per page
+    final startIndex = pageIndex * 2;
+    final pageItems = items.sublist(startIndex, math.min(startIndex + 2, items.length));
+    return Row(
+      children: pageItems.map((item) => Expanded(child: ItemCard(item))).toList(),
+    );
+  },
+);
+```
+
+#### Consistent Headers
+All screens should use orange icon + screen name pattern:
+```dart
+AppBar(
+  title: Row(
+    children: [
+      Icon(Icons.screen_icon, color: Theme.of(context).colorScheme.primary),
+      const SizedBox(width: 8),
+      const Text('Screen Name'),
+    ],
+  ),
+),
+```
+
+#### Speed Dial FAB
+Expandable floating action button with sub-actions:
+```dart
+Column(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    if (isSpeedDialOpen) ...subActionButtons,
+    FloatingActionButton(
+      onPressed: () => setState(() => isSpeedDialOpen = !isSpeedDialOpen),
+      child: AnimatedRotation(
+        turns: isSpeedDialOpen ? 0.125 : 0,
+        duration: const Duration(milliseconds: 300),
+        child: Icon(isSpeedDialOpen ? Icons.close : Icons.add),
+      ),
+    ),
+  ],
+);
+```
+
+### Development Patterns
+
+#### Repository Pattern
+All data access goes through repository classes:
+```dart
+// Example repository usage
+final teamRepo = ref.watch(teamRepositoryProvider);
+final teams = teamRepo.getTeamsForSeason(seasonId);
+
+// Notes repository usage
+final noteRepo = ref.watch(noteRepositoryProvider);
+final notes = noteRepo.getNotesForPlayer(playerId);
+```
+
+#### Model Creation
+Models use factory constructors for creation with auto-generated IDs:
+```dart
+Team.create(name: "Team Name", seasonId: seasonId)
+Note.create(content: "Note content", type: NoteType.player)
+```
+
+#### State Management with Riverpod
+Use Consumer widgets for reactive UI updates:
+```dart
+class MyWidget extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(dataProvider);
+    return // UI that rebuilds when data changes
+  }
+}
+```
+
+#### Notes System Integration
+When implementing notes functionality in new screens:
+```dart
+// Get notes for entity
+final noteRepository = ref.watch(noteRepositoryProvider);
+final notes = noteRepository.getNotesForLinkedItem(entityId, linkedType: 'entity_type');
+
+// Create note
+await noteRepository.createQuickNote(
+  content: content,
+  type: NoteType.entity,
+  linkedId: entityId,
+  linkedType: 'entity_type',
+);
+```
+
+#### Code Generation
+The project uses build_runner for generating:
+- Hive type adapters (`.g.dart` files)
+- Other code generation as needed
+
+Run `flutter packages pub run build_runner build --delete-conflicting-outputs` after modifying model annotations.
+
+### File Organization
+- Follow the existing feature-based structure in `lib/features/`
+- Each feature has list and detail screens
+- Keep models in `lib/models/` with corresponding repositories in `lib/services/`
+- Core utilities and shared components in `lib/core/`
+
+## Data Synchronization Architecture
+
+### Core Sync Patterns
+The app uses a sophisticated synchronization system to ensure UI consistency across all screens when data changes:
+
+#### Central Refresh Counter System
+```dart
+// Core counter provider in repository_instances.dart
+final refreshCounterProvider = StateProvider<int>((ref) => 0);
+
+// All reactive providers watch this counter
+final playerListProvider = Provider<List<Player>>((ref) {
+  final repo = ref.watch(playerRepositoryProvider);
+  ref.watch(refreshCounterProvider); // Force rebuild when counter changes
+  return repo.getPlayers();
+});
+```
+
+#### Screen-Level Reactivity
+All list screens watch the refresh counter for automatic rebuilds:
+```dart
+@override
+Widget build(BuildContext context) {
+  final counter = ref.watch(refreshCounterProvider); // Triggers rebuild
+  final items = ref.watch(itemListProvider); // Gets fresh data
+  // ... build UI
+}
+```
+
+### Sync Operation Patterns
+
+#### Add Operations
+**Pattern**: `Repository.add()` → `refreshCounter++` → `onSaved callback`
+```dart
+final newItem = Item.create(/*...*/);
+await repository.addItem(newItem);
+ref.read(refreshCounterProvider.notifier).state++; // Increment counter
+Navigator.pop(); // Close form
+ScaffoldMessenger.showSnackBar(/*success message*/);
+```
+
+#### Edit Operations  
+**Pattern**: `Repository.update()` → `refreshCounter++` → `setState()` → `provider invalidation`
+```dart
+onSaved: () {
+  final currentCounter = ref.read(refreshCounterProvider.notifier).state;
+  ref.read(refreshCounterProvider.notifier).state++;
+  print('🟢 Refresh counter incremented from $currentCounter to $newCounter');
+  
+  ref.invalidate(repositoryProvider); // Optional provider invalidation
+  if (mounted) {
+    setState(() {}); // Force local rebuild
+  }
+},
+```
+
+#### Delete Operations
+**Pattern**: `Repository.delete()` → `cleanup related data` → `provider invalidation` → `refreshCounter++` → `navigation`
+```dart
+// Delete main entity
+await repository.deleteItem(item.id);
+
+// Clean up related data across repositories
+await relatedRepository1.deleteRelatedData(item.id);
+await relatedRepository2.deleteRelatedData(item.id);
+
+// Invalidate affected providers
+ref.invalidate(repositoryProvider);
+ref.invalidate(relatedRepositoryProvider);
+
+if (context.mounted) {
+  context.pop(); // Close dialog
+  context.go('/items'); // Navigate back to list
+}
+```
+
+### Sync Best Practices
+- **Refresh Counter is Central**: Main synchronization mechanism across all screens
+- **Provider Invalidation**: Used for immediate updates in complex operations
+- **Cleanup Pattern**: Delete operations always clean related data across repositories
+- **Navigation After Delete**: Detail screens navigate to list screens after successful deletion
+- **Debug Logging**: Extensive logging with colored prefixes (🟢🔵🟦) for tracking sync operations
+- **Mounted Checks**: Always verify `mounted` before calling `setState()` or navigation
+- **Async Operations**: All repository operations use proper `async`/`await` patterns
+
+### Settings Screen Architecture (Latest Update)
+- **Fixed Season System**: Default "2025-26" season, non-editable with preview of "2026-27 (Coming Soon)"
+- **Team Selector Integration**: Dropdown combines existing teams with "Create New Team" option
+- **Streamlined Management**: Removed redundant "Manage Teams" button, simplified to team selection/creation only
+- **Auto-Creation Logic**: Automatically creates 2025-26 season if it doesn't exist
+
+## Current Features & Recent Improvements
+
+### Match Management System (Latest)
+- **Match Status Form**: Multi-step wizard for match statistics with 6-7 steps
+  - Step 1: Match result (goals for/against)
+  - Step 2: Goals detail by player with position-based grouping (Attack → Midfield → Defense)
+  - Step 3: Assists tracking with validation (cannot exceed goals)
+  - Step 4: Cards management with limits (max 2 yellow, max 1 red per player)
+  - Step 5: Playing time choice (optional detailed tracking)
+  - Step 6: Playing time sliders (if enabled)
+  - Step 7: Player ratings (1-10 scale with 0.5 increments, always-visible sliders)
+- **Convocation Management**: Bottom sheet for selecting match participants with green highlight
+- **Statistics Persistence**: Load existing data when editing match status (no more starting from 0)
+- **Image Handling**: Robust player image display across all match forms with platform detection
+- **UI Consistency**: Same image handling pattern as Players screen with proper fallbacks
+
+### Dashboard & Match Screen Improvements (Latest)
+- **Comprehensive Team Statistics**: Enhanced dashboard statistics with 8 key metrics
+  - Row 1: Matches, Wins, Draws, Losses
+  - Row 2: Goals For, Goals Against, Goal Difference, Win Rate
+  - Moved from matches screen to dashboard for better overview
+- **Matches Screen Redesign**: Cleaner layout with team stats removed
+  - Add Match button moved to bottom of matches list (like Add Training pattern)
+  - Removed duplicate statistics display
+  - Focused on match list and management
+- **Redesigned Leaderboards**: Complete overhaul of top 5 players section
+  - Single full-width cards instead of 2x2 grid layout
+  - Up to 5 player rows per category (Attack, Midfield, Defense)
+  - Match-steps style player rows with avatars and stat badges
+  - Position-based ranking with gold/silver/bronze badges
+  - Clickable player navigation to detail screens
+
+### Comprehensive Notes System (Enhanced)
+- **Note Model**: Dedicated Note model with Hive type adapters and full CRUD operations
+- **Repository Pattern**: NoteRepository with methods for player, training, and match notes
+- **Bottom Sheet Input Forms**: Modern draggable forms for adding/editing/deleting notes
+- **Notes Cards**: Professional UI cards with popup menus for note management
+- **Cross-Feature Integration**: Notes work consistently across player, training, and match screens
+- **Match Notes Support**: Complete notes system integration in match detail screens
+- **Real-Time Updates**: Immediate UI refresh after note operations
+
+### Training Management Modernization
+- **Bottom Sheet Forms**: Replaced all training dialogs with modern bottom sheet forms
+- **Single-Team Workflow**: Removed team selection field - coach works with one selected team
+- **TrainingFormBottomSheet**: Shared widget for both add and edit training operations
+- **No Coach Notes Field**: Legacy coach notes removed in favor of dedicated Notes system
+- **Consistent Styling**: Material Design 3 with OutlinedButton/FilledButton pattern
+- **Keyboard Handling**: Proper form validation and on-screen keyboard support
+
+### Enhanced Player Detail Screen
+- **Notes Section**: Complete notes management with add/edit/delete functionality
+- **Modern Note Cards**: Elevated cards with timestamps and popup menus
+- **Note Item UI**: Orange-themed containers with proper spacing and typography
+- **Bottom Sheet Input**: Consistent note input forms with handle bars and validation
+
+### Enhanced Training Detail Screen
+- **Replicated Notes System**: Same notes functionality as player detail screen
+- **Modern Edit Forms**: Training editing now uses bottom sheet instead of dialog
+- **Consistent UI**: Same note management patterns across all screens
+- **Data Preservation**: Existing coach notes preserved during form updates
+
+### Critical Bug Fixes & System Improvements (Latest)
+- **Player Stats Update Fix**: Fixed missing player statistics aggregation after match completion
+  - Added automatic calculation of total goals, assists, and average ratings
+  - Updates all team players' stats when matches are completed
+  - Resolved empty leaderboards issue despite completed matches
+- **Position Categorization Enhancement**: Improved multi-step match form player grouping
+  - Always display all 4 categories (Attack, Midfield, Defense, Other) regardless of player distribution
+  - Added comprehensive Italian position term support (attaccante, centrocampista, difensore, portiere)
+  - Enhanced position matching logic for bilingual team management
+  - Empty categories show helpful "No players in this category" message
+- **Icon Consistency**: Standardized assist icons to use `Icons.trending_up` across all screens
+- **Convocation Memory Fix**: Fixed convocation management to remember previously selected players
+- **Italian Localization**: Improved "Top Scorers" translation from "Migliori Marcatori" to "Migliori Cannonieri"
+
+### Dashboard Enhancements
+- **Speed Dial FAB**: Expandable floating action button with 3 sub-actions (Add Player, Add Training, Add Match)
+- **Enhanced Team Statistics**: 2-row, 4-column layout with comprehensive match and team data
+- **Player Carousel**: Swipeable player cards showing 2 cards per view with dot pagination
+- **Mobile Responsive**: Fixed overflow errors and optimized for mobile screens
+
+### Enhanced Player Management (Latest Update)
+- **Card-Based Player Screen**: Complete redesign with 2 players per row in hero-style cards
+- **Italian Football Terminology**: Professional position organization with authentic Italian terms
+- **Position Filtering System**: Smart filter buttons (Tutti/Attacco/Centrocampo/Difesa) for quick navigation
+- **Logical Football Organization**: Players grouped by position (Attacco → Centro Campo → Difesa)
+- **Bilingual Support**: Dynamic Italian/English labels based on app language settings
+- **No "Other" Categories**: All players properly categorized into the three main football sections
+- **Position Hierarchy Sorting**: Players within each section ordered by football importance
+- **Hero-Style Player Cards**: Large background images (200px height) with overlay information
+- **Orange Stats Badges**: Goals and assists displayed as floating badges on player images
+- **Bottom Sheet Forms**: Modern draggable forms with organized position dropdowns
+- **Player Detail Redesign**: Stunning visual design with background images and stat overlays
+- **Speed Dial Integration**: Quick player creation from dashboard with automatic navigation
+
+### Modern UI Components
+- **Bottom Sheets**: All forms now use `DraggableScrollableSheet` with handle bars
+- **Consistent Headers**: Orange icons with screen names across all AppBars
+- **Dark Theme**: Professional dark theme with orange (#FF7F00) accent colors
+- **Card-Based Design**: Elevated cards with proper spacing and rounded corners
+
+### Settings & Internationalization
+- **Language Selection**: Multi-language dropdown with flag emojis (5 languages supported)
+- **Theme Controls**: Dark mode toggle and notification preferences (ready for implementation)
+- **Team Management**: Comprehensive season and team administration tools
+
+### Navigation & UX
+- **Persistent Bottom Tabs**: 5 main sections with tab persistence
+- **Improved Routing**: Enhanced GoRouter configuration with nested routes
+- **Form Validation**: Better user feedback and error handling
+- **Loading States**: Visual feedback for user interactions
+
+## Italian Football Position System (Latest Feature)
+
+### **Position Organization & Terminology**
+The app now uses authentic Italian football terminology with professional position hierarchy:
+
+**🔥 Attacco (Attack Section):**
+1. **Attaccante** - Striker (main goalscorer)
+2. **Trequartista** - Attacking Midfielder/False 9
+3. **Ala Sinistra** - Left Winger
+4. **Ala Destra** - Right Winger  
+5. **Ala** - General Winger
+6. **Punta** - Center Forward
+
+**⚽ Centro Campo (Midfield Section):**
+7. **Centrocampista Centrale** - Central Midfielder
+8. **Centrocampista** - General Midfielder
+9. **Mediano** - Defensive Midfielder/Holding Midfielder
+
+**🛡️ Difesa (Defense Section):**
+10. **Portiere** - Goalkeeper (listed first in defense)
+11. **Difensore Centrale** - Center Back
+12. **Difensore** - General Defender
+13. **Terzino Sinistro** - Left Back
+14. **Terzino Destro** - Right Back
+15. **Terzino** - General Fullback
+16. **Quinto** - Wing Back/Wingback
+
+### **Bilingual Support Implementation**
+```dart
+String _getLocalizedFilterLabel(BuildContext context, String filterKey) {
+  final currentLocale = Localizations.localeOf(context).languageCode;
+  
+  if (currentLocale == 'it') {
+    switch (filterKey) {
+      case 'all': return 'Tutti';
+      case 'attack': return 'Attacco';
+      case 'midfield': return 'Centrocampo';
+      case 'defense': return 'Difesa';
+    }
+  } else {
+    // English equivalents...
+  }
+}
+```
+
+### **Position Filtering & Organization**
+- **Smart Filtering**: Filter buttons adapt to app language (Italian/English)
+- **No "Other" Category**: All positions categorized into the three main football sections
+- **Position Hierarchy**: Players within sections ordered by football importance
+- **Dual Language Support**: English and Italian position terms recognized
+- **Clean UI**: Professional football organization without confusion
+
+## Development Guidelines
+
+### Mobile-First Design
+- Always test on mobile screen sizes first
+- Use responsive padding and margins
+- Implement overflow protection with proper constraints
+- Prefer bottom sheets over dialogs for better mobile UX
+
+### Consistency Rules
+- Use `Theme.of(context).colorScheme.primary` for orange accents
+- Include handle bars in bottom sheets for draggability
+- Follow the orange icon + screen name pattern for all AppBars
+- Use 8px spacing between icon and text in headers
+- Implement proper keyboard padding with `MediaQuery.of(context).viewInsets.bottom`
+- Use `OutlinedButton` for cancel actions and `FilledButton` for primary actions
+- Always include popup menus for note management (edit/delete options)
+- Preserve existing data when updating models (e.g., coachNotes field in Training)
+- Use green highlights for selected/convocated items instead of orange to avoid UI confusion
+- Position action buttons at bottom of lists (like Add Training/Add Match) for consistent UX
+- Use `Icons.trending_up` for all assist-related displays for consistency
+- Always show all position categories in match forms regardless of player distribution
+
+### Match Statistics & Player Updates
+**Critical Pattern**: Always update player aggregate statistics after match completion:
+```dart
+// After saving match statistics, update all team players' aggregate stats
+final playerRepository = ref.read(playerRepositoryProvider);
+final allMatchStats = statisticRepository.getStatistics();
+final teamPlayers = playerRepository.getPlayersForTeam(teamId);
+for (final player in teamPlayers) {
+  await playerRepository.updatePlayerStatisticsFromMatchStats(player.id, allMatchStats);
+}
+```
+
+### Multilingual Position Support
+Support both English and Italian position terms in categorization logic:
+```dart
+// Example for forwards/attackers
+final forwards = players.where((p) => 
+    p.position.toLowerCase().contains('forward') || 
+    p.position.toLowerCase().contains('striker') ||
+    p.position.toLowerCase().contains('attacker') ||
+    // Italian terms
+    p.position.toLowerCase().contains('attaccante') ||
+    p.position.toLowerCase().contains('centravanti')).toList();
+```
+
+### Performance Considerations
+- Use `ValueKey` for images to force rebuilds when photos change: `key: ValueKey('${player.id}-${player.photoPath}')`
+- Implement proper dispose methods for controllers (PageController, etc.)
+- Use `Expanded` widgets to prevent overflow in flexible layouts
+- Optimize image loading with proper error handling and platform detection
+- Watch `playerImageUpdateProvider` for automatic rebuilds when player images change
+
+### Image Handling Best Practices
+Always use the robust image pattern from the Players screen for consistent display:
+```dart
+CircleAvatar(
+  key: ValueKey('${player.id}-${player.photoPath}'), // Force rebuild when photo changes
+  radius: 24,
+  backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+  backgroundImage: player.photoPath != null && player.photoPath!.isNotEmpty
+      ? (kIsWeb && (player.photoPath!.startsWith('data:') || player.photoPath!.startsWith('blob:') || player.photoPath!.startsWith('http'))
+          ? NetworkImage(player.photoPath!) as ImageProvider
+          : (!kIsWeb ? FileImage(File(player.photoPath!)) as ImageProvider : null))
+      : null,
+  child: player.photoPath == null || player.photoPath!.isEmpty ||
+      (kIsWeb && !player.photoPath!.startsWith('data:') && !player.photoPath!.startsWith('blob:') && !player.photoPath!.startsWith('http'))
+      ? Text(
+          '${player.firstName[0]}${player.lastName[0]}',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        )
+      : null,
+),
+```
+
+## Architecture Decisions & Workflow
+
+### Single-Team Workflow
+CoachMaster is designed for coaches to work with one team at a time:
+- **Team Selection**: Coaches select their active team in settings
+- **No Mixed Data**: All operations (trainings, notes, etc.) apply to the selected team
+- **Simplified Forms**: No team selection dropdowns in training/player forms
+- **Context Awareness**: All screens automatically work with the currently selected team
+
+### Notes System Architecture
+The notes system is designed to be flexible and extensible:
+- **Generic Model**: Note model can be linked to any entity (players, trainings, matches, etc.)
+- **Type Safety**: NoteType enum defines supported note types
+- **Consistent UI**: Same UI patterns for notes across all features
+- **Repository Pattern**: Centralized data access through NoteRepository
+
+### Future Migration Notes
+The project documentation indicates a planned migration to Firebase for backend services. Current local Hive storage will be replaced with Firestore and offline-first architecture.

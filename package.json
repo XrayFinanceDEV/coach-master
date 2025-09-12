@@ -1,0 +1,8 @@
+{
+  "name": "coachmaster",
+  "version": "1.0.0",
+  "description": "Professional sports team management application for coaches",
+  "dependencies": {
+    "firebase-tools": "^14.15.2"
+  }
+}

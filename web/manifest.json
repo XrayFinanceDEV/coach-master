@@ -1,0 +1,35 @@
+{
+    "name": "CoachMaster",
+    "short_name": "CoachMaster",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#FF7F00",
+    "theme_color": "#FF7F00",
+    "description": "Professional sports team management application for coaches",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

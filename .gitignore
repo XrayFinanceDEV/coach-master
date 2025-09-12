@@ -1,0 +1,10 @@
+# Folders to ignore
+docs/CoachMaster-20/
+build/
+.dart_tool/
+
+# Files to ignore
+*.apk
+docs/*.zip
+node_modules/
+package-lock.json

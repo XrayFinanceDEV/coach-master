@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 
@@ -29,16 +28,13 @@ void main() async {
   if (kIsWeb) {
     await Hive.initFlutter('coachmaster_db');
   } else {
-    final directory = await getApplicationDocumentsDirectory();
-    Hive.init('${directory.path}/coachmaster_db');
+    // Use initFlutter for mobile to ensure proper app-specific storage
+    await Hive.initFlutter('coachmaster_db');
   }
   
-  print('=== HIVE INITIALIZATION DEBUG ===');
-  print('Platform: ${kIsWeb ? "Web" : "Native"}');
-  if (!kIsWeb) {
-    final directory = await getApplicationDocumentsDirectory();
-    print('Hive directory: ${directory.path}/coachmaster_db');
-  } else {
+  if (kDebugMode) {
+    print('=== HIVE INITIALIZATION DEBUG ===');
+    print('Platform: ${kIsWeb ? "Web" : "Native"}');
     print('Hive initialized with subdir: coachmaster_db');
   }
   

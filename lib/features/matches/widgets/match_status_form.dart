@@ -54,50 +54,68 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _loadConvocatedPlayers();
+    // Wrap in post frame callback to avoid state changes during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _loadConvocatedPlayers();
+      }
+    });
   }
 
   void _loadConvocatedPlayers() {
-    // Use watch to get fresh data on every rebuild
-    final playerRepository = ref.watch(playerRepositoryProvider);
-    final convocationRepository = ref.watch(matchConvocationRepositoryProvider);
-    final statisticRepository = ref.watch(matchStatisticRepositoryProvider);
-    
-    final players = playerRepository.getPlayersForTeam(widget.match.teamId);
-    final convocations = convocationRepository.getConvocationsForMatch(widget.match.id);
-    final existingStats = statisticRepository.getStatisticsForMatch(widget.match.id);
-    
-    _convocatedPlayers = players.where((player) => 
-        convocations.any((conv) => conv.playerId == player.id)).toList();
-    
-    // Load existing match result if available
-    if (widget.match.goalsFor != null && widget.match.goalsAgainst != null) {
-      _goalsFor = widget.match.goalsFor!;
-      _goalsAgainst = widget.match.goalsAgainst!;
-    }
-    
-    // Initialize player stats - load existing data if available, otherwise use zeros
-    for (final player in _convocatedPlayers) {
-      final existingStat = existingStats.firstWhere(
-        (stat) => stat.playerId == player.id,
-        orElse: () => MatchStatistic.create(
-          matchId: widget.match.id,
-          playerId: player.id,
-          goals: 0,
-          assists: 0,
-          yellowCards: 0,
-          redCards: 0,
-          minutesPlayed: 90,
-          rating: null,
-        ),
-      );
+    try {
+      // Use read instead of watch to avoid triggering rebuilds during data loading
+      final playerRepository = ref.read(playerRepositoryProvider);
+      final convocationRepository = ref.read(matchConvocationRepositoryProvider);
+      final statisticRepository = ref.read(matchStatisticRepositoryProvider);
       
-      _playerGoals[player.id] = existingStat.goals;
-      _playerAssists[player.id] = existingStat.assists;
-      _playerYellowCards[player.id] = existingStat.yellowCards;
-      _playerRedCards[player.id] = existingStat.redCards;
-      _playerMinutes[player.id] = existingStat.minutesPlayed;
-      _playerRatings[player.id] = existingStat.rating;
+      final players = playerRepository.getPlayersForTeam(widget.match.teamId);
+      final convocations = convocationRepository.getConvocationsForMatch(widget.match.id);
+      final existingStats = statisticRepository.getStatisticsForMatch(widget.match.id);
+      
+      final newConvocatedPlayers = players.where((player) => 
+          convocations.any((conv) => conv.playerId == player.id)).toList();
+      
+      // Only update state if mounted and data has changed
+      if (mounted && _convocatedPlayers != newConvocatedPlayers) {
+        setState(() {
+          _convocatedPlayers = newConvocatedPlayers;
+        });
+      }
+      
+      // Load existing match result if available
+      if (widget.match.goalsFor != null && widget.match.goalsAgainst != null) {
+        _goalsFor = widget.match.goalsFor!;
+        _goalsAgainst = widget.match.goalsAgainst!;
+      }
+      
+      // Initialize player stats - load existing data if available, otherwise use zeros
+      for (final player in newConvocatedPlayers) {
+        final existingStat = existingStats.firstWhere(
+          (stat) => stat.playerId == player.id,
+          orElse: () => MatchStatistic.create(
+            matchId: widget.match.id,
+            playerId: player.id,
+            goals: 0,
+            assists: 0,
+            yellowCards: 0,
+            redCards: 0,
+            minutesPlayed: 90,
+            rating: null,
+          ),
+        );
+        
+        _playerGoals[player.id] = existingStat.goals;
+        _playerAssists[player.id] = existingStat.assists;
+        _playerYellowCards[player.id] = existingStat.yellowCards;
+        _playerRedCards[player.id] = existingStat.redCards;
+        _playerMinutes[player.id] = existingStat.minutesPlayed;
+        _playerRatings[player.id] = existingStat.rating;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('🔴 Error loading convocated players: $e');
+      }
     }
   }
 
@@ -309,17 +327,19 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
           IconButton(
             onPressed: value > 0 ? () => onChanged(value - 1) : null,
             icon: const Icon(Icons.remove),
-            iconSize: 24,
+            iconSize: 20,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            padding: const EdgeInsets.all(4),
           ),
           Container(
-            width: 60,
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            width: 50,
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
               value.toString(),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 32,
+                fontSize: 24,
               ),
               textAlign: TextAlign.center,
             ),
@@ -327,7 +347,9 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
           IconButton(
             onPressed: () => onChanged(value + 1),
             icon: const Icon(Icons.add),
-            iconSize: 24,
+            iconSize: 20,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            padding: const EdgeInsets.all(4),
           ),
         ],
       ),
@@ -431,11 +453,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             key: ValueKey('${player.id}-${player.photoPath}'),
             radius: 20,
             backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-            backgroundImage: player.photoPath != null && player.photoPath!.isNotEmpty
-                ? (kIsWeb && (player.photoPath!.startsWith('data:') || player.photoPath!.startsWith('blob:') || player.photoPath!.startsWith('http'))
-                    ? NetworkImage(player.photoPath!) as ImageProvider
-                    : (!kIsWeb ? FileImage(File(player.photoPath!)) as ImageProvider : null))
-                : null,
+            backgroundImage: _getSafeImageProvider(player.photoPath),
             child: player.photoPath == null || player.photoPath!.isEmpty ||
                 (kIsWeb && !player.photoPath!.startsWith('data:') && !player.photoPath!.startsWith('blob:') && !player.photoPath!.startsWith('http'))
                 ? Text(
@@ -1076,13 +1094,8 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             key: ValueKey('${player.id}-${player.photoPath}'),
             radius: 16,
             backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-            backgroundImage: player.photoPath != null && player.photoPath!.isNotEmpty
-                ? (kIsWeb && (player.photoPath!.startsWith('data:') || player.photoPath!.startsWith('blob:') || player.photoPath!.startsWith('http'))
-                    ? NetworkImage(player.photoPath!) as ImageProvider
-                    : (!kIsWeb ? FileImage(File(player.photoPath!)) as ImageProvider : null))
-                : null,
-            child: player.photoPath == null || player.photoPath!.isEmpty ||
-                (kIsWeb && !player.photoPath!.startsWith('data:') && !player.photoPath!.startsWith('blob:') && !player.photoPath!.startsWith('http'))
+            backgroundImage: _getSafeImageProvider(player.photoPath),
+            child: _getSafeImageProvider(player.photoPath) == null
                 ? Text(
                     '${player.firstName[0]}${player.lastName[0]}'.toUpperCase(),
                     style: TextStyle(
@@ -1318,6 +1331,33 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  // Safe image provider to avoid crashes on Android
+  ImageProvider? _getSafeImageProvider(String? photoPath) {
+    try {
+      if (photoPath == null || photoPath.isEmpty) return null;
+      
+      if (kIsWeb) {
+        if (photoPath.startsWith('data:') || photoPath.startsWith('blob:') || photoPath.startsWith('http')) {
+          return NetworkImage(photoPath);
+        }
+        return null;
+      } else {
+        // For Android/iOS, safely check file existence
+        final file = File(photoPath);
+        if (file.existsSync()) {
+          return FileImage(file);
+        }
+        return null;
+      }
+    } catch (e) {
+      // Return null if any error occurs
+      if (kDebugMode) {
+        print('🔴 Error loading image: $e');
+      }
+      return null;
     }
   }
 

@@ -776,6 +776,18 @@ abstract class AppLocalizations {
   /// **'Convocation'**
   String get convocation;
 
+  /// No description provided for @matchConvocations.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Convocations'**
+  String get matchConvocations;
+
+  /// No description provided for @totalPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Players'**
+  String get totalPlayers;
+
   /// No description provided for @matchStatistics.
   ///
   /// In en, this message translates to:
@@ -839,8 +851,8 @@ abstract class AppLocalizations {
   /// No description provided for @errorSavingConvocations.
   ///
   /// In en, this message translates to:
-  /// **'Error saving convocations: {error}'**
-  String errorSavingConvocations(String error);
+  /// **'Error saving convocations'**
+  String get errorSavingConvocations;
 
   /// No description provided for @trackPlayingTime.
   ///
@@ -1237,6 +1249,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Playing Time Detail'**
   String get playingTimeDetail;
+
+  /// No description provided for @scheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get scheduled;
+
+  /// No description provided for @live.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get live;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @statsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Stats saved'**
+  String get statsSaved;
+
+  /// No description provided for @noMatchesScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'No Matches Scheduled'**
+  String get noMatchesScheduled;
+
+  /// No description provided for @createFirstMatchToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first match to start managing convocations and statistics'**
+  String get createFirstMatchToStart;
+
+  /// No description provided for @createFirstMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Create First Match'**
+  String get createFirstMatch;
+
+  /// No description provided for @convocated.
+  ///
+  /// In en, this message translates to:
+  /// **'convocated'**
+  String get convocated;
+
+  /// No description provided for @opponentTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Opponent Team'**
+  String get opponentTeam;
+
+  /// No description provided for @pleaseEnterOpponentTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the opponent team name'**
+  String get pleaseEnterOpponentTeam;
+
+  /// No description provided for @matchDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Date'**
+  String get matchDate;
+
+  /// No description provided for @pleaseEnterMatchLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the match location'**
+  String get pleaseEnterMatchLocation;
+
+  /// No description provided for @matchType.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Type'**
+  String get matchType;
+
+  /// No description provided for @away.
+  ///
+  /// In en, this message translates to:
+  /// **'Away'**
+  String get away;
+
+  /// No description provided for @editMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Match'**
+  String get editMatch;
+
+  /// No description provided for @updateMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Match'**
+  String get updateMatch;
+
+  /// No description provided for @createMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Match'**
+  String get createMatch;
+
+  /// No description provided for @matchUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Match updated successfully!'**
+  String get matchUpdatedSuccessfully;
+
+  /// No description provided for @matchCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Match created successfully!'**
+  String get matchCreatedSuccessfully;
 }
 
 class _AppLocalizationsDelegate

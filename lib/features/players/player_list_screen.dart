@@ -153,25 +153,12 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
 
   Widget _buildFilterChip(BuildContext context, String filterKey, String label, IconData icon) {
     final isSelected = _selectedFilter == filterKey;
-    return FilledButton.icon(
+    return FilledButton(
       onPressed: () {
         setState(() {
           _selectedFilter = filterKey;
         });
       },
-      icon: Icon(
-        icon,
-        size: 16,
-        color: isSelected ? Colors.white : Theme.of(context).colorScheme.primary,
-      ),
-      label: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: isSelected ? Colors.white : Theme.of(context).colorScheme.primary,
-        ),
-      ),
       style: FilledButton.styleFrom(
         backgroundColor: isSelected 
             ? Theme.of(context).colorScheme.primary 
@@ -180,10 +167,31 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
             ? Colors.white 
             : Theme.of(context).colorScheme.primary,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        minimumSize: const Size(0, 36),
+        minimumSize: const Size(0, 48),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: isSelected ? Colors.white : Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? Colors.white : Theme.of(context).colorScheme.primary,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }
@@ -316,6 +324,16 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
     }
   }
 
+  String _getLocalizedPlayerCount(BuildContext context, int count) {
+    final currentLocale = Localizations.localeOf(context).languageCode;
+    
+    if (currentLocale == 'it') {
+      return count == 1 ? '$count giocatore' : '$count giocatori';
+    } else {
+      return count == 1 ? '$count player' : '$count players';
+    }
+  }
+
   int _getAttackPositionOrder(String position) {
     final pos = position.toLowerCase();
     if (pos.contains('attaccante')) return 1;
@@ -402,7 +420,7 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
                 ),
                 const Spacer(),
                 Text(
-                  '${players.length} ${players.length == 1 ? 'player' : 'players'}',
+                  _getLocalizedPlayerCount(context, players.length),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),

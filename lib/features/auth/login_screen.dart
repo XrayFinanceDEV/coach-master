@@ -84,6 +84,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await ref.read(authNotifierProvider.notifier).signInWithGoogle();
+
+      if (mounted) {
+        // Navigation will be handled by the router redirect logic
+        context.go('/home');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = _getErrorMessage(e.toString());
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   void _navigateToOnboarding() {
     context.go('/onboarding');
   }
@@ -313,6 +341,84 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ],
                                 )
                               : const Text('Sign In'),
+                        ),
+                        const SizedBox(height: 24),
+                        
+                        // Divider
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Divider(
+                                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                'OR',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Divider(
+                                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        
+                        // Google Sign-In Button
+                        OutlinedButton.icon(
+                          onPressed: (_isLoading || authState.isLoading) ? null : _handleGoogleSignIn,
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            side: BorderSide(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                            textStyle: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          icon: (_isLoading || authState.isLoading)
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      'G',
+                                      style: TextStyle(
+                                        color: Colors.blue,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Roboto',
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                          label: Text(
+                            (_isLoading || authState.isLoading) ? 'Signing in...' : 'Continue with Google',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
                         ),
                       ],
                     ),

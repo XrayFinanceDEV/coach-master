@@ -397,6 +397,10 @@ class _TrainingListScreenState extends ConsumerState<TrainingListScreen> {
           ref.invalidate(trainingRepositoryProvider);
           setState(() {});
         },
+        onTrainingCreated: (trainingId) {
+          // Navigate directly to training detail
+          context.go('/trainings/$trainingId');
+        },
       ),
     );
   }

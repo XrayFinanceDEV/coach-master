@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 // Class to hold all the app's colors for easy management.
 class AppColors {
   // Primary Colors
-  static const Color primary = Color(0xFFFF7F00); // Orange
+  static const Color primary = Color(0xFFFFA700); // Orange
   static const Color secondary = Color(0xFF607D8B); // Blue Grey
 
   // Dark Theme Colors

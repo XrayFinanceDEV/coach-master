@@ -353,6 +353,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get convocation => 'Convocation';
 
   @override
+  String get matchConvocations => 'Match Convocations';
+
+  @override
+  String get totalPlayers => 'Total Players';
+
+  @override
   String get matchStatistics => 'Match Statistics';
 
   @override
@@ -385,9 +391,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get convocationsSaved => 'Convocations saved successfully!';
 
   @override
-  String errorSavingConvocations(String error) {
-    return 'Error saving convocations: $error';
-  }
+  String get errorSavingConvocations => 'Error saving convocations';
 
   @override
   String get trackPlayingTime => 'Yes, track playing time';
@@ -602,4 +606,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get playingTimeDetail => 'Playing Time Detail';
+
+  @override
+  String get scheduled => 'Scheduled';
+
+  @override
+  String get live => 'Live';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get statsSaved => 'Stats saved';
+
+  @override
+  String get noMatchesScheduled => 'No Matches Scheduled';
+
+  @override
+  String get createFirstMatchToStart =>
+      'Create your first match to start managing convocations and statistics';
+
+  @override
+  String get createFirstMatch => 'Create First Match';
+
+  @override
+  String get convocated => 'convocated';
+
+  @override
+  String get opponentTeam => 'Opponent Team';
+
+  @override
+  String get pleaseEnterOpponentTeam => 'Please enter the opponent team name';
+
+  @override
+  String get matchDate => 'Match Date';
+
+  @override
+  String get pleaseEnterMatchLocation => 'Please enter the match location';
+
+  @override
+  String get matchType => 'Match Type';
+
+  @override
+  String get away => 'Away';
+
+  @override
+  String get editMatch => 'Edit Match';
+
+  @override
+  String get updateMatch => 'Update Match';
+
+  @override
+  String get createMatch => 'Create Match';
+
+  @override
+  String get matchUpdatedSuccessfully => 'Match updated successfully!';
+
+  @override
+  String get matchCreatedSuccessfully => 'Match created successfully!';
 }

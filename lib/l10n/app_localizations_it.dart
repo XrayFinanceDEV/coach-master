@@ -12,7 +12,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get appTitle => 'CoachMaster';
 
   @override
-  String get home => 'Home';
+  String get home => 'Casa';
 
   @override
   String get players => 'Giocatori';
@@ -354,6 +354,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get convocation => 'Convocazione';
 
   @override
+  String get matchConvocations => 'Convocazioni Partita';
+
+  @override
+  String get totalPlayers => 'Giocatori Totali';
+
+  @override
   String get matchStatistics => 'Statistiche Partita';
 
   @override
@@ -386,9 +392,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get convocationsSaved => 'Convocazioni salvate con successo!';
 
   @override
-  String errorSavingConvocations(String error) {
-    return 'Errore salvando convocazioni: $error';
-  }
+  String get errorSavingConvocations => 'Errore salvando convocazioni';
 
   @override
   String get trackPlayingTime => 'Sì, traccia tempo di gioco';
@@ -607,4 +611,63 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get playingTimeDetail => 'Dettaglio Tempo di Gioco';
+
+  @override
+  String get scheduled => 'Programmata';
+
+  @override
+  String get live => 'In Corso';
+
+  @override
+  String get completed => 'Completata';
+
+  @override
+  String get statsSaved => 'Statistiche salvate';
+
+  @override
+  String get noMatchesScheduled => 'Nessuna Partita Programmata';
+
+  @override
+  String get createFirstMatchToStart =>
+      'Crea la tua prima partita per iniziare a gestire convocazioni e statistiche';
+
+  @override
+  String get createFirstMatch => 'Crea Prima Partita';
+
+  @override
+  String get convocated => 'convocati';
+
+  @override
+  String get opponentTeam => 'Squadra Avversaria';
+
+  @override
+  String get pleaseEnterOpponentTeam =>
+      'Inserisci il nome della squadra avversaria';
+
+  @override
+  String get matchDate => 'Data Partita';
+
+  @override
+  String get pleaseEnterMatchLocation => 'Inserisci il luogo della partita';
+
+  @override
+  String get matchType => 'Tipo Partita';
+
+  @override
+  String get away => 'Trasferta';
+
+  @override
+  String get editMatch => 'Modifica Partita';
+
+  @override
+  String get updateMatch => 'Aggiorna Partita';
+
+  @override
+  String get createMatch => 'Crea Partita';
+
+  @override
+  String get matchUpdatedSuccessfully => 'Partita aggiornata con successo!';
+
+  @override
+  String get matchCreatedSuccessfully => 'Partita creata con successo!';
 }

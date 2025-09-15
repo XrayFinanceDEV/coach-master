@@ -6,6 +6,7 @@ import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/match_convocation.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
+import 'package:coachmaster/l10n/app_localizations.dart';
 
 class ConvocationManagementBottomSheet extends ConsumerStatefulWidget {
   final String matchId;
@@ -39,6 +40,15 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
     
     for (final player in widget.players) {
       _playerConvocations[player.id] = existingConvocations[player.id] ?? false;
+    }
+    
+    // Debug: Print initialization state
+    if (kDebugMode) {
+      print('🔍 Convocation initialization:');
+      print('  Total players: ${widget.players.length}');
+      print('  Existing convocations: ${widget.convocations.length}');
+      print('  Player convocation map: $_playerConvocations');
+      print('  Initial count: ${_getConvocatedCount()}');
     }
   }
 
@@ -81,7 +91,7 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Match Convocations',
+                  AppLocalizations.of(context)!.matchConvocations,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -109,14 +119,14 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Total Players',
+                        AppLocalizations.of(context)!.totalPlayers,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        '${_playerConvocations.values.where((called) => called).length}',
+                        '${_getConvocatedCount()}',
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.bold,
@@ -129,11 +139,11 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
                     children: [
                       TextButton(
                         onPressed: () => _setAllConvocations(true),
-                        child: const Text('Select All'),
+                        child: Text(AppLocalizations.of(context)!.selectAll),
                       ),
                       TextButton(
                         onPressed: () => _setAllConvocations(false),
-                        child: const Text('Deselect All'),
+                        child: Text(AppLocalizations.of(context)!.deselectAll),
                       ),
                     ],
                   ),
@@ -151,7 +161,7 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
                 separatorBuilder: (context, index) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   final player = widget.players[index];
-                  final isConvocated = _playerConvocations[player.id] ?? true;
+                  final isConvocated = _playerConvocations[player.id] ?? false;
                   
                   return _buildPlayerConvocationCard(player, isConvocated);
                 },
@@ -166,7 +176,7 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
+                    child: Text(AppLocalizations.of(context)!.cancel),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -179,7 +189,7 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Save Convocations'),
+                      : Text(AppLocalizations.of(context)!.saveConvocations),
                   ),
                 ),
               ],
@@ -273,7 +283,9 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        isConvocated ? 'Presente' : 'Assente',
+                        isConvocated 
+                          ? AppLocalizations.of(context)!.present 
+                          : AppLocalizations.of(context)!.absent,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -298,9 +310,13 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
     );
   }
 
+  int _getConvocatedCount() {
+    return _playerConvocations.values.where((called) => called).length;
+  }
+
   void _togglePlayerConvocation(String playerId) {
     setState(() {
-      _playerConvocations[playerId] = !(_playerConvocations[playerId] ?? true);
+      _playerConvocations[playerId] = !(_playerConvocations[playerId] ?? false);
     });
   }
 
@@ -310,6 +326,13 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
         _playerConvocations[player.id] = convocated;
       }
     });
+    
+    // Debug logging
+    if (kDebugMode) {
+      print('🔍 Set all convocations to: $convocated');
+      print('  New count: ${_getConvocatedCount()}');
+      print('  Player states: $_playerConvocations');
+    }
   }
 
   Future<void> _saveConvocations() async {
@@ -343,8 +366,8 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Convocations saved successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.convocationsSaved),
           ),
         );
       }
@@ -352,7 +375,7 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error saving convocations: ${e.toString()}'),
+            content: Text(AppLocalizations.of(context)!.errorSavingConvocations),
             backgroundColor: Colors.red,
           ),
         );

@@ -125,6 +125,10 @@
   "matchVs": "Match vs",
   "matchStatus": "Match Status",
   "convocation": "Convocation",
+  "matchConvocations": "Match Convocations",
+  "totalPlayers": "Total Players",
+  "present": "Present",
+  "absent": "Absent",
   "matchStatistics": "Match Statistics",
   "teamPerformance": "Team Performance",
   "editConvocatedPlayers": "Edit Convocated Players",
@@ -142,14 +146,7 @@
   "deselectAll": "Deselect All",
   "saveConvocations": "Save Convocations",
   "convocationsSaved": "Convocations saved successfully!",
-  "errorSavingConvocations": "Error saving convocations: {error}",
-  "@errorSavingConvocations": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
+  "errorSavingConvocations": "Error saving convocations",
   "trackPlayingTime": "Yes, track playing time",
   "skipPlayingTime": "No, skip playing time",
   "clear": "Clear",
@@ -258,5 +255,25 @@
   "cardsDetail": "Cards Detail",
   "playingTimeChoice": "Playing Time Choice",
   "playingTimeDetail": "Playing Time Detail",
-  "playerRatings": "Player Ratings"
+  "playerRatings": "Player Ratings",
+  "scheduled": "Scheduled",
+  "live": "Live",
+  "completed": "Completed",
+  "statsSaved": "Stats saved",
+  "noMatchesScheduled": "No Matches Scheduled",
+  "createFirstMatchToStart": "Create your first match to start managing convocations and statistics",
+  "createFirstMatch": "Create First Match",
+  "convocated": "convocated",
+  "opponentTeam": "Opponent Team",
+  "pleaseEnterOpponentTeam": "Please enter the opponent team name",
+  "matchDate": "Match Date",
+  "pleaseEnterMatchLocation": "Please enter the match location",
+  "matchType": "Match Type",
+  "home": "Home",
+  "away": "Away",
+  "editMatch": "Edit Match",
+  "updateMatch": "Update Match",
+  "createMatch": "Create Match",
+  "matchUpdatedSuccessfully": "Match updated successfully!",
+  "matchCreatedSuccessfully": "Match created successfully!"
 }

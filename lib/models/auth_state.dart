@@ -1,4 +1,5 @@
 import 'package:coachmaster/models/user.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 enum AuthStatus {
   unauthenticated,
@@ -8,42 +9,75 @@ enum AuthStatus {
 
 class AuthState {
   final AuthStatus status;
-  final User? user;
+  final User? user; // Local app user (legacy)
+  final firebase_auth.User? firebaseUser; // Firebase user
   final String? errorMessage;
+  final bool isInitializing; // For Firebase auth initialization
 
   const AuthState({
     required this.status,
     this.user,
+    this.firebaseUser,
     this.errorMessage,
+    this.isInitializing = false,
   });
 
   const AuthState.initial() : this(
     status: AuthStatus.unauthenticated,
     user: null,
+    firebaseUser: null,
     errorMessage: null,
+    isInitializing: false,
   );
 
   const AuthState.loading() : this(
     status: AuthStatus.loading,
     user: null,
+    firebaseUser: null,
     errorMessage: null,
+    isInitializing: false,
   );
 
+  // Legacy constructor for local auth (backward compatibility)
   const AuthState.authenticated(User user) : this(
     status: AuthStatus.authenticated,
     user: user,
+    firebaseUser: null,
     errorMessage: null,
+    isInitializing: false,
+  );
+
+  // New constructor for Firebase auth
+  const AuthState.firebaseAuthenticated(firebase_auth.User firebaseUser, {bool isInitializing = false}) : this(
+    status: AuthStatus.authenticated,
+    user: null,
+    firebaseUser: firebaseUser,
+    errorMessage: null,
+    isInitializing: isInitializing,
   );
 
   const AuthState.unauthenticated([String? errorMessage]) : this(
     status: AuthStatus.unauthenticated,
     user: null,
+    firebaseUser: null,
     errorMessage: errorMessage,
+    isInitializing: false,
   );
 
-  bool get isAuthenticated => status == AuthStatus.authenticated && user != null;
-  bool get isLoading => status == AuthStatus.loading;
+  // Compatibility getters
+  bool get isAuthenticated => status == AuthStatus.authenticated && (user != null || firebaseUser != null);
+  bool get isLoading => status == AuthStatus.loading || (status == AuthStatus.authenticated && isInitializing);
+  bool get isLoadingState => isLoading; // Alias for FirebaseTestScreen compatibility
   bool get hasError => errorMessage != null;
+  
+  // Firebase user properties (for new auth system)
+  String? get email => firebaseUser?.email ?? user?.email;
+  String? get displayName => firebaseUser?.displayName ?? user?.name;
+  String? get uid => firebaseUser?.uid;
+  
+  // Check if using Firebase auth
+  bool get isUsingFirebaseAuth => firebaseUser != null;
+  bool get isUsingLocalAuth => user != null;
 }
 
 enum OnboardingStep {

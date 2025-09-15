@@ -262,7 +262,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
                   child: Column(
                     children: [
                       Text(
-                        'Goals For',
+                        AppLocalizations.of(context)!.goalsFor,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w600,
@@ -292,7 +292,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
                   child: Column(
                     children: [
                       Text(
-                        'Goals Against',
+                        AppLocalizations.of(context)!.goalsAgainst,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w600,
@@ -321,19 +321,21 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
           width: 1,
         ),
       ),
-      child: Row(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // + button at top
           IconButton(
-            onPressed: value > 0 ? () => onChanged(value - 1) : null,
-            icon: const Icon(Icons.remove),
+            onPressed: () => onChanged(value + 1),
+            icon: const Icon(Icons.add),
             iconSize: 20,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            constraints: const BoxConstraints(minWidth: 40, minHeight: 32),
             padding: const EdgeInsets.all(4),
           ),
+          // Score display in middle
           Container(
             width: 50,
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 4),
             child: Text(
               value.toString(),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -344,11 +346,12 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
               textAlign: TextAlign.center,
             ),
           ),
+          // - button at bottom
           IconButton(
-            onPressed: () => onChanged(value + 1),
-            icon: const Icon(Icons.add),
+            onPressed: value > 0 ? () => onChanged(value - 1) : null,
+            icon: const Icon(Icons.remove),
             iconSize: 20,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            constraints: const BoxConstraints(minWidth: 40, minHeight: 32),
             padding: const EdgeInsets.all(4),
           ),
         ],
@@ -1011,13 +1014,13 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             child: ListView(
               children: [
                 // Always show all 3 position categories (Attack → Midfield → Defense)
-                _buildPositionSection('Attack', attackPlayers, playerStats, onStatChanged, color),
+                _buildPositionSection(_getLocalizedPositionName(context, 'attack'), attackPlayers, playerStats, onStatChanged, color),
                 const SizedBox(height: 16),
                 
-                _buildPositionSection('Midfield', midfieldPlayers, playerStats, onStatChanged, color),
+                _buildPositionSection(_getLocalizedPositionName(context, 'midfield'), midfieldPlayers, playerStats, onStatChanged, color),
                 const SizedBox(height: 16),
                 
-                _buildPositionSection('Defense', defenseePlayers, playerStats, onStatChanged, color),
+                _buildPositionSection(_getLocalizedPositionName(context, 'defense'), defenseePlayers, playerStats, onStatChanged, color),
               ],
             ),
           ),
@@ -1358,6 +1361,36 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
         print('🔴 Error loading image: $e');
       }
       return null;
+    }
+  }
+
+  // Position name localization
+  String _getLocalizedPositionName(BuildContext context, String positionKey) {
+    final currentLocale = Localizations.localeOf(context).languageCode;
+    
+    if (currentLocale == 'it') {
+      switch (positionKey) {
+        case 'attack':
+          return 'Attacco';
+        case 'midfield':
+          return 'Centrocampo';
+        case 'defense':
+          return 'Difesa';
+        default:
+          return 'Altro';
+      }
+    } else {
+      // English position names
+      switch (positionKey) {
+        case 'attack':
+          return 'Attack';
+        case 'midfield':
+          return 'Midfield';
+        case 'defense':
+          return 'Defense';
+        default:
+          return 'Other';
+      }
     }
   }
 

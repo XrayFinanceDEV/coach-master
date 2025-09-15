@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coachmaster/models/match.dart';
-import 'package:coachmaster/models/match_convocation.dart';
 import 'package:coachmaster/core/repository_instances.dart';
+import 'package:coachmaster/l10n/app_localizations.dart';
 
 class MatchFormBottomSheet extends ConsumerStatefulWidget {
   final String teamId;
   final Match? match; // null for creating new match
   final VoidCallback onSaved;
+  final Function(String matchId)? onMatchCreated; // New callback for when match is created
 
   const MatchFormBottomSheet({
     super.key,
     required this.teamId,
     this.match,
     required this.onSaved,
+    this.onMatchCreated,
   });
 
   @override
@@ -90,7 +92,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  isEditing ? 'Edit Match' : 'Add New Match',
+                  isEditing ? AppLocalizations.of(context)!.editMatch : AppLocalizations.of(context)!.addMatch,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -113,7 +115,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
                       TextFormField(
                         controller: _opponentController,
                         decoration: InputDecoration(
-                          labelText: 'Opponent Team',
+                          labelText: AppLocalizations.of(context)!.opponentTeam,
                           prefixIcon: Icon(
                             Icons.shield,
                             color: Theme.of(context).colorScheme.primary,
@@ -122,7 +124,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please enter the opponent team name';
+                            return AppLocalizations.of(context)!.pleaseEnterOpponentTeam;
                           }
                           return null;
                         },
@@ -152,7 +154,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Match Date',
+                                      AppLocalizations.of(context)!.matchDate,
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey[600],
@@ -184,7 +186,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
                       TextFormField(
                         controller: _locationController,
                         decoration: InputDecoration(
-                          labelText: 'Location',
+                          labelText: AppLocalizations.of(context)!.location,
                           prefixIcon: Icon(
                             Icons.location_on,
                             color: Theme.of(context).colorScheme.primary,
@@ -193,7 +195,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please enter the match location';
+                            return AppLocalizations.of(context)!.pleaseEnterMatchLocation;
                           }
                           return null;
                         },
@@ -213,7 +215,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Match Type',
+                              AppLocalizations.of(context)!.matchType,
                               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -248,7 +250,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            'Home',
+                                            AppLocalizations.of(context)!.home,
                                             style: TextStyle(
                                               color: _isHome 
                                                 ? Colors.white
@@ -291,7 +293,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            'Away',
+                                            AppLocalizations.of(context)!.away,
                                             style: TextStyle(
                                               color: !_isHome 
                                                 ? Colors.white
@@ -320,7 +322,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
                           Expanded(
                             child: OutlinedButton(
                               onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
-                              child: const Text('Cancel'),
+                              child: Text(AppLocalizations.of(context)!.cancel),
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -333,7 +335,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
                                     height: 16,
                                     child: CircularProgressIndicator(strokeWidth: 2),
                                   )
-                                : Text(isEditing ? 'Update Match' : 'Create Match'),
+                                : Text(isEditing ? AppLocalizations.of(context)!.updateMatch : AppLocalizations.of(context)!.createMatch),
                             ),
                           ),
                         ],
@@ -414,18 +416,10 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
         
         await matchRepository.addMatch(newMatch);
         
-        // Auto-create convocations for all players (all convocated by default)
-        final playerRepository = ref.read(playerRepositoryProvider);
-        final convocationRepository = ref.read(matchConvocationRepositoryProvider);
-        final players = playerRepository.getPlayersForTeam(widget.teamId);
-        
-        for (final player in players) {
-          final convocation = MatchConvocation.create(
-            matchId: newMatch.id,
-            playerId: player.id,
-            status: PlayerMatchStatus.convoked, // All players convocated by default
-          );
-          await convocationRepository.addConvocation(convocation);
+        // Call the onMatchCreated callback if provided to navigate to match detail
+        // User can then manually set convocations via the convocation management screen
+        if (widget.onMatchCreated != null) {
+          widget.onMatchCreated!(newMatch.id);
         }
       }
 
@@ -437,8 +431,8 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
           SnackBar(
             content: Text(
               widget.match != null 
-                ? 'Match updated successfully!' 
-                : 'Match created successfully!',
+                ? AppLocalizations.of(context)!.matchUpdatedSuccessfully
+                : AppLocalizations.of(context)!.matchCreatedSuccessfully,
             ),
           ),
         );

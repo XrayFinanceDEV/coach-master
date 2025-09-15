@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 
 import 'package:coachmaster/core/router.dart';
@@ -19,10 +21,17 @@ import 'package:coachmaster/models/match_statistic.dart';
 import 'package:coachmaster/models/onboarding_settings.dart';
 import 'package:coachmaster/models/user.dart';
 import 'package:coachmaster/models/note.dart';
+import 'package:coachmaster/models/sync_status.dart';
+import 'package:coachmaster/models/sync_metadata.dart';
 import 'package:coachmaster/core/app_initialization.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase with platform-specific options
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   
   // Initialize Hive with proper persistent storage directory
   if (kIsWeb) {
@@ -56,6 +65,10 @@ void main() async {
   _registerAdapterSafely(() => Hive.registerAdapter(UserAdapter()));
   _registerAdapterSafely(() => Hive.registerAdapter(NoteTypeAdapter()));
   _registerAdapterSafely(() => Hive.registerAdapter(NoteAdapter()));
+  _registerAdapterSafely(() => Hive.registerAdapter(SyncStatusAdapter()));
+  _registerAdapterSafely(() => Hive.registerAdapter(SyncMetadataAdapter()));
+  _registerAdapterSafely(() => Hive.registerAdapter(SyncOperationAdapter()));
+  _registerAdapterSafely(() => Hive.registerAdapter(PendingSyncOperationAdapter()));
 
   runApp(const ProviderScope(child: CoachMasterApp()));
 }

@@ -12,6 +12,7 @@ import 'package:coachmaster/features/dashboard/widgets/leaderboards_section.dart
 import 'package:coachmaster/features/players/widgets/player_form_bottom_sheet.dart';
 import 'package:coachmaster/features/trainings/training_detail_screen.dart';
 import 'package:coachmaster/features/matches/widgets/match_form_bottom_sheet.dart';
+import 'package:coachmaster/widgets/sync_status_widget.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -88,6 +89,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ],
           ],
         ),
+        actions: [
+          const Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: Center(child: SyncStatusWidget()),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 80), // Added bottom padding for FAB
@@ -348,8 +355,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         onSaved: () {
           // Refresh dashboard data
           ref.read(refreshCounterProvider.notifier).increment();
-          // Navigate to trainings screen
-          context.go('/trainings');
+        },
+        onTrainingCreated: (trainingId) {
+          // Navigate directly to training detail
+          context.go('/trainings/$trainingId');
         },
       ),
     );
@@ -374,8 +383,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         onSaved: () {
           // Refresh dashboard data
           ref.read(refreshCounterProvider.notifier).increment();
-          // Navigate to matches screen
-          context.go('/matches');
+        },
+        onMatchCreated: (matchId) {
+          // Navigate directly to match detail for convocation management
+          context.go('/matches/$matchId');
         },
       ),
     );

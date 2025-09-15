@@ -1035,6 +1035,162 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           
           const SizedBox(height: 16),
           
+          // Account Section
+          Card(
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.account_circle,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Account',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // User Information Display
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final authState = ref.watch(authNotifierProvider);
+                      final currentUser = authState.user;
+                      
+                      if (currentUser?.email != null) {
+                        // Determine authentication method
+                        String authMethod = 'Email/Password';
+                        IconData authIcon = Icons.email;
+                        Color authColor = Colors.blue;
+                        
+                        // Check if it's a Google account (common Google domains or if name exists with email)
+                        if (currentUser!.email!.endsWith('@gmail.com') || 
+                            (currentUser.name.isNotEmpty && currentUser.name != currentUser.email)) {
+                          authMethod = 'Google Sign-In';
+                          authIcon = Icons.login;
+                          authColor = Colors.red;
+                        }
+                        
+                        return Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.outlineVariant,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    authIcon,
+                                    color: authColor,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    authMethod,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: authColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                currentUser.email!,
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (currentUser.name.isNotEmpty && currentUser.name != currentUser.email) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  currentUser.name,
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        );
+                      }
+                      
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Logout Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Logout'),
+                            content: const Text('Are you sure you want to logout?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                child: const Text('Logout'),
+                              ),
+                            ],
+                          ),
+                        );
+                        
+                        if (confirmed == true) {
+                          // Store context before async operation
+                          final authNotifier = ref.read(authNotifierProvider.notifier);
+                          final messenger = ScaffoldMessenger.of(context);
+                          
+                          await authNotifier.logout();
+                          
+                          if (context.mounted) {
+                            messenger.showSnackBar(
+                              const SnackBar(content: Text('Logged out successfully')),
+                            );
+                            // Navigation will be handled by the auth state change in router
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.logout),
+                      label: const Text('Logout'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[700],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
           // Debug Section (temporary for database inspection)
           Card(
             elevation: 4,
@@ -1217,16 +1373,28 @@ final routerProvider = Provider<GoRouter>((ref) {
         return '/login';
       }
       
-      // If authenticated but onboarding not completed, redirect to onboarding
-      if (isAuthenticated && 
-          !isOnboardingCompleted && 
-          !currentPath.startsWith('/onboarding')) {
-        return '/onboarding';
+      // If authenticated but onboarding not completed, check if it's a new user or existing Firebase user
+      if (isAuthenticated && !isOnboardingCompleted) {
+        // If user is on login or trying to access main app routes, let them through
+        // This handles existing Firebase users who don't have the onboardingCompleted flag
+        if (currentPath.startsWith('/login') || 
+            currentPath.startsWith('/home') ||
+            currentPath.startsWith('/players') ||
+            currentPath.startsWith('/trainings') ||
+            currentPath.startsWith('/matches') ||
+            currentPath.startsWith('/settings')) {
+          // Allow access - this is likely an existing Firebase user
+          return null;
+        }
+        
+        // Only redirect to onboarding if explicitly going to onboarding or initial load
+        if (!currentPath.startsWith('/onboarding') && currentPath != '/') {
+          return '/onboarding';
+        }
       }
       
-      // If authenticated and onboarded but on auth pages, redirect to players screen
+      // If authenticated and on auth pages, redirect to main app
       if (isAuthenticated && 
-          isOnboardingCompleted && 
           (currentPath.startsWith('/login') || currentPath.startsWith('/onboarding'))) {
         return '/players';
       }

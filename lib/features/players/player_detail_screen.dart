@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/note.dart';
+import 'package:coachmaster/models/training_attendance.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/features/players/widgets/player_form_bottom_sheet.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
@@ -21,6 +22,8 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch refresh counter to trigger rebuilds when data changes
+    ref.watch(refreshCounterProvider);
     final playerRepository = ref.watch(playerRepositoryProvider);
     final player = playerRepository.getPlayer(widget.playerId);
 
@@ -252,7 +255,7 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.assist_walker, color: Colors.white, size: 18),
+                              const Icon(Icons.trending_up, color: Colors.white, size: 18),
                               const SizedBox(width: 4),
                               Text(
                                 '${player.assists}',
@@ -390,11 +393,11 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: _buildStatCard(context, 'Matches', '0', Icons.sports_soccer),
+                                child: _buildStatCard(context, 'Matches', _getMatchesCount(ref, player).toString(), Icons.sports_soccer),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
-                                child: _buildStatCard(context, 'Goals', '0', Icons.sports_handball),
+                                child: _buildStatCard(context, 'Goals', player.goals.toString(), Icons.sports_handball),
                               ),
                             ],
                           ),
@@ -402,11 +405,11 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: _buildStatCard(context, 'Assists', '0', Icons.trending_up),
+                                child: _buildStatCard(context, 'Assists', player.assists.toString(), Icons.trending_up),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
-                                child: _buildStatCard(context, 'Training', '0', Icons.fitness_center),
+                                child: _buildStatCard(context, 'Training', _getTrainingCount(ref, player).toString(), Icons.fitness_center),
                               ),
                             ],
                           ),
@@ -965,5 +968,26 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
         ],
       ),
     );
+  }
+
+  int _getMatchesCount(WidgetRef ref, Player player) {
+    try {
+      final matchStatisticRepository = ref.read(matchStatisticRepositoryProvider);
+      final playerStats = matchStatisticRepository.getStatisticsForPlayer(player.id);
+      return playerStats.length;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  int _getTrainingCount(WidgetRef ref, Player player) {
+    try {
+      final trainingAttendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
+      final attendances = trainingAttendanceRepository.getAttendancesForPlayer(player.id);
+      // Count only present attendances
+      return attendances.where((att) => att.status == TrainingAttendanceStatus.present).length;
+    } catch (e) {
+      return 0;
+    }
   }
 }

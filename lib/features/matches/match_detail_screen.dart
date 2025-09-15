@@ -20,8 +20,13 @@ class MatchDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
+  bool _hasShownConvocationSheet = false;
+
   @override
   Widget build(BuildContext context) {
+    // Watch refresh counter to trigger rebuilds when data changes
+    ref.watch(refreshCounterProvider);
+    
     final matchRepository = ref.watch(matchRepositoryProvider);
     final playerRepository = ref.watch(playerRepositoryProvider);
     final convocationRepository = ref.watch(matchConvocationRepositoryProvider);
@@ -43,6 +48,27 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     final team = teamRepository.getTeam(match.teamId);
     final convocatedPlayers = players.where((player) => 
         convocations.any((conv) => conv.playerId == player.id)).toList();
+
+    // Auto-open convocation management if no players are convocated and we haven't shown it yet
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_hasShownConvocationSheet && convocations.isEmpty && mounted) {
+        _hasShownConvocationSheet = true;
+        // Show a brief message before opening convocations
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Select players for this match'),
+            duration: const Duration(milliseconds: 1500),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        // Delay slightly to let the snackbar show
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            _showConvocationDialog();
+          }
+        });
+      }
+    });
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,

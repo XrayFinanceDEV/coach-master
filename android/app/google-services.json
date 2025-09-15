@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "25162710455",
+    "project_id": "coach-mast-3r",
+    "storage_bucket": "coach-mast-3r.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:25162710455:android:c24e608a574e0df8e6fc32",
+        "android_client_info": {
+          "package_name": "com.example.cupertino_compass"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCslf_axzlT_SvyjvppKjAgwZLAXGOYbL0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:25162710455:android:3e8a2777165e26dde6fc32",
+        "android_client_info": {
+          "package_name": "com.example.musify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCslf_axzlT_SvyjvppKjAgwZLAXGOYbL0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:25162710455:android:6675190f6c6a8f31e6fc32",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCslf_axzlT_SvyjvppKjAgwZLAXGOYbL0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

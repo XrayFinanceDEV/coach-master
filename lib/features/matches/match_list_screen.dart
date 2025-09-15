@@ -7,6 +7,7 @@ import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/services/match_convocation_repository.dart';
 import 'package:coachmaster/services/match_statistic_repository.dart';
 import 'package:coachmaster/features/matches/widgets/match_form_bottom_sheet.dart';
+import 'package:coachmaster/l10n/app_localizations.dart';
 
 class MatchListScreen extends ConsumerStatefulWidget {
   final String teamId;
@@ -36,14 +37,14 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
           children: [
             Icon(Icons.sports_soccer, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 8),
-            const Text('Matches'),
+            Text(AppLocalizations.of(context)!.matches),
           ],
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: _showAddMatchBottomSheet,
-            tooltip: 'Add Match',
+            tooltip: AppLocalizations.of(context)!.addMatch,
           ),
         ],
       ),
@@ -71,7 +72,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                   child: FilledButton.tonalIcon(
                     onPressed: _showAddMatchBottomSheet,
                     icon: const Icon(Icons.add),
-                    label: const Text('Add Match'),
+                    label: Text(AppLocalizations.of(context)!.addMatch),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.all(16),
                     ),
@@ -95,14 +96,14 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No Matches Scheduled',
+            AppLocalizations.of(context)!.noMatchesScheduled,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: Colors.grey[600],
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Create your first match to start managing convocations and statistics',
+            AppLocalizations.of(context)!.createFirstMatchToStart,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.grey[500],
             ),
@@ -112,7 +113,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
           FilledButton.icon(
             onPressed: _showAddMatchBottomSheet,
             icon: const Icon(Icons.add),
-            label: const Text('Create First Match'),
+            label: Text(AppLocalizations.of(context)!.createFirstMatch),
           ),
         ],
       ),
@@ -220,23 +221,23 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                       }
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'edit',
                         child: Row(
                           children: [
-                            Icon(Icons.edit),
-                            SizedBox(width: 8),
-                            Text('Edit'),
+                            const Icon(Icons.edit),
+                            const SizedBox(width: 8),
+                            Text(AppLocalizations.of(context)!.edit),
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
-                            Icon(Icons.delete, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Delete'),
+                            const Icon(Icons.delete, color: Colors.red),
+                            const SizedBox(width: 8),
+                            Text(AppLocalizations.of(context)!.delete),
                           ],
                         ),
                       ),
@@ -269,7 +270,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '$convocationCount convocated',
+                          '$convocationCount ${AppLocalizations.of(context)!.convocated}',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -318,7 +319,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                           Icon(Icons.analytics, size: 14, color: Colors.blue[700]),
                           const SizedBox(width: 4),
                           Text(
-                            'Stats saved',
+                            AppLocalizations.of(context)!.statsSaved,
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
@@ -375,11 +376,11 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
   String _getStatusText(MatchStatus status) {
     switch (status) {
       case MatchStatus.scheduled:
-        return 'Scheduled';
+        return AppLocalizations.of(context)!.scheduled;
       case MatchStatus.live:
-        return 'Live';
+        return AppLocalizations.of(context)!.live;
       case MatchStatus.completed:
-        return 'Completed';
+        return AppLocalizations.of(context)!.completed;
     }
   }
   
@@ -401,6 +402,10 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
           if (mounted) {
             setState(() {});
           }
+        },
+        onMatchCreated: (matchId) {
+          // Navigate directly to match detail for convocation management
+          context.go('/matches/$matchId');
         },
       ),
     );
@@ -430,12 +435,12 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Match'),
-        content: Text('Are you sure you want to delete the match vs ${match.opponent}?'),
+        title: Text(AppLocalizations.of(context)!.deleteMatch),
+        content: Text(AppLocalizations.of(context)!.deleteMatchConfirm(match.opponent)),
         actions: [
           TextButton(
             onPressed: () => context.pop(),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -469,7 +474,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                 context.pop();
               }
             },
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),

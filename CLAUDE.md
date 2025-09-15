@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-CoachMaster is a modern Flutter sports team management application designed for coaches to manage players, training sessions, matches, and team statistics. Built with a professional dark theme and orange accent colors, featuring modern UI components and intuitive navigation. Currently uses local Hive storage with plans to migrate to Firebase.
+CoachMaster is a modern Flutter sports team management application designed for coaches to manage players, training sessions, matches, and team statistics. Built with a professional dark theme and orange accent colors, featuring modern UI components and intuitive navigation. Features Firebase Authentication with Google Sign-In integration and hybrid Hive/Firebase data storage.
 
 ## Development Commands
 
@@ -29,23 +29,31 @@ CoachMaster is a modern Flutter sports team management application designed for 
 - **Framework**: Flutter 3.35.2+ with Dart
 - **State Management**: Riverpod 2.5.1 for reactive state management
 - **Navigation**: GoRouter 14.1.4 with StatefulShellRoute for persistent tabs
-- **Local Storage**: Hive 2.2.3 with type adapters (migrating to Firebase)
+- **Authentication**: Firebase Auth 6.0.2 with Google Sign-In 6.2.1 integration
+- **Storage**: Hybrid Hive 2.2.3 (local) + Cloud Firestore 6.0.1 (cloud sync)
 - **UI Framework**: Material Design 3.0 with custom dark theme
-- **Theme System**: Centralized AppColors class with orange (#FF7F00) primary color
+- **Theme System**: Centralized AppColors class with orange (#FFA700) primary color
 - **Code Generation**: build_runner for Hive adapters and model serialization
 
 ### Code Structure
 
 #### Core Architecture
-- `lib/main.dart` - App entry point with Hive initialization and repository setup
-- `lib/core/` - Core app components (theme, router, initialization)
+- `lib/main.dart` - App entry point with Firebase + Hive initialization and repository setup
+- `lib/firebase_options.dart` - Firebase configuration for all platforms (web, Android, iOS, macOS)
+- `lib/core/` - Core app components (theme, router, initialization, auth)
   - `theme.dart` - Centralized dark theme with AppColors class
   - `router.dart` - Navigation configuration with all screen definitions
   - `repository_instances.dart` - Dependency injection for repositories
   - `app_initialization.dart` - Startup logic and Hive setup
+  - `auth_providers.dart` - Legacy auth provider (fallback for local auth)
+  - `firebase_auth_providers.dart` - Firebase authentication state management
 - `lib/models/` - Data models with Hive type adapters (.g.dart files auto-generated)
-- `lib/services/` - Repository pattern for data access
+- `lib/services/` - Repository pattern and authentication services
+  - `firebase_auth_service.dart` - Firebase Auth + Google Sign-In implementation
+  - `sync_manager.dart` - Hybrid local/cloud data synchronization
+  - `*_sync_repository.dart` - Cloud-enabled repositories
 - `lib/features/` - Feature-based organization with screens and widgets
+  - `auth/` - Login and authentication screens with Google Sign-In
   - `dashboard/` - Home screen with speed dial FAB and widgets
   - `players/` - Enhanced player management with hero-style cards
   - `trainings/` - Training sessions with bottom sheet forms
@@ -55,10 +63,14 @@ CoachMaster is a modern Flutter sports team management application designed for 
 - `lib/l10n/` - Internationalization and localization files
 
 #### Data Layer
-The app uses a repository pattern with Hive for local storage:
-- Each model has a corresponding repository in `lib/services/`
-- Models use Hive annotations and code generation
-- All repositories follow the same pattern: `init()`, `getAll()`, `get(id)`, `add()`, `update()`, `delete()`
+The app uses a hybrid local/cloud storage architecture:
+- **Local Storage**: Hive 2.2.3 for offline-first data persistence
+- **Cloud Storage**: Firebase Firestore for data synchronization across devices
+- **Repository Pattern**: Each model has corresponding repositories in `lib/services/`
+  - Base repositories: Local Hive-based data access
+  - Sync repositories: Cloud-enabled with automatic sync capabilities
+- **Models**: Use Hive annotations and code generation (.g.dart files)
+- **Standard Interface**: All repositories follow the pattern: `init()`, `getAll()`, `get(id)`, `add()`, `update()`, `delete()`
 
 #### Navigation Structure
 Uses GoRouter with StatefulShellRoute for persistent bottom navigation:
@@ -83,7 +95,7 @@ Uses GoRouter with StatefulShellRoute for persistent bottom navigation:
 The app uses a centralized theme system in `lib/core/theme.dart`:
 ```dart
 class AppColors {
-  static const Color primary = Color(0xFFFF7F00); // Orange
+  static const Color primary = Color(0xFFFFA700); // Orange
   static const Color secondary = Color(0xFF607D8B); // Blue Grey
   static const Color darkBackground = Color(0xFF121212);
   static const Color darkSurface = Color(0xFF1E1E1E);
@@ -407,6 +419,35 @@ if (context.mounted) {
 - **Convocation Memory Fix**: Fixed convocation management to remember previously selected players
 - **Italian Localization**: Improved "Top Scorers" translation from "Migliori Marcatori" to "Migliori Cannonieri"
 
+### UI/UX Improvements & Android Optimizations (Latest)
+- **Match Form Score Layout**: Fixed Android multi-step form score input - changed from horizontal (left/right) to vertical (+/-) layout for better mobile space optimization
+- **Player Filter Buttons**: Redesigned 4-button layout with icons above text instead of beside for better mobile screen real estate
+- **Main Theme Color Update**: Updated primary accent color from #FF7F00 to #FFA700 for improved visual contrast and modern appearance
+- **Convocation Count Bug Fix**: Fixed Android issue where convocation count was stuck at 2 players regardless of actual selection
+- **Match Detail Screen Refresh**: Added proper refresh counter watching to ensure convocation changes are reflected immediately across all screens
+
+### Comprehensive Translation System (Latest)
+- **Complete Match Screen Localization**: Fully translated matches main screen including:
+  - App bar title, buttons, tooltips
+  - Status badges (Scheduled/Live/Completed)
+  - Match cards ("X convocated", "Stats saved")
+  - Empty state messages
+  - Popup menus and delete dialogs
+- **Match Form Translation**: Complete localization of Add/Edit Match bottom sheet forms:
+  - Form titles (Add Match/Edit Match)
+  - All form fields (Opponent Team, Match Date, Location, Match Type)
+  - Home/Away toggles
+  - Action buttons and success messages
+  - Validation error messages
+- **Multi-step Form Localization**: Fixed untranslated text in match statistics form:
+  - Step 1: "Goals For/Against" now properly localized
+  - Steps 2-3: Position categories (Attack/Midfield/Defense) now use localized names
+- **Enhanced ARB Files**: Added comprehensive translation keys for:
+  - Match management terms
+  - Form validation messages  
+  - Success/error notifications
+  - UI component labels
+
 ### Dashboard Enhancements
 - **Speed Dial FAB**: Expandable floating action button with 3 sub-actions (Add Player, Add Training, Add Match)
 - **Enhanced Team Statistics**: 2-row, 4-column layout with comprehensive match and team data
@@ -430,7 +471,7 @@ if (context.mounted) {
 ### Modern UI Components
 - **Bottom Sheets**: All forms now use `DraggableScrollableSheet` with handle bars
 - **Consistent Headers**: Orange icons with screen names across all AppBars
-- **Dark Theme**: Professional dark theme with orange (#FF7F00) accent colors
+- **Dark Theme**: Professional dark theme with orange (#FFA700) accent colors
 - **Card-Based Design**: Elevated cards with proper spacing and rounded corners
 
 ### Settings & Internationalization
@@ -518,6 +559,16 @@ String _getLocalizedFilterLabel(BuildContext context, String filterKey) {
 - Use `Icons.trending_up` for all assist-related displays for consistency
 - Always show all position categories in match forms regardless of player distribution
 
+### Localization Best Practices
+- **Always use AppLocalizations**: Never hardcode user-facing strings - use `AppLocalizations.of(context)!.keyName`
+- **ARB File Management**: Add new keys to both `app_en.arb` and `app_it.arb` files
+- **Regenerate After Changes**: Run `flutter gen-l10n` after modifying ARB files to update localization classes
+- **Key Naming Convention**: Use descriptive camelCase names (e.g., `matchUpdatedSuccessfully`, `pleaseEnterOpponentTeam`)
+- **Form Validation**: Localize all validation error messages for consistent user experience
+- **Success/Error Messages**: Always provide localized feedback for user actions
+- **Italian Football Terms**: Use authentic terminology (Casa/Trasferta, Squadra Avversaria, etc.)
+- **Compilation Check**: Verify `flutter analyze` passes after adding new localization keys
+
 ### Match Statistics & Player Updates
 **Critical Pattern**: Always update player aggregate statistics after match completion:
 ```dart
@@ -591,5 +642,46 @@ The notes system is designed to be flexible and extensible:
 - **Consistent UI**: Same UI patterns for notes across all features
 - **Repository Pattern**: Centralized data access through NoteRepository
 
-### Future Migration Notes
-The project documentation indicates a planned migration to Firebase for backend services. Current local Hive storage will be replaced with Firestore and offline-first architecture.
+## Firebase Authentication Integration
+
+### Authentication Architecture
+The app implements a hybrid authentication system with Firebase as the primary method:
+
+#### Firebase Authentication Setup
+- **Primary Auth**: Firebase Auth 6.0.2 with email/password and Google Sign-In
+- **Google Sign-In**: Integrated across web, Android, and iOS platforms
+- **Fallback**: Local authentication system maintained for backward compatibility
+- **State Management**: Riverpod-based reactive authentication state
+
+#### Authentication Flow
+1. **Firebase-First**: Always attempts Firebase authentication first
+2. **Google Sign-In**: Seamless OAuth integration with Firebase Auth
+3. **Email/Password**: Traditional signup/login with Firebase
+4. **Local Fallback**: Legacy system available if Firebase fails
+5. **Auto-Sync**: User data synchronized to Firestore upon authentication
+
+#### Key Components
+- `lib/services/firebase_auth_service.dart` - Core Firebase Auth + Google Sign-In implementation
+- `lib/core/firebase_auth_providers.dart` - Dedicated Firebase auth state management
+- `lib/core/auth_providers.dart` - Hybrid auth provider with Firebase-first approach
+- `lib/features/auth/login_screen.dart` - Modern login UI with Google Sign-In button
+
+#### Web Configuration Requirements
+For Google Sign-In on web, update the Web Client ID in `firebase_auth_service.dart`:
+```dart
+clientId: kIsWeb ? 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com' : null,
+```
+Get the Web Client ID from Firebase Console → Project Settings → Web SDK configuration.
+
+#### Authentication State
+- **Loading**: During authentication process
+- **Authenticated**: Firebase user with sync capabilities  
+- **Unauthenticated**: No authenticated user
+- **Error**: Authentication failures with user-friendly messages
+
+### Data Synchronization
+The app now uses a hybrid storage approach:
+- **Local-First**: Hive storage for offline capabilities
+- **Cloud Sync**: Firestore synchronization for authenticated users
+- **Automatic**: Background sync when user is authenticated
+- **Offline Support**: Full app functionality without internet connection

@@ -1053,12 +1053,14 @@ class TrainingFormBottomSheet extends ConsumerStatefulWidget {
   final Training? training; // null for add mode, Training instance for edit mode
   final String teamId;
   final VoidCallback? onSaved;
+  final Function(String trainingId)? onTrainingCreated; // New callback for when training is created
 
   const TrainingFormBottomSheet({
     super.key,
     this.training,
     required this.teamId,
     this.onSaved,
+    this.onTrainingCreated,
   });
 
   @override
@@ -1117,6 +1119,11 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
           objectives: _objectives,
         );
         trainingRepository.addTraining(newTraining);
+        
+        // Call the onTrainingCreated callback if provided to navigate to training detail
+        if (widget.onTrainingCreated != null) {
+          widget.onTrainingCreated!(newTraining.id);
+        }
       }
       
       ref.invalidate(trainingRepositoryProvider);

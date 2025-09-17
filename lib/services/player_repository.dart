@@ -123,6 +123,12 @@ class PlayerRepository {
     }
   }
 
+  List<Player> getMostAbsences(String teamId, {int limit = 5}) {
+    final teamPlayers = getPlayersForTeam(teamId);
+    teamPlayers.sort((a, b) => b.absences.compareTo(a.absences));
+    return teamPlayers.take(limit).toList();
+  }
+
   // Calculate team totals for dashboard
   Map<String, int> getTeamTotals(String teamId) {
     final teamPlayers = getPlayersForTeam(teamId);

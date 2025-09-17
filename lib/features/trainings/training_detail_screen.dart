@@ -355,7 +355,7 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () {
+          onTap: () async {
             // Toggle attendance on tap
             final attendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
             final newStatus = !isPresent ? TrainingAttendanceStatus.present : TrainingAttendanceStatus.absent;
@@ -378,7 +378,14 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
               );
               attendanceRepository.addAttendance(newAttendance);
             }
+            
+            // Update player absence statistics
+            final playerRepository = ref.read(playerRepositoryProvider);
+            final allAttendances = attendanceRepository.getAttendancesForPlayer(player.id);
+            await playerRepository.updatePlayerAbsences(player.id, allAttendances);
+            
             ref.invalidate(trainingAttendanceRepositoryProvider);
+            ref.invalidate(playerRepositoryProvider);
             setState(() {});
           },
           child: Padding(
@@ -462,7 +469,7 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
                 Switch(
                   value: isPresent,
                   activeTrackColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (value) {
+                  onChanged: (value) async {
                     final attendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
                     final status = value ? TrainingAttendanceStatus.present : TrainingAttendanceStatus.absent;
                     
@@ -484,7 +491,14 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
                       );
                       attendanceRepository.addAttendance(newAttendance);
                     }
+                    
+                    // Update player absence statistics
+                    final playerRepository = ref.read(playerRepositoryProvider);
+                    final allAttendances = attendanceRepository.getAttendancesForPlayer(player.id);
+                    await playerRepository.updatePlayerAbsences(player.id, allAttendances);
+                    
                     ref.invalidate(trainingAttendanceRepositoryProvider);
+                    ref.invalidate(playerRepositoryProvider);
                     setState(() {});
                   },
                 ),
@@ -1069,10 +1083,7 @@ class TrainingFormBottomSheet extends ConsumerStatefulWidget {
 
 class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomSheet> {
   final _formKey = GlobalKey<FormState>();
-  late String _location;
   late DateTime _date;
-  late TimeOfDay _startTime;
-  late TimeOfDay _endTime;
   late List<String> _objectives;
 
   bool get isEditMode => widget.training != null;
@@ -1082,10 +1093,7 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
     super.initState();
     // Initialize form fields with existing training data or defaults
     final training = widget.training;
-    _location = training?.location ?? '';
     _date = training?.date ?? DateTime.now();
-    _startTime = training?.startTime ?? const TimeOfDay(hour: 18, minute: 0);
-    _endTime = training?.endTime ?? const TimeOfDay(hour: 20, minute: 0);
     _objectives = training?.objectives ?? [];
   }
 
@@ -1096,26 +1104,26 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
       final trainingRepository = ref.read(trainingRepositoryProvider);
       
       if (isEditMode) {
-        // Update existing training (preserve coachNotes since we removed the field)
+        // Update existing training (preserve coachNotes and time/location fields)
         final updatedTraining = Training(
           id: widget.training!.id,
           teamId: widget.teamId,
           date: _date,
-          startTime: _startTime,
-          endTime: _endTime,
-          location: _location,
+          startTime: widget.training!.startTime, // Preserve existing start time
+          endTime: widget.training!.endTime, // Preserve existing end time
+          location: widget.training!.location, // Preserve existing location
           objectives: _objectives,
           coachNotes: widget.training!.coachNotes, // Preserve existing coach notes
         );
         trainingRepository.updateTraining(updatedTraining);
       } else {
-        // Create new training
+        // Create new training with default time and location
         final newTraining = Training.create(
           teamId: widget.teamId,
           date: _date,
-          startTime: _startTime,
-          endTime: _endTime,
-          location: _location,
+          startTime: const TimeOfDay(hour: 18, minute: 0), // Default 6 PM
+          endTime: const TimeOfDay(hour: 20, minute: 0), // Default 8 PM
+          location: 'Training Ground', // Default location
           objectives: _objectives,
         );
         trainingRepository.addTraining(newTraining);
@@ -1175,7 +1183,7 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
                 Text(
                   isEditMode 
                       ? (localizations?.editTraining ?? 'Edit Training')
-                      : 'Add Training',
+                      : '+Add',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -1191,28 +1199,6 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
                 child: ListView(
                   controller: scrollController,
                   children: [
-                    // Location field
-                    TextFormField(
-                      initialValue: _location,
-                      decoration: InputDecoration(
-                        labelText: localizations?.location ?? 'Location',
-                        hintText: 'e.g., Main Field, Gym A',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      validator: (value) => value?.isEmpty ?? true ? (localizations?.required ?? 'Required') : null,
-                      onSaved: (value) => _location = value!,
-                    ),
-                    const SizedBox(height: 16),
-                    
                     // Date picker
                     InkWell(
                       onTap: () async {
@@ -1222,7 +1208,7 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
                           firstDate: DateTime.now().subtract(const Duration(days: 30)),
                           lastDate: DateTime.now().add(const Duration(days: 365)),
                         );
-                        if (picked != null) {
+                        if (picked != null && mounted) {
                           setState(() {
                             _date = picked;
                           });
@@ -1263,114 +1249,6 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
                           ],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    // Time pickers
-                    Row(
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () async {
-                              final picked = await showTimePicker(
-                                context: context,
-                                initialTime: _startTime,
-                              );
-                              if (picked != null) {
-                                setState(() {
-                                  _startTime = picked;
-                                });
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Theme.of(context).colorScheme.outline,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.access_time,
-                                        color: Theme.of(context).colorScheme.primary,
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'Start Time',
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: Theme.of(context).colorScheme.primary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _startTime.format(context),
-                                    style: Theme.of(context).textTheme.bodyLarge,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () async {
-                              final picked = await showTimePicker(
-                                context: context,
-                                initialTime: _endTime,
-                              );
-                              if (picked != null) {
-                                setState(() {
-                                  _endTime = picked;
-                                });
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Theme.of(context).colorScheme.outline,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.access_time,
-                                        color: Theme.of(context).colorScheme.primary,
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'End Time',
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: Theme.of(context).colorScheme.primary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _endTime.format(context),
-                                    style: Theme.of(context).textTheme.bodyLarge,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                     const SizedBox(height: 16),
                     

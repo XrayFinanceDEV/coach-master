@@ -204,39 +204,37 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
       
       switch (_selectedFilter) {
         case 'attack':
-          return position.contains('attaccante') ||
-                 position.contains('trequartista') ||
-                 position.contains('ala') ||
-                 position.contains('punta') ||
+          return position.contains('attaccante') ||          // Striker (ST)
+                 position.contains('seconda punta') ||        // Second striker (SS)
+                 position.contains('trequartista') ||         // Attacking midfielder (AM)
+                 position.contains('ala destra') ||           // Right winger (RW)
+                 position.contains('ala sinistra') ||         // Left winger (LW)
                  // English equivalents
-                 position.contains('forward') || 
                  position.contains('striker') ||
-                 position.contains('attacker') ||
-                 position.contains('winger');
+                 position.contains('second striker') ||
+                 position.contains('attacking midfielder') ||
+                 position.contains('right winger') ||
+                 position.contains('left winger');
         
         case 'midfield':
-          return position.contains('centrocampista') ||
-                 position.contains('mediano') ||
+          return position.contains('regista') ||              // Playmaker (PM)
+                 position.contains('centrocampista') ||       // Midfielder (MF)
+                 position.contains('mediano difensivo') ||    // Defending midfielder (DM)
                  // English equivalents
-                 position.contains('midfield') || 
+                 position.contains('playmaker') ||
                  position.contains('midfielder') ||
-                 position.contains('attacking midfielder') ||
-                 position.contains('defensive midfielder') ||
-                 position.contains('central midfielder');
+                 position.contains('defending midfielder');
         
         case 'defense':
-          return position.contains('difensore') ||
-                 position.contains('terzino') ||
-                 position.contains('quinto') ||
-                 position.contains('portiere') ||
+          return position.contains('portiere') ||             // Goalkeeper (GK)
+                 position.contains('difensore') ||            // Defender (DF)
+                 position.contains('terzino destro') ||       // Right-back (RB)
+                 position.contains('terzino sinistro') ||     // Left-back (LB)
                  // English equivalents
-                 position.contains('defender') || 
-                 position.contains('back') ||
-                 position.contains('center back') ||
-                 position.contains('centre back') ||
                  position.contains('goalkeeper') ||
-                 position.contains('fullback') ||
-                 position.contains('wingback');
+                 position.contains('defender') ||
+                 position.contains('right-back') ||
+                 position.contains('left-back');
         
         default:
           return true;
@@ -256,27 +254,31 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
     for (final player in players) {
       final position = player.position.toLowerCase();
       
-      // Attacco group (Italian terms prioritized)
-      if (position.contains('attaccante') ||
-          position.contains('trequartista') ||
-          position.contains('ala') ||
-          position.contains('punta') ||
+      // Attacco group (simplified positions)
+      if (position.contains('attaccante') ||          // Striker (ST)
+          position.contains('seconda punta') ||        // Second striker (SS)
+          position.contains('trequartista') ||         // Attacking midfielder (AM)
+          position.contains('ala destra') ||           // Right winger (RW)
+          position.contains('ala sinistra') ||         // Left winger (LW)
           // English equivalents
-          position.contains('forward') || 
           position.contains('striker') ||
-          position.contains('attacker') ||
-          position.contains('winger')) {
+          position.contains('second striker') ||
+          position.contains('attacking midfielder') ||
+          position.contains('right winger') ||
+          position.contains('left winger')) {
         attack.add(player);
       } 
-      // Centro Campo group (Italian terms prioritized)  
-      else if (position.contains('centrocampista') ||
-               position.contains('mediano') ||
+      // Centro Campo group (simplified positions)  
+      else if (position.contains('regista') ||              // Playmaker (PM)
+               position.contains('centrocampista') ||       // Midfielder (MF)
+               position.contains('mediano difensivo') ||    // Defending midfielder (DM)
                // English equivalents
-               position.contains('midfield') || 
-               position.contains('midfielder')) {
+               position.contains('playmaker') ||
+               position.contains('midfielder') ||
+               position.contains('defending midfielder')) {
         midfield.add(player);
       } 
-      // Difesa group (Italian terms prioritized) - catch all remaining players here
+      // Difesa group (simplified positions) - catch all remaining players here
       else {
         // All remaining players go to defense (including goalkeeper, defenders, and any unrecognized positions)
         defense.add(player);
@@ -336,48 +338,46 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
 
   int _getAttackPositionOrder(String position) {
     final pos = position.toLowerCase();
-    if (pos.contains('attaccante')) return 1;
-    if (pos.contains('trequartista')) return 2;
-    if (pos.contains('ala sinistra')) return 3;
-    if (pos.contains('ala destra')) return 4;
-    if (pos.contains('ala')) return 5;
-    if (pos.contains('punta')) return 6;
-    // English fallbacks
-    if (pos.contains('striker')) return 1;
-    if (pos.contains('winger')) return 5;
-    if (pos.contains('forward')) return 6;
+    // Attack positions in order (defense to attack)
+    if (pos.contains('ala sinistra')) return 1;      // Left winger (LW)
+    if (pos.contains('ala destra')) return 2;        // Right winger (RW)
+    if (pos.contains('trequartista')) return 3;      // Attacking midfielder (AM)
+    if (pos.contains('seconda punta')) return 4;     // Second striker (SS)
+    if (pos.contains('attaccante')) return 5;        // Striker (ST)
+    // English equivalents
+    if (pos.contains('left winger')) return 1;
+    if (pos.contains('right winger')) return 2;
+    if (pos.contains('attacking midfielder')) return 3;
+    if (pos.contains('second striker')) return 4;
+    if (pos.contains('striker')) return 5;
     return 99; // Other attacking positions
   }
 
   int _getMidfieldPositionOrder(String position) {
     final pos = position.toLowerCase();
-    if (pos.contains('centrocampista centrale')) return 1;
-    if (pos.contains('centrocampista')) return 2;
-    if (pos.contains('mediano')) return 3;
-    // English fallbacks
-    if (pos.contains('central midfielder')) return 1;
-    if (pos.contains('attacking midfielder')) return 2;
-    if (pos.contains('defensive midfielder')) return 3;
+    // Midfield positions in order (defense to attack)
+    if (pos.contains('mediano difensivo')) return 1; // Defending midfielder (DM)
+    if (pos.contains('centrocampista')) return 2;    // Midfielder (MF)
+    if (pos.contains('regista')) return 3;           // Playmaker (PM)
+    // English equivalents
+    if (pos.contains('defending midfielder')) return 1;
     if (pos.contains('midfielder')) return 2;
+    if (pos.contains('playmaker')) return 3;
     return 99; // Other midfield positions
   }
 
   int _getDefensePositionOrder(String position) {
     final pos = position.toLowerCase();
-    if (pos.contains('portiere')) return 0; // Goalkeeper first
-    if (pos.contains('difensore centrale')) return 1;
-    if (pos.contains('difensore')) return 2;
-    if (pos.contains('terzino sinistro')) return 3;
-    if (pos.contains('terzino destro')) return 4;
-    if (pos.contains('terzino')) return 5;
-    if (pos.contains('quinto')) return 6;
-    // English fallbacks
-    if (pos.contains('goalkeeper')) return 0;
-    if (pos.contains('center back')) return 1;
-    if (pos.contains('centre back')) return 1;
-    if (pos.contains('fullback')) return 5;
-    if (pos.contains('wingback')) return 6;
+    // Defense positions in order (defense to attack)
+    if (pos.contains('portiere')) return 1;          // Goalkeeper (GK)
+    if (pos.contains('difensore')) return 2;         // Defender (DF)
+    if (pos.contains('terzino destro')) return 3;    // Right-back (RB)
+    if (pos.contains('terzino sinistro')) return 4;  // Left-back (LB)
+    // English equivalents
+    if (pos.contains('goalkeeper')) return 1;
     if (pos.contains('defender')) return 2;
+    if (pos.contains('right-back')) return 3;
+    if (pos.contains('left-back')) return 4;
     return 99; // Other defensive positions
   }
 

@@ -156,7 +156,7 @@ class _PlayerPerformanceBottomSheetState extends ConsumerState<PlayerPerformance
                           child: _buildStatCounter(
                             'Assists',
                             _assists,
-                            Icons.trending_up,
+                            Icons.gps_fixed,
                             (value) => setState(() => _assists = value),
                             color: Colors.blue,
                           ),

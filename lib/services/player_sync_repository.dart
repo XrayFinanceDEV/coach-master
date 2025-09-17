@@ -77,6 +77,12 @@ class PlayerSyncRepository extends BaseSyncRepository<Player> {
     return ratedPlayers.take(limit).toList();
   }
 
+  List<Player> getMostAbsences(String teamId, {int limit = 5}) {
+    final teamPlayers = getPlayersForTeam(teamId);
+    teamPlayers.sort((a, b) => b.absences.compareTo(a.absences));
+    return teamPlayers.take(limit).toList();
+  }
+
   // Statistical calculation methods
   Future<void> updatePlayerStatisticsFromMatchStats(String playerId, List<MatchStatistic> allMatchStats) async {
     final player = getPlayer(playerId);

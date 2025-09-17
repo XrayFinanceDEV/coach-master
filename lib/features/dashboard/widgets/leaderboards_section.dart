@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/core/repository_instances.dart';
-import 'dart:io';
+import 'package:coachmaster/core/image_utils.dart';
 
 class LeaderboardsSection extends ConsumerWidget {
   final List<Player> players;
@@ -50,6 +49,7 @@ class LeaderboardsSection extends ConsumerWidget {
       final topScorers = playerRepo.getTopScorers(teamId, limit: 5);
       final topAssistors = playerRepo.getTopAssistors(teamId, limit: 5);
       final topRated = playerRepo.getTopRated(teamId, limit: 5);
+      final mostAbsences = playerRepo.getMostAbsences(teamId, limit: 5);
 
       debugPrint('Creating leaderboard cards...');
       debugPrint('Top scorers: ${topScorers.length} players');
@@ -84,7 +84,7 @@ class LeaderboardsSection extends ConsumerWidget {
         _buildLeaderboardCard(
           context,
           title: AppLocalizations.of(context)!.topAssistors,
-          icon: Icons.trending_up,
+          icon: Icons.gps_fixed,
           color: Colors.deepOrange,
           players: topAssistors,
           getStatValue: (player) => player.assists.toString(),
@@ -102,6 +102,19 @@ class LeaderboardsSection extends ConsumerWidget {
           players: topRated,
           getStatValue: (player) => player.avgRating?.toStringAsFixed(1) ?? '0.0',
           statLabel: 'rating',
+        ),
+        
+        const SizedBox(height: 16),
+        
+        // Most Absences Card
+        _buildLeaderboardCard(
+          context,
+          title: 'Most Absences',
+          icon: Icons.cancel,
+          color: Colors.red,
+          players: mostAbsences,
+          getStatValue: (player) => player.absences.toString(),
+          statLabel: 'absences',
         ),
       ],
     );
@@ -148,6 +161,7 @@ class LeaderboardsSection extends ConsumerWidget {
       if (statLabel == 'goals') return player.goals > 0;
       if (statLabel == 'assists') return player.assists > 0;
       if (statLabel == 'rating') return player.avgRating != null && player.avgRating! > 0;
+      if (statLabel == 'absences') return player.absences > 0;
       return true;
     }).take(5).toList();
     
@@ -260,27 +274,15 @@ class LeaderboardsSection extends ConsumerWidget {
             ),
             const SizedBox(width: 12),
             
-            // Player avatar (like in match steps)
-            CircleAvatar(
-              key: ValueKey('${player.id}-${player.photoPath}'),
+            // Player avatar (using safe image utility)
+            ImageUtils.buildPlayerAvatar(
+              firstName: player.firstName,
+              lastName: player.lastName,
+              photoPath: player.photoPath,
               radius: 16,
               backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-              backgroundImage: player.photoPath != null && player.photoPath!.isNotEmpty
-                  ? (kIsWeb && (player.photoPath!.startsWith('data:') || player.photoPath!.startsWith('blob:') || player.photoPath!.startsWith('http'))
-                      ? NetworkImage(player.photoPath!) as ImageProvider
-                      : (!kIsWeb ? FileImage(File(player.photoPath!)) as ImageProvider : null))
-                  : null,
-              child: player.photoPath == null || player.photoPath!.isEmpty ||
-                  (kIsWeb && !player.photoPath!.startsWith('data:') && !player.photoPath!.startsWith('blob:') && !player.photoPath!.startsWith('http'))
-                  ? Text(
-                      '${player.firstName[0]}${player.lastName[0]}'.toUpperCase(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    )
-                  : null,
+              textColor: Theme.of(context).colorScheme.primary,
+              fontSize: 10,
             ),
             const SizedBox(width: 12),
             

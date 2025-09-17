@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
+import 'package:coachmaster/core/image_utils.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 import 'package:coachmaster/services/player_image_service.dart';
-import 'dart:io';
 
 class PlayerFormBottomSheet extends ConsumerStatefulWidget {
   final String teamId;
@@ -214,29 +214,25 @@ class _PlayerFormBottomSheetState extends ConsumerState<PlayerFormBottomSheet> {
     final localizations = AppLocalizations.of(context);
     final isEditMode = widget.player != null;
     
-    // Define available positions with their translation keys in logical order
+    // Define available positions with their translation keys in logical order (defense to attack)
     final List<Map<String, String>> positions = [
-      // Attacco
-      {'key': 'striker', 'en': 'Striker', 'it': 'Attaccante'},
-      {'key': 'attackingMidfielder', 'en': 'Attacking Midfielder', 'it': 'Trequartista'},
-      {'key': 'leftWinger', 'en': 'Left Winger', 'it': 'Ala Sinistra'},
-      {'key': 'rightWinger', 'en': 'Right Winger', 'it': 'Ala Destra'},
-      {'key': 'winger', 'en': 'Winger', 'it': 'Ala'},
-      {'key': 'forward', 'en': 'Forward', 'it': 'Punta'},
+      // Defense
+      {'key': 'goalkeeper', 'en': 'Goalkeeper (GK)', 'it': 'Portiere (GK)'},
+      {'key': 'defender', 'en': 'Defender (DF)', 'it': 'Difensore (DF)'},
+      {'key': 'rightBack', 'en': 'Right-back (RB)', 'it': 'Terzino destro (RB)'},
+      {'key': 'leftBack', 'en': 'Left-back (LB)', 'it': 'Terzino sinistro (LB)'},
       
-      // Centro Campo
-      {'key': 'centralMidfielder', 'en': 'Central Midfielder', 'it': 'Centrocampista Centrale'},
-      {'key': 'midfielder', 'en': 'Midfielder', 'it': 'Centrocampista'},
-      {'key': 'defensiveMidfielder', 'en': 'Defensive Midfielder', 'it': 'Mediano'},
+      // Midfield
+      {'key': 'defensiveMidfielder', 'en': 'Defending midfielder (DM)', 'it': 'Mediano difensivo (DM)'},
+      {'key': 'midfielder', 'en': 'Midfielder (MF)', 'it': 'Centrocampista (MF)'},
+      {'key': 'playmaker', 'en': 'Playmaker (PM)', 'it': 'Regista (PM)'},
+      {'key': 'rightWinger', 'en': 'Right winger (RW)', 'it': 'Ala destra (RW)'},
+      {'key': 'leftWinger', 'en': 'Left winger (LW)', 'it': 'Ala sinistra (LW)'},
       
-      // Difesa
-      {'key': 'goalkeeper', 'en': 'Goalkeeper', 'it': 'Portiere'},
-      {'key': 'centerBack', 'en': 'Center Back', 'it': 'Difensore Centrale'},
-      {'key': 'defender', 'en': 'Defender', 'it': 'Difensore'},
-      {'key': 'leftBack', 'en': 'Left Back', 'it': 'Terzino Sinistro'},
-      {'key': 'rightBack', 'en': 'Right Back', 'it': 'Terzino Destro'},
-      {'key': 'fullBack', 'en': 'Full-back', 'it': 'Terzino'},
-      {'key': 'wingBack', 'en': 'Wing-back', 'it': 'Quinto'},
+      // Attack
+      {'key': 'attackingMidfielder', 'en': 'Attacking midfielder (AM)', 'it': 'Trequartista (AM)'},
+      {'key': 'secondStriker', 'en': 'Second striker (SS)', 'it': 'Seconda punta (SS)'},
+      {'key': 'striker', 'en': 'Striker (ST)', 'it': 'Attaccante (ST)'},
     ];
     
     // Define available foot preferences
@@ -307,29 +303,15 @@ class _PlayerFormBottomSheetState extends ConsumerState<PlayerFormBottomSheet> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: kIsWeb
-                                ? (_photoPath!.startsWith('data:') || _photoPath!.startsWith('blob:') || _photoPath!.startsWith('http')
-                                    ? Image.network(
-                                        _photoPath!,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return const Center(
-                                            child: Icon(Icons.error, color: Colors.red),
-                                          );
-                                        },
-                                      )
-                                    : const Center(
-                                        child: Icon(Icons.image_not_supported, color: Colors.grey),
-                                      ))
-                                : Image.file(
-                                    File(_photoPath!),
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Center(
-                                        child: Icon(Icons.error, color: Colors.red),
-                                      );
-                                    },
-                                  ),
+                            child: ImageUtils.buildSafeImage(
+                              imagePath: _photoPath,
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.cover,
+                              errorWidget: const Center(
+                                child: Icon(Icons.broken_image, color: Colors.grey),
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -500,7 +482,7 @@ class _PlayerFormBottomSheetState extends ConsumerState<PlayerFormBottomSheet> {
                             firstDate: DateTime(1950),
                             lastDate: DateTime.now(),
                           );
-                          if (picked != null) {
+                          if (picked != null && mounted) {
                             setState(() {
                               _birthDate = picked;
                             });

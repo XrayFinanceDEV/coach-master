@@ -207,7 +207,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               Row(
                 children: [
                   Expanded(child: _buildStatItem('Goals', totalGoals.toString(), Icons.sports_soccer, Colors.green)),
-                  Expanded(child: _buildStatItem('Assists', totalAssists.toString(), Icons.trending_up, Colors.blue)),
+                  Expanded(child: _buildStatItem('Assists', totalAssists.toString(), Icons.gps_fixed, Colors.blue)),
                   Expanded(child: _buildStatItem('Yellow', totalYellowCards.toString(), Icons.rectangle, Colors.yellow[700]!)),
                   Expanded(child: _buildStatItem('Red', totalRedCards.toString(), Icons.rectangle, Colors.red)),
                 ],

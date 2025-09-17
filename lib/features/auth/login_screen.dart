@@ -129,11 +129,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               children: [
                 const SizedBox(height: 60),
                 
-                // App Icon and Title
-                Icon(
-                  Icons.sports_soccer,
-                  size: 100,
-                  color: Theme.of(context).colorScheme.primary,
+                // App Logo
+                SizedBox(
+                  width: 120,
+                  height: 120,
+                  child: Image.asset(
+                    'docs/logo_coach_master.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 

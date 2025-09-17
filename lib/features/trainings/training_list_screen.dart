@@ -76,7 +76,7 @@ class _TrainingListScreenState extends ConsumerState<TrainingListScreen> {
                         child: FilledButton.icon(
                           onPressed: () => _showAddTrainingDialog(),
                           icon: const Icon(Icons.add),
-                          label: const Text('Add Training Session'),
+                          label: const Text('+Add'),
                         ),
                       ),
                     ],

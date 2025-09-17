@@ -91,9 +91,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            Icon(Icons.home, color: Theme.of(context).colorScheme.primary, size: 28),
+            SizedBox(
+              width: 28,
+              height: 28,
+              child: Image.asset(
+                'docs/logo_coachmaster.png',
+                fit: BoxFit.contain,
+              ),
+            ),
             const SizedBox(width: 8),
-            Text(AppLocalizations.of(context)!.home),
+            const Text('Coach Master'),
             if (selectedSeason != null) ...[
               const Text(' — '),
               Text(

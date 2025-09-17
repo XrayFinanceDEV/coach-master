@@ -304,7 +304,7 @@ class _TrainingsScreenState extends ConsumerState<TrainingsScreen> {
                                       firstDate: DateTime.now().subtract(const Duration(days: 365)),
                                       lastDate: DateTime.now().add(const Duration(days: 365)),
                                     );
-                                    if (picked != null) {
+                                    if (picked != null && context.mounted) {
                                       setDialogState(() {
                                         selectedDate = picked;
                                       });

@@ -81,7 +81,7 @@ class SeasonListScreen extends ConsumerWidget {
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2100),
                     );
-                    if (pickedDate != null) {
+                    if (pickedDate != null && context.mounted) {
                       // Update state or rebuild dialog if necessary
                       startDate = pickedDate;
                     }
@@ -97,7 +97,7 @@ class SeasonListScreen extends ConsumerWidget {
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2100),
                     );
-                    if (pickedDate != null) {
+                    if (pickedDate != null && context.mounted) {
                       // Update state or rebuild dialog if necessary
                       endDate = pickedDate;
                     }

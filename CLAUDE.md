@@ -438,7 +438,7 @@ if (context.mounted) {
   - Added comprehensive Italian position term support (attaccante, centrocampista, difensore, portiere)
   - Enhanced position matching logic for bilingual team management
   - Empty categories show helpful "No players in this category" message
-- **Icon Consistency**: Standardized assist icons to use `Icons.trending_up` across all screens
+- **Icon Consistency**: Standardized assist icons to use `Icons.gps_fixed` (target icon) across all screens
 - **Convocation Memory Fix**: Fixed convocation management to remember previously selected players
 - **Italian Localization**: Improved "Top Scorers" translation from "Migliori Marcatori" to "Migliori Cannonieri"
 
@@ -579,7 +579,7 @@ String _getLocalizedFilterLabel(BuildContext context, String filterKey) {
 - Preserve existing data when updating models (e.g., coachNotes field in Training)
 - Use green highlights for selected/convocated items instead of orange to avoid UI confusion
 - Position action buttons at bottom of lists (like Add Training/Add Match) for consistent UX
-- Use `Icons.trending_up` for all assist-related displays for consistency
+- Use `Icons.gps_fixed` (target icon) for all assist-related displays for consistency
 - Always show all position categories in match forms regardless of player distribution
 
 ### Localization Best Practices

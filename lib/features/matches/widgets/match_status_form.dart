@@ -383,7 +383,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
     return _buildPlayerStatStep(
       title: AppLocalizations.of(context)!.assistsCount,
       subtitle: AppLocalizations.of(context)!.whoProvidedAssists,
-      icon: Icons.trending_up,
+      icon: Icons.gps_fixed,
       color: Colors.blue,
       playerStats: _playerAssists,
       onStatChanged: (playerId, value) => setState(() => _playerAssists[playerId] = value),
@@ -1397,56 +1397,48 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
     }
   }
 
-  // Position categorization methods matching player form logic exactly
+  // Position categorization methods matching simplified categories
   bool _isAttackPosition(String position) {
     final pos = position.toLowerCase();
-    // Match the exact same positions as in player_form_bottom_sheet.dart Attacco section
-    return pos.contains('attaccante') ||
-           pos.contains('trequartista') ||
-           pos.contains('ala sinistra') ||
-           pos.contains('ala destra') ||
-           pos.contains('ala') ||
-           pos.contains('punta') ||
-           // English equivalents from player form - exact matches
+    // Match the simplified attack positions
+    return pos.contains('attaccante') ||          // Striker (ST)
+           pos.contains('seconda punta') ||        // Second striker (SS)
+           pos.contains('trequartista') ||         // Attacking midfielder (AM)
+           pos.contains('ala destra') ||           // Right winger (RW)
+           pos.contains('ala sinistra') ||         // Left winger (LW)
+           // English equivalents
            pos.contains('striker') ||
+           pos.contains('second striker') ||
            pos.contains('attacking midfielder') ||
-           pos.contains('left winger') ||
            pos.contains('right winger') ||
-           pos.contains('winger') ||
-           pos.contains('forward');
+           pos.contains('left winger');
   }
 
   bool _isMidfieldPosition(String position) {
     final pos = position.toLowerCase();
-    // Match the exact same positions as in player_form_bottom_sheet.dart Centro Campo section
-    return pos.contains('centrocampista centrale') ||
-           pos.contains('centrocampista') ||
-           pos.contains('mediano') ||
-           // English equivalents from player form - exact matches
-           pos.contains('central midfielder') ||
+    // Match the simplified midfield positions
+    return pos.contains('regista') ||              // Playmaker (PM)
+           pos.contains('centrocampista') ||       // Midfielder (MF)
+           pos.contains('mediano difensivo') ||    // Defending midfielder (DM)
+           // English equivalents
+           pos.contains('playmaker') ||
            pos.contains('midfielder') ||
-           pos.contains('defensive midfielder');
+           pos.contains('defending midfielder');
   }
 
   bool _isDefensePosition(String position) {
     final pos = position.toLowerCase();
-    // Match the exact same positions as in player_form_bottom_sheet.dart Difesa section
+    // Match the simplified defense positions
     // This includes ALL remaining positions (goalkeepers, defenders, etc.)
-    return pos.contains('portiere') ||
-           pos.contains('difensore centrale') ||
-           pos.contains('difensore') ||
-           pos.contains('terzino sinistro') ||
-           pos.contains('terzino destro') ||
-           pos.contains('terzino') ||
-           pos.contains('quinto') ||
-           // English equivalents from player form - exact matches
+    return pos.contains('portiere') ||             // Goalkeeper (GK)
+           pos.contains('difensore') ||            // Defender (DF)
+           pos.contains('terzino destro') ||       // Right-back (RB)
+           pos.contains('terzino sinistro') ||     // Left-back (LB)
+           // English equivalents
            pos.contains('goalkeeper') ||
-           pos.contains('center back') ||
            pos.contains('defender') ||
-           pos.contains('left back') ||
-           pos.contains('right back') ||
-           pos.contains('full-back') ||
-           pos.contains('wing-back') ||
+           pos.contains('right-back') ||
+           pos.contains('left-back') ||
            // Catch any unmatched positions to ensure all players are categorized
            (!_isAttackPosition(position) && !_isMidfieldPosition(position));
   }

@@ -10,7 +10,7 @@ class ImageCompressionService {
   static const int maxWidth = 720; // For 9:16 aspect ratio (720x1280)
   static const int maxHeight = 1280;
   static const int minQuality = 10; // Minimum quality to try
-  static const int maxQuality = 95; // Maximum quality to start with
+  static const int maxQuality = 85; // Maximum quality to start with - optimized for speed
 
   /// Compresses an image file to approximately 500KB with 9:16 aspect ratio
   static Future<File> compressImageFile(File imageFile) async {

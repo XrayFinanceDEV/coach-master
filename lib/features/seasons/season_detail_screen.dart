@@ -117,7 +117,7 @@ class SeasonDetailScreen extends ConsumerWidget {
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2100),
                     );
-                    if (pickedDate != null) {
+                    if (pickedDate != null && context.mounted) {
                       startDate = pickedDate;
                     }
                   },
@@ -132,7 +132,7 @@ class SeasonDetailScreen extends ConsumerWidget {
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2100),
                     );
-                    if (pickedDate != null) {
+                    if (pickedDate != null && context.mounted) {
                       endDate = pickedDate;
                     }
                   },

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/note.dart';
-import 'package:coachmaster/models/training_attendance.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/features/players/widgets/player_form_bottom_sheet.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
@@ -255,7 +254,7 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.trending_up, color: Colors.white, size: 18),
+                              const Icon(Icons.gps_fixed, color: Colors.white, size: 18),
                               const SizedBox(width: 4),
                               Text(
                                 '${player.assists}',
@@ -405,11 +404,11 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: _buildStatCard(context, 'Assists', player.assists.toString(), Icons.trending_up),
+                                child: _buildStatCard(context, 'Assists', player.assists.toString(), Icons.gps_fixed),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
-                                child: _buildStatCard(context, 'Training', _getTrainingCount(ref, player).toString(), Icons.fitness_center),
+                                child: _buildStatCard(context, 'Absences', player.absences.toString(), Icons.cancel),
                               ),
                             ],
                           ),
@@ -980,14 +979,5 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
     }
   }
 
-  int _getTrainingCount(WidgetRef ref, Player player) {
-    try {
-      final trainingAttendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
-      final attendances = trainingAttendanceRepository.getAttendancesForPlayer(player.id);
-      // Count only present attendances
-      return attendances.where((att) => att.status == TrainingAttendanceStatus.present).length;
-    } catch (e) {
-      return 0;
-    }
-  }
+  // Removed _getTrainingCount method - now using player.absences directly
 }

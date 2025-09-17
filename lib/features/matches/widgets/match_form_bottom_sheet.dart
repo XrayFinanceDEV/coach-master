@@ -25,7 +25,6 @@ class MatchFormBottomSheet extends ConsumerStatefulWidget {
 class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   final _opponentController = TextEditingController();
-  final _locationController = TextEditingController();
   late DateTime _selectedDate;
   bool _isHome = true;
   bool _isLoading = false;
@@ -37,7 +36,6 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
     if (widget.match != null) {
       // Editing existing match
       _opponentController.text = widget.match!.opponent;
-      _locationController.text = widget.match!.location;
       _selectedDate = widget.match!.date;
       _isHome = widget.match!.isHome;
     } else {
@@ -49,7 +47,6 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
   @override
   void dispose() {
     _opponentController.dispose();
-    _locationController.dispose();
     super.dispose();
   }
 
@@ -178,28 +175,6 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
                             ],
                           ),
                         ),
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Location field
-                      TextFormField(
-                        controller: _locationController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.location,
-                          prefixIcon: Icon(
-                            Icons.location_on,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          border: const OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return AppLocalizations.of(context)!.pleaseEnterMatchLocation;
-                          }
-                          return null;
-                        },
-                        textCapitalization: TextCapitalization.words,
                       ),
                       
                       const SizedBox(height: 24),
@@ -360,7 +335,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
       firstDate: DateTime.now().subtract(const Duration(days: 30)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (picked != null && picked != _selectedDate) {
+    if (picked != null && picked != _selectedDate && mounted) {
       setState(() {
         _selectedDate = picked;
       });
@@ -386,14 +361,14 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
       }
 
       if (widget.match != null) {
-        // Update existing match
+        // Update existing match (preserve existing location)
         final updatedMatch = Match(
           id: widget.match!.id,
           teamId: widget.teamId,
           seasonId: team.seasonId,
           opponent: _opponentController.text.trim(),
           date: _selectedDate,
-          location: _locationController.text.trim(),
+          location: widget.match!.location, // Preserve existing location
           isHome: _isHome,
           goalsFor: widget.match!.goalsFor,
           goalsAgainst: widget.match!.goalsAgainst,
@@ -404,13 +379,13 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
         
         await matchRepository.updateMatch(updatedMatch);
       } else {
-        // Create new match
+        // Create new match with default location
         final newMatch = Match.create(
           teamId: widget.teamId,
           seasonId: team.seasonId,
           opponent: _opponentController.text.trim(),
           date: _selectedDate,
-          location: _locationController.text.trim(),
+          location: _isHome ? 'Home Ground' : 'Away Ground', // Default location based on home/away
           isHome: _isHome,
         );
         

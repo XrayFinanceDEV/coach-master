@@ -419,13 +419,25 @@ class _PlayerCardsGridState extends ConsumerState<PlayerCardsGrid> {
     final List<Player> sortedPlayers = List.from(players);
     
     if (sortMode == 'position') {
-      // Sort by position priority
+      // Sort by position priority (defense to attack)
       final positionOrder = {
-        'Goalkeeper': 1, 'Portiere': 1,
-        'Defender': 2, 'Difensore': 2, 'Difensore centrale': 2, 'Terzino': 3,
-        'Midfielder': 4, 'Mediano': 4, 'Centrocampista': 5, 'Regista': 6, 'Mezzala': 7,
-        'Winger': 8, 'Fascia': 8, 'Esterno': 8,
-        'Forward': 9, 'Attaccante': 9, 'Trequartista': 9, 'Seconda punta': 10, 'Punta': 11,
+        // Defense
+        'Goalkeeper (GK)': 1, 'Portiere (GK)': 1,
+        'Defender (DF)': 2, 'Difensore (DF)': 2,
+        'Right-back (RB)': 3, 'Terzino destro (RB)': 3,
+        'Left-back (LB)': 4, 'Terzino sinistro (LB)': 4,
+        
+        // Midfield
+        'Defending midfielder (DM)': 5, 'Mediano difensivo (DM)': 5,
+        'Midfielder (MF)': 6, 'Centrocampista (MF)': 6,
+        'Playmaker (PM)': 7, 'Regista (PM)': 7,
+        'Right winger (RW)': 8, 'Ala destra (RW)': 8,
+        'Left winger (LW)': 9, 'Ala sinistra (LW)': 9,
+        
+        // Attack
+        'Attacking midfielder (AM)': 10, 'Trequartista (AM)': 10,
+        'Second striker (SS)': 11, 'Seconda punta (SS)': 11,
+        'Striker (ST)': 12, 'Attaccante (ST)': 12,
       };
       
       sortedPlayers.sort((a, b) {

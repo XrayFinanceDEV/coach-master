@@ -72,31 +72,32 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
     if (kDebugMode) {
       print('🔥 FirebaseAuthNotifier: Initializing user data for $userId');
     }
-    
+
     try {
       // First, reinitialize local repositories with user-specific boxes
+      // This will skip if already initialized
       await ref.read(repositoryReInitProvider(userId).future);
-      
+
       // Get Firebase user from auth service
       final firebaseUser = _authService?.currentUser;
       if (firebaseUser == null) {
         throw Exception('Firebase user is null during initialization');
       }
-      
+
       // Initialize SyncManager for the authenticated user
       await SyncManager.instance.initializeForUser(firebaseUser);
-      
+
       if (kDebugMode) {
         print('🔥 FirebaseAuthNotifier: SyncManager initialized for user $userId');
       }
-      
+
       // Perform initial sync to get user data from Firestore
       // Force download ensures cross-device data sync works properly
       await SyncManager.instance.forceDownloadAll();
-      
+
       // Also perform bidirectional sync to upload any local changes
       await SyncManager.instance.performFullSync();
-      
+
       if (kDebugMode) {
         print('🔥 FirebaseAuthNotifier: Initial sync completed for user $userId');
       }

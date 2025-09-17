@@ -5,7 +5,6 @@ import 'package:coachmaster/models/onboarding_settings.dart';
 import 'package:coachmaster/models/season.dart';
 import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/core/repository_instances.dart';
-import 'package:coachmaster/core/app_initialization.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});

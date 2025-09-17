@@ -14,6 +14,7 @@ import 'package:coachmaster/features/matches/match_list_screen.dart';
 import 'package:coachmaster/features/matches/match_detail_screen.dart';
 import 'package:coachmaster/features/dashboard/dashboard_screen.dart';
 import 'package:coachmaster/features/auth/login_screen.dart';
+import 'package:coachmaster/features/onboarding/onboarding_screen.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/locale_provider.dart';
 import 'package:coachmaster/core/firebase_auth_providers.dart';
@@ -576,7 +577,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   void _loadCurrentSelections() async {
     final seasonRepo = ref.read(seasonRepositoryProvider);
     final teamRepo = ref.read(teamRepositoryProvider);
-    
+
+    if (kDebugMode) {
+      print('🔧 Settings: Loading current selections');
+      print('🔧 Settings: Season repo type: ${seasonRepo.runtimeType}');
+      print('🔧 Settings: Team repo type: ${teamRepo.runtimeType}');
+    }
+
     try {
       // Clean up any duplicate teams first
       await teamRepo.cleanupDuplicateTeams();
@@ -585,14 +592,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       print('Settings: Cleanup failed, clearing corrupted data: $e');
       await teamRepo.clearCorruptedData();
     }
-    
+
     // Look for 2025-26 season or create it if it doesn't exist
     var seasons = seasonRepo.getSeasons();
+    if (kDebugMode) {
+      print('🔧 Settings: Found ${seasons.length} seasons');
+      for (var season in seasons) {
+        print('🔧 Settings: Season: ${season.name} (ID: ${season.id})');
+      }
+    }
+
     var currentSeason = seasons.cast<Season?>().firstWhere(
       (s) => s?.name == '2025-26',
       orElse: () => null,
     );
-    
+
+    if (kDebugMode) {
+      print('🔧 Settings: Current season found: ${currentSeason?.name}');
+    }
+
     if (currentSeason == null) {
       // Create the default 2025-26 season
       currentSeason = Season.create(
@@ -601,17 +619,36 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         endDate: DateTime(2026, 6, 30),  // June 30, 2026
       );
       await seasonRepo.addSeason(currentSeason);
+      if (kDebugMode) {
+        print('🔧 Settings: Created new season: ${currentSeason.name} (ID: ${currentSeason.id})');
+      }
     }
-    
+
     selectedSeasonId = currentSeason.id;
-    
+    if (kDebugMode) {
+      print('🔧 Settings: Set selectedSeasonId to: $selectedSeasonId');
+    }
+
     final teams = teamRepo.getTeamsForSeason(selectedSeasonId!);
+    if (kDebugMode) {
+      print('🔧 Settings: Found ${teams.length} teams for season');
+      for (var team in teams) {
+        print('🔧 Settings: Team: ${team.name} (ID: ${team.id})');
+      }
+    }
+
     if (teams.isNotEmpty) {
       selectedTeamId = teams.first.id;
+      if (kDebugMode) {
+        print('🔧 Settings: Set selectedTeamId to: $selectedTeamId');
+      }
     }
-    
+
     if (mounted) {
       setState(() {});
+      if (kDebugMode) {
+        print('🔧 Settings: UI updated - selectedSeasonId: $selectedSeasonId, selectedTeamId: $selectedTeamId');
+      }
     }
   }
 
@@ -750,10 +787,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final teamRepo = ref.watch(teamRepositoryProvider);
-    
+
+    if (kDebugMode) {
+      print('🔧 Settings: Building UI');
+      print('🔧 Settings: selectedSeasonId: $selectedSeasonId');
+      print('🔧 Settings: selectedTeamId: $selectedTeamId');
+    }
+
     List<Team> teams = <Team>[];
     try {
-      teams = selectedSeasonId != null ? teamRepo.getTeamsForSeason(selectedSeasonId!) : <Team>[];
+      if (selectedSeasonId != null) {
+        teams = teamRepo.getTeamsForSeason(selectedSeasonId!);
+        if (kDebugMode) {
+          print('🔧 Settings: Retrieved ${teams.length} teams for season $selectedSeasonId');
+        }
+      } else {
+        if (kDebugMode) {
+          print('🔧 Settings: selectedSeasonId is null, not loading teams');
+        }
+        teams = <Team>[];
+      }
     } catch (e) {
       print('Settings: Error getting teams, returning empty list: $e');
       teams = <Team>[];
@@ -1279,11 +1332,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final authState = ref.read(firebaseAuthProvider);
       final currentPath = state.matchedLocation;
-      
+
       if (kDebugMode) {
         print('🚦 Router: currentPath=$currentPath, isAuthenticated=${authState.isAuthenticated}, isFirebaseUser=${authState.isUsingFirebaseAuth}, isLoading=${authState.isLoading}');
       }
-      
+
       // If auth is still loading, don't redirect yet
       if (authState.isLoading) {
         if (kDebugMode) {
@@ -1291,22 +1344,49 @@ final routerProvider = Provider<GoRouter>((ref) {
         }
         return null;
       }
-      
+
       final isAuthenticated = authState.isAuthenticated;
-      
+
       // If not authenticated and not on login page, redirect to login
       if (!isAuthenticated && !currentPath.startsWith('/login')) {
         return '/login';
       }
-      
-      // If authenticated and on login page, redirect to main app
-      if (isAuthenticated && currentPath.startsWith('/login')) {
-        if (kDebugMode) {
-          print('🚦 Router: Redirecting authenticated user from $currentPath to /players');
+
+      // If authenticated, check onboarding status
+      if (isAuthenticated) {
+        // Check if user is on login page
+        if (currentPath.startsWith('/login')) {
+          // Check onboarding completion
+          final isOnboardingCompleted = ref.read(onboardingStatusProvider);
+          if (kDebugMode) {
+            print('🚦 Router: Onboarding completed: $isOnboardingCompleted');
+          }
+
+          if (!isOnboardingCompleted) {
+            if (kDebugMode) {
+              print('🚦 Router: Redirecting to onboarding');
+            }
+            return '/onboarding';
+          }
+
+          if (kDebugMode) {
+            print('🚦 Router: Redirecting authenticated user from $currentPath to /players');
+          }
+          return '/players';
         }
-        return '/players'; // Redirect to main app
+
+        // Check if authenticated user needs onboarding (but not on onboarding page)
+        if (currentPath != '/onboarding') {
+          final isOnboardingCompleted = ref.read(onboardingStatusProvider);
+          if (!isOnboardingCompleted) {
+            if (kDebugMode) {
+              print('🚦 Router: User needs onboarding, redirecting from $currentPath to /onboarding');
+            }
+            return '/onboarding';
+          }
+        }
       }
-      
+
       return null; // No redirect needed
     },
     routes: [
@@ -1314,6 +1394,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
+      ),
+
+      // Onboarding route
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
       ),
       
       StatefulShellRoute.indexedStack(

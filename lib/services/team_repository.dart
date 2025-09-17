@@ -5,13 +5,15 @@ import 'package:flutter/foundation.dart';
 class TeamRepository {
   late Box<Team> _teamBox;
   String? _currentUserId;
+  bool _isInitialized = false;
 
   Future<void> init({String? userId}) async {
     _currentUserId = userId;
     // Use user-specific box to prevent cross-user data conflicts
     final boxName = userId != null ? 'teams_$userId' : 'teams';
     _teamBox = await Hive.openBox<Team>(boxName);
-    
+    _isInitialized = true;
+
     if (kDebugMode) {
       print('🟢 TeamRepository: Initialized with box $boxName');
     }
@@ -191,6 +193,7 @@ class TeamRepository {
   Future<void> close() async {
     try {
       await _teamBox.close();
+      _isInitialized = false;
       if (kDebugMode) {
         print('🟢 TeamRepository: Closed');
       }
@@ -200,6 +203,9 @@ class TeamRepository {
       }
     }
   }
+
+  /// Check if repository is initialized
+  bool get isInitialized => _isInitialized;
 
   /// Clear all corrupted data and reinitialize (emergency fix)
   Future<void> clearCorruptedData() async {

@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/services/base_sync_repository.dart';
 import 'package:coachmaster/services/firestore_sync_service.dart';
@@ -41,6 +43,85 @@ class TeamSyncRepository extends BaseSyncRepository<Team> {
   Team? getTeamForSeason(String seasonId) {
     final teams = getTeamsForSeason(seasonId);
     return teams.isNotEmpty ? teams.first : null;
+  }
+
+  /// Clean up duplicate teams (keeps the latest entry for each unique ID)
+  Future<void> cleanupDuplicateTeams() async {
+    if (kDebugMode) {
+      print('🟢 TeamSyncRepository: Starting cleanup of duplicate teams');
+    }
+
+    try {
+      final uniqueTeams = <String, Team>{};
+      final keysToDelete = <dynamic>[];
+
+      // Safely collect all teams and find duplicates
+      for (final key in box.keys) {
+        try {
+          final team = box.get(key);
+          if (team != null) {
+            if (uniqueTeams.containsKey(team.id)) {
+              // Mark this key for deletion (it's a duplicate)
+              keysToDelete.add(key);
+              if (kDebugMode) {
+                print('🟢 TeamSyncRepository: Found duplicate team ${team.id}, marking key $key for deletion');
+              }
+            } else {
+              uniqueTeams[team.id] = team;
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('🟢 TeamSyncRepository: Error processing key $key: $e');
+          }
+          // Mark corrupted entries for deletion
+          keysToDelete.add(key);
+        }
+      }
+
+      // Delete duplicate/corrupted keys
+      for (final key in keysToDelete) {
+        try {
+          await box.delete(key);
+          if (kDebugMode) {
+            print('🟢 TeamSyncRepository: Deleted duplicate/corrupted key $key');
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('🟢 TeamSyncRepository: Error deleting key $key: $e');
+          }
+        }
+      }
+
+      if (kDebugMode) {
+        print('🟢 TeamSyncRepository: Cleanup completed. Deleted ${keysToDelete.length} duplicate/corrupted entries');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('🟢 TeamSyncRepository: Error during cleanup: $e');
+      }
+      // Simply log the error - don't try complex recovery
+    }
+  }
+
+  /// Clear all corrupted data and reinitialize (emergency fix)
+  Future<void> clearCorruptedData() async {
+    try {
+      if (kDebugMode) {
+        print('🟢 TeamSyncRepository: Clearing all corrupted data');
+      }
+
+      await box.clear();
+
+      if (kDebugMode) {
+        print('🟢 TeamSyncRepository: All data cleared successfully');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('🟢 TeamSyncRepository: Error clearing corrupted data: $e');
+      }
+      // Simply log the error - don't try complex recovery
+    }
   }
 
   // Implementation of abstract methods from BaseSyncRepository

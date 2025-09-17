@@ -17,17 +17,17 @@ import 'package:coachmaster/services/sync_manager.dart';
 import 'package:coachmaster/core/firebase_auth_providers.dart';
 
 // Global repository instances
-late final SeasonRepository _seasonRepository;
-late final TeamRepository _teamRepository;
-late final PlayerRepository _playerRepository;
-late final TrainingRepository _trainingRepository;
-late final TrainingAttendanceRepository _trainingAttendanceRepository;
-late final MatchRepository _matchRepository;
-late final BaseMatchConvocationRepository _matchConvocationRepository;
-late final BaseMatchStatisticRepository _matchStatisticRepository;
-late final OnboardingRepository _onboardingRepository;
-late final UserRepository _userRepository;
-late final NoteRepository _noteRepository;
+SeasonRepository? _seasonRepository;
+TeamRepository? _teamRepository;
+PlayerRepository? _playerRepository;
+TrainingRepository? _trainingRepository;
+TrainingAttendanceRepository? _trainingAttendanceRepository;
+MatchRepository? _matchRepository;
+BaseMatchConvocationRepository? _matchConvocationRepository;
+BaseMatchStatisticRepository? _matchStatisticRepository;
+OnboardingRepository? _onboardingRepository;
+UserRepository? _userRepository;
+NoteRepository? _noteRepository;
 
 /// Initialize all repositories efficiently in parallel
 Future<void> initializeRepositories({String? userId}) async {
@@ -44,20 +44,20 @@ Future<void> initializeRepositories({String? userId}) async {
     _onboardingRepository = OnboardingRepository();
     _userRepository = UserRepository();
     _noteRepository = NoteRepository();
-    
+
     // Initialize all repositories in parallel to reduce startup time
     await Future.wait([
-      _seasonRepository.init(userId: userId),
-      _teamRepository.init(userId: userId),
-      _playerRepository.init(userId: userId),
-      _trainingRepository.init(userId: userId),
-      _trainingAttendanceRepository.init(), // TODO: Add userId support
-      _matchRepository.init(), // TODO: Add userId support
-      _matchConvocationRepository.init(), // TODO: Add userId support
-      _matchStatisticRepository.init(), // TODO: Add userId support
-      _onboardingRepository.init(), // Global, not user-specific
-      _userRepository.init(), // Global, not user-specific
-      _noteRepository.init(), // TODO: Add userId support
+      _seasonRepository!.init(userId: userId),
+      _teamRepository!.init(userId: userId),
+      _playerRepository!.init(userId: userId),
+      _trainingRepository!.init(userId: userId),
+      _trainingAttendanceRepository!.init(), // TODO: Add userId support
+      _matchRepository!.init(), // TODO: Add userId support
+      _matchConvocationRepository!.init(), // TODO: Add userId support
+      _matchStatisticRepository!.init(), // TODO: Add userId support
+      _onboardingRepository!.init(), // Global, not user-specific
+      _userRepository!.init(), // Global, not user-specific
+      _noteRepository!.init(), // TODO: Add userId support
     ]);
   } catch (e) {
     // Handle initialization errors gracefully
@@ -68,13 +68,33 @@ Future<void> initializeRepositories({String? userId}) async {
 /// Close all repositories (useful for user switching)
 Future<void> closeRepositories() async {
   try {
-    await Future.wait([
-      _seasonRepository.close(),
-      _teamRepository.close(),
-      _playerRepository.close(),
-      _trainingRepository.close(),
-      // TODO: Add other repositories as we update them
-    ]);
+    final futures = <Future<void>>[];
+
+    // Only close repositories that are initialized
+    if (_seasonRepository != null) {
+      futures.add(_seasonRepository!.close());
+    }
+    if (_teamRepository != null) {
+      futures.add(_teamRepository!.close());
+    }
+    if (_playerRepository != null) {
+      futures.add(_playerRepository!.close());
+    }
+    if (_trainingRepository != null) {
+      futures.add(_trainingRepository!.close());
+    }
+
+    // Wait for all close operations
+    if (futures.isNotEmpty) {
+      await Future.wait(futures);
+    }
+
+    // Reset repository references
+    _seasonRepository = null;
+    _teamRepository = null;
+    _playerRepository = null;
+    _trainingRepository = null;
+
   } catch (e) {
     // Handle close errors gracefully
     print('Error closing repositories: $e');
@@ -84,12 +104,16 @@ Future<void> closeRepositories() async {
 /// Provider for user-specific repository reinitialization
 final repositoryReInitProvider = FutureProvider.family<void, String>((ref, userId) async {
   try {
-    // Close existing repositories first
-    await closeRepositories();
-    
+    // Check if repositories are already initialized for this user
+    // Use a simple null check since we don't have isInitialized on all repos yet
+    if (_seasonRepository != null) {
+      print('🔄 Repositories already initialized, skipping reinitialization for user: $userId');
+      return;
+    }
+
     // Reinitialize with user-specific boxes
     await initializeRepositories(userId: userId);
-    
+
     print('🔄 Repositories reinitialized for user: $userId');
   } catch (e) {
     print('❌ Error reinitializing repositories for user $userId: $e');
@@ -101,28 +125,34 @@ final repositoryReInitProvider = FutureProvider.family<void, String>((ref, userI
 // Returns SeasonRepository or SeasonSyncRepository (both have same interface)
 final seasonRepositoryProvider = Provider<dynamic>((ref) {
   final authState = ref.watch(firebaseAuthProvider);
-  
+
   // If user is authenticated with Firebase and SyncManager is initialized, use sync repository
-  if (authState.isUsingFirebaseAuth && 
-      !authState.isInitializing && 
+  if (authState.isUsingFirebaseAuth &&
+      !authState.isInitializing &&
       SyncManager.instance.isInitialized) {
     return SyncManager.instance.seasonRepository;
   }
-  
+
   // Otherwise use local repository
+  if (_seasonRepository == null) {
+    throw Exception('SeasonRepository not initialized. Make sure to call initializeRepositories() first.');
+  }
   return _seasonRepository;
 });
 
 // Returns TeamRepository or TeamSyncRepository (both have same interface)
 final teamRepositoryProvider = Provider<dynamic>((ref) {
   final authState = ref.watch(firebaseAuthProvider);
-  
-  if (authState.isUsingFirebaseAuth && 
-      !authState.isInitializing && 
+
+  if (authState.isUsingFirebaseAuth &&
+      !authState.isInitializing &&
       SyncManager.instance.isInitialized) {
     return SyncManager.instance.teamRepository;
   }
-  
+
+  if (_teamRepository == null) {
+    throw Exception('TeamRepository not initialized. Make sure to call initializeRepositories() first.');
+  }
   return _teamRepository;
 });
 
@@ -157,7 +187,12 @@ final trainingRepositoryProvider = Provider<dynamic>((ref) {
   return _trainingRepository;
 });
 
-final trainingAttendanceRepositoryProvider = Provider<TrainingAttendanceRepository>((ref) => _trainingAttendanceRepository);
+final trainingAttendanceRepositoryProvider = Provider<TrainingAttendanceRepository>((ref) {
+  if (_trainingAttendanceRepository == null) {
+    throw Exception('TrainingAttendanceRepository not initialized. Make sure to call initializeRepositories() first.');
+  }
+  return _trainingAttendanceRepository!;
+});
 
 // Returns MatchRepository or MatchSyncRepository (both have same interface)
 final matchRepositoryProvider = Provider<dynamic>((ref) {
@@ -174,30 +209,46 @@ final matchRepositoryProvider = Provider<dynamic>((ref) {
 
 final matchConvocationRepositoryProvider = Provider<BaseMatchConvocationRepository>((ref) {
   final authState = ref.watch(firebaseAuthProvider);
-  
-  if (authState.isUsingFirebaseAuth && 
-      !authState.isInitializing && 
+
+  if (authState.isUsingFirebaseAuth &&
+      !authState.isInitializing &&
       SyncManager.instance.isInitialized) {
     return SyncManager.instance.matchConvocationRepository;
   }
-  
-  return _matchConvocationRepository;
+
+  if (_matchConvocationRepository == null) {
+    throw Exception('MatchConvocationRepository not initialized. Make sure to call initializeRepositories() first.');
+  }
+  return _matchConvocationRepository!;
 });
 
 final matchStatisticRepositoryProvider = Provider<BaseMatchStatisticRepository>((ref) {
   final authState = ref.watch(firebaseAuthProvider);
-  
-  if (authState.isUsingFirebaseAuth && 
-      !authState.isInitializing && 
+
+  if (authState.isUsingFirebaseAuth &&
+      !authState.isInitializing &&
       SyncManager.instance.isInitialized) {
     return SyncManager.instance.matchStatisticRepository;
   }
-  
-  return _matchStatisticRepository;
+
+  if (_matchStatisticRepository == null) {
+    throw Exception('MatchStatisticRepository not initialized. Make sure to call initializeRepositories() first.');
+  }
+  return _matchStatisticRepository!;
 });
 
-final onboardingRepositoryProvider = Provider<OnboardingRepository>((ref) => _onboardingRepository);
-final userRepositoryProvider = Provider<UserRepository>((ref) => _userRepository);
+final onboardingRepositoryProvider = Provider<OnboardingRepository>((ref) {
+  if (_onboardingRepository == null) {
+    throw Exception('OnboardingRepository not initialized. Make sure to call initializeRepositories() first.');
+  }
+  return _onboardingRepository!;
+});
+final userRepositoryProvider = Provider<UserRepository>((ref) {
+  if (_userRepository == null) {
+    throw Exception('UserRepository not initialized. Make sure to call initializeRepositories() first.');
+  }
+  return _userRepository!;
+});
 
 // Returns NoteRepository or NoteSyncRepository (both have same interface)
 final noteRepositoryProvider = Provider<dynamic>((ref) {
@@ -210,6 +261,12 @@ final noteRepositoryProvider = Provider<dynamic>((ref) {
   }
   
   return _noteRepository;
+});
+
+// Onboarding status provider
+final onboardingStatusProvider = Provider<bool>((ref) {
+  final onboardingRepo = ref.watch(onboardingRepositoryProvider);
+  return onboardingRepo.isOnboardingCompleted;
 });
 
 // Refresh counter for UI synchronization

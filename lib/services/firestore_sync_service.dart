@@ -35,13 +35,13 @@ class FirestoreSyncService {
     _pendingSyncBox = await Hive.openBox<PendingSyncOperation>('${_pendingSyncBoxName}_$userId');
     
     // Listen to connectivity changes
-    _connectivity.onConnectivityChanged.listen((connectivityResult) {
-      _onConnectivityChanged([connectivityResult]);
+    _connectivity.onConnectivityChanged.listen((connectivityResults) {
+      _onConnectivityChanged(connectivityResults);
     });
     
     // Check initial connectivity
-    final connectivityResult = await _connectivity.checkConnectivity();
-    _isOnline = connectivityResult != ConnectivityResult.none;
+    final connectivityResults = await _connectivity.checkConnectivity();
+    _isOnline = !connectivityResults.contains(ConnectivityResult.none);
     
     if (kDebugMode) {
       print('🔄 FirestoreSyncService: Initial connectivity - ${_isOnline ? 'online' : 'offline'}');

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:coachmaster/services/firebase_auth_service.dart';
 import 'package:coachmaster/services/sync_manager.dart';
 import 'package:coachmaster/models/auth_state.dart';
+import 'package:coachmaster/core/repository_instances.dart';
 
 class FirebaseAuthNotifier extends Notifier<AuthState> {
   FirebaseAuthService? _authService;
@@ -73,6 +74,9 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
     }
     
     try {
+      // First, reinitialize local repositories with user-specific boxes
+      await ref.read(repositoryReInitProvider(userId).future);
+      
       // Get Firebase user from auth service
       final firebaseUser = _authService?.currentUser;
       if (firebaseUser == null) {
@@ -112,6 +116,9 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
     try {
       // Clean up SyncManager when user signs out
       await SyncManager.instance.cleanup();
+      
+      // Close user-specific repositories
+      await closeRepositories();
       
       if (kDebugMode) {
         print('🔥 FirebaseAuthNotifier: SyncManager cleaned up');
@@ -187,6 +194,27 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
         print('🔥 FirebaseAuthNotifier: Google sign in error - $e');
       }
       state = AuthState.unauthenticated(e.toString());
+    }
+  }
+
+  /// Link Google account to existing email/password account
+  Future<void> linkGoogleAccount() async {
+    if (kDebugMode) {
+      print('🔥 FirebaseAuthNotifier: Linking Google account');
+    }
+    
+    try {
+      await _authService!.linkGoogleAccount();
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: Google account linked successfully');
+      }
+      // State will be updated by the auth stream listener
+    } catch (e) {
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: Google account linking error - $e');
+      }
+      // Re-throw to let the UI handle the error
+      rethrow;
     }
   }
   

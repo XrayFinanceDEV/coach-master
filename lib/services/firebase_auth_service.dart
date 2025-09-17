@@ -11,8 +11,6 @@ class FirebaseAuthService {
       'email',
       'profile',
     ],
-    // FedCM compatibility - use sign in silently first
-    forceCodeForRefreshToken: false,
   );
   
   // Prevent concurrent Google Sign-In operations
@@ -129,6 +127,15 @@ class FirebaseAuthService {
         return null;
       }
       
+      // Check if this email already exists with email/password authentication
+      final email = googleUser.email;
+      if (kDebugMode) {
+        print('🔥 FirebaseAuth: Checking if email $email already exists');
+      }
+      
+      // We'll handle email conflicts during the actual sign-in process
+      // Firebase will automatically detect if there's a conflict
+      
       // Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       
@@ -150,6 +157,18 @@ class FirebaseAuthService {
       if (kDebugMode) {
         print('🔥 FirebaseAuth: Google Sign-In failed - ${e.code}: ${e.message}');
       }
+      
+      // Handle account exists with different credential
+      if (e.code == 'account-exists-with-different-credential') {
+        // Sign out from Google since we can't proceed
+        await _googleSignIn.signOut();
+        
+        throw Exception(
+          'An account with this email already exists. Please sign in with your email and password instead, '
+          'or contact support to link your Google account.'
+        );
+      }
+      
       throw _handleAuthException(e);
     } catch (e) {
       if (kDebugMode) {
@@ -217,6 +236,54 @@ class FirebaseAuthService {
         print('🔥 FirebaseAuth: Password reset failed - ${e.code}: ${e.message}');
       }
       throw _handleAuthException(e);
+    }
+  }
+
+  /// Link Google account to existing email/password account
+  /// User must be signed in with email/password first
+  Future<UserCredential?> linkGoogleAccount() async {
+    final currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      throw Exception('You must be signed in to link your Google account.');
+    }
+
+    try {
+      if (kDebugMode) {
+        print('🔥 FirebaseAuth: Attempting to link Google account for ${currentUser.email}');
+      }
+
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        if (kDebugMode) {
+          print('🔥 FirebaseAuth: Google Sign-In cancelled by user during linking');
+        }
+        return null;
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Link the Google credential to the current user
+      final userCredential = await currentUser.linkWithCredential(credential);
+      
+      if (kDebugMode) {
+        print('🔥 FirebaseAuth: Google account linked successfully for ${userCredential.user?.email}');
+      }
+
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      if (kDebugMode) {
+        print('🔥 FirebaseAuth: Google account linking failed - ${e.code}: ${e.message}');
+      }
+      throw _handleAuthException(e);
+    } catch (e) {
+      if (kDebugMode) {
+        print('🔥 FirebaseAuth: Google account linking error - $e');
+      }
+      throw Exception('Failed to link Google account: $e');
     }
   }
   

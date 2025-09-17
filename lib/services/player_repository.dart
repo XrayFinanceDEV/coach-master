@@ -6,9 +6,17 @@ import 'package:coachmaster/models/training_attendance.dart';
 
 class PlayerRepository {
   late Box<Player> _playerBox;
+  String? _currentUserId;
 
-  Future<void> init() async {
-    _playerBox = await Hive.openBox<Player>('players');
+  Future<void> init({String? userId}) async {
+    _currentUserId = userId;
+    // Use user-specific box to prevent cross-user data conflicts
+    final boxName = userId != null ? 'players_$userId' : 'players';
+    _playerBox = await Hive.openBox<Player>(boxName);
+    
+    if (kDebugMode) {
+      print('🟦 PlayerRepository: Initialized with box $boxName');
+    }
   }
 
   List<Player> getPlayers() {
@@ -139,5 +147,19 @@ class PlayerRepository {
       'totalRedCards': teamPlayers.fold(0, (sum, p) => sum + p.redCards),
       'totalAbsences': teamPlayers.fold(0, (sum, p) => sum + p.absences),
     };
+  }
+
+  /// Close the current box (useful for user switching)
+  Future<void> close() async {
+    try {
+      await _playerBox.close();
+      if (kDebugMode) {
+        print('🟦 PlayerRepository: Closed');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('🟦 PlayerRepository: Error closing box: $e');
+      }
+    }
   }
 }

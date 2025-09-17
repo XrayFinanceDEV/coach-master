@@ -30,7 +30,7 @@ late final UserRepository _userRepository;
 late final NoteRepository _noteRepository;
 
 /// Initialize all repositories efficiently in parallel
-Future<void> initializeRepositories() async {
+Future<void> initializeRepositories({String? userId}) async {
   try {
     // Create all repository instances first
     _seasonRepository = SeasonRepository();
@@ -47,23 +47,55 @@ Future<void> initializeRepositories() async {
     
     // Initialize all repositories in parallel to reduce startup time
     await Future.wait([
-      _seasonRepository.init(),
-      _teamRepository.init(),
-      _playerRepository.init(),
-      _trainingRepository.init(),
-      _trainingAttendanceRepository.init(),
-      _matchRepository.init(),
-      _matchConvocationRepository.init(),
-      _matchStatisticRepository.init(),
-      _onboardingRepository.init(),
-      _userRepository.init(),
-      _noteRepository.init(),
+      _seasonRepository.init(userId: userId),
+      _teamRepository.init(userId: userId),
+      _playerRepository.init(userId: userId),
+      _trainingRepository.init(userId: userId),
+      _trainingAttendanceRepository.init(), // TODO: Add userId support
+      _matchRepository.init(), // TODO: Add userId support
+      _matchConvocationRepository.init(), // TODO: Add userId support
+      _matchStatisticRepository.init(), // TODO: Add userId support
+      _onboardingRepository.init(), // Global, not user-specific
+      _userRepository.init(), // Global, not user-specific
+      _noteRepository.init(), // TODO: Add userId support
     ]);
   } catch (e) {
     // Handle initialization errors gracefully
     rethrow;
   }
 }
+
+/// Close all repositories (useful for user switching)
+Future<void> closeRepositories() async {
+  try {
+    await Future.wait([
+      _seasonRepository.close(),
+      _teamRepository.close(),
+      _playerRepository.close(),
+      _trainingRepository.close(),
+      // TODO: Add other repositories as we update them
+    ]);
+  } catch (e) {
+    // Handle close errors gracefully
+    print('Error closing repositories: $e');
+  }
+}
+
+/// Provider for user-specific repository reinitialization
+final repositoryReInitProvider = FutureProvider.family<void, String>((ref, userId) async {
+  try {
+    // Close existing repositories first
+    await closeRepositories();
+    
+    // Reinitialize with user-specific boxes
+    await initializeRepositories(userId: userId);
+    
+    print('🔄 Repositories reinitialized for user: $userId');
+  } catch (e) {
+    print('❌ Error reinitializing repositories for user $userId: $e');
+    rethrow;
+  }
+});
 
 // Sync-aware repository providers that switch between local and sync repositories
 // Returns SeasonRepository or SeasonSyncRepository (both have same interface)

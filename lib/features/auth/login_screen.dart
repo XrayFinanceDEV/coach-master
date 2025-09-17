@@ -14,21 +14,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   bool _isLoading = false;
   String? _errorMessage;
+  bool _isRegistrationMode = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _nameController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   void _togglePasswordVisibility() {
     setState(() {
       _obscurePassword = !_obscurePassword;
+    });
+  }
+
+  void _toggleConfirmPasswordVisibility() {
+    setState(() {
+      _obscureConfirmPassword = !_obscureConfirmPassword;
+    });
+  }
+
+  void _toggleMode() {
+    setState(() {
+      _isRegistrationMode = !_isRegistrationMode;
+      _errorMessage = null;
     });
   }
 
@@ -60,10 +79,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     try {
-      await ref.read(firebaseAuthProvider.notifier).signInWithEmail(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
+      if (_isRegistrationMode) {
+        await ref.read(firebaseAuthProvider.notifier).registerWithEmail(
+          _emailController.text.trim(),
+          _passwordController.text,
+          _nameController.text.trim(),
+        );
+      } else {
+        await ref.read(firebaseAuthProvider.notifier).signInWithEmail(
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
+      }
 
       if (mounted) {
         // Navigation will be handled by the router redirect logic
@@ -173,7 +200,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Welcome Back',
+                          _isRegistrationMode ? 'Create Account' : 'Welcome Back',
                           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -181,6 +208,50 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
+                        
+                        // Name Field (Registration only)
+                        if (_isRegistrationMode) ...[
+                          TextFormField(
+                            controller: _nameController,
+                            onChanged: (_) {
+                              if (_errorMessage != null) {
+                                setState(() {
+                                  _errorMessage = null;
+                                });
+                              }
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'Full Name',
+                              hintText: 'Enter your full name',
+                              prefixIcon: Icon(Icons.person, 
+                                color: Theme.of(context).colorScheme.primary),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            textInputAction: TextInputAction.next,
+                            validator: _isRegistrationMode ? (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter your full name';
+                              }
+                              return null;
+                            } : null,
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                         
                         // Email Field
                         TextFormField(
@@ -268,16 +339,75 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                           obscureText: _obscurePassword,
-                          textInputAction: TextInputAction.done,
-                          onFieldSubmitted: (_) => _handleLogin(),
+                          textInputAction: _isRegistrationMode ? TextInputAction.next : TextInputAction.done,
+                          onFieldSubmitted: (_) => _isRegistrationMode ? null : _handleLogin(),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your password';
+                            }
+                            if (_isRegistrationMode && value.length < 6) {
+                              return 'Password must be at least 6 characters';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
+                        
+                        // Confirm Password Field (Registration only)
+                        if (_isRegistrationMode) ...[
+                          TextFormField(
+                            controller: _confirmPasswordController,
+                            onChanged: (_) {
+                              if (_errorMessage != null) {
+                                setState(() {
+                                  _errorMessage = null;
+                                });
+                              }
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'Confirm Password',
+                              hintText: 'Confirm your password',
+                              prefixIcon: Icon(Icons.lock_outline, 
+                                color: Theme.of(context).colorScheme.primary),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                                ),
+                                onPressed: _toggleConfirmPasswordVisibility,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            obscureText: _obscureConfirmPassword,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _handleLogin(),
+                            validator: _isRegistrationMode ? (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please confirm your password';
+                              }
+                              if (value != _passwordController.text) {
+                                return 'Passwords do not match';
+                              }
+                              return null;
+                            } : null,
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                         
                         // Error Message Display
                         if (_errorMessage != null)
@@ -339,7 +469,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     Text('Signing in...'),
                                   ],
                                 )
-                              : const Text('Sign In'),
+                              : Text(_isRegistrationMode ? 'Create Account' : 'Sign In'),
                         ),
                         const SizedBox(height: 24),
                         
@@ -425,13 +555,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
                 
-                // Sign Up Section
-                Text(
-                  'New to CoachMaster? Use Google Sign-In or Email Registration above.',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                  textAlign: TextAlign.center,
+                // Mode Toggle Section
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _isRegistrationMode 
+                          ? 'Already have an account? ' 
+                          : 'New to CoachMaster? ',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _toggleMode,
+                      child: Text(
+                        _isRegistrationMode ? 'Sign In' : 'Create Account',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 
                 const SizedBox(height: 24),

@@ -577,6 +577,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final seasonRepo = ref.read(seasonRepositoryProvider);
     final teamRepo = ref.read(teamRepositoryProvider);
     
+    try {
+      // Clean up any duplicate teams first
+      await teamRepo.cleanupDuplicateTeams();
+    } catch (e) {
+      // If cleanup fails due to corrupted data, clear everything
+      print('Settings: Cleanup failed, clearing corrupted data: $e');
+      await teamRepo.clearCorruptedData();
+    }
+    
     // Look for 2025-26 season or create it if it doesn't exist
     var seasons = seasonRepo.getSeasons();
     var currentSeason = seasons.cast<Season?>().firstWhere(
@@ -742,7 +751,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final teamRepo = ref.watch(teamRepositoryProvider);
     
-    final teams = selectedSeasonId != null ? teamRepo.getTeamsForSeason(selectedSeasonId!) : <Team>[];
+    List<Team> teams = <Team>[];
+    try {
+      teams = selectedSeasonId != null ? teamRepo.getTeamsForSeason(selectedSeasonId!) : <Team>[];
+    } catch (e) {
+      print('Settings: Error getting teams, returning empty list: $e');
+      teams = <Team>[];
+    }
     
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -867,7 +882,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             }
                           },
                           items: [
-                            ...teams.map((team) => DropdownMenuItem<String>(
+                            // Filter out duplicate team IDs to prevent dropdown assertion error
+                            ...teams.fold<Map<String, Team>>({}, (map, team) {
+                              map[team.id] = team; // This will keep only unique IDs
+                              return map;
+                            }).values.map((team) => DropdownMenuItem<String>(
                               value: team.id,
                               child: Text(team.name),
                             )),

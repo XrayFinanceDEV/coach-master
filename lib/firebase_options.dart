@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '25162710455',
     projectId: 'coach-mast-3r',
     storageBucket: 'coach-mast-3r.firebasestorage.app',
-    iosBundleId: 'com.example.musify',
+    iosBundleId: 'com.coachmaster.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -72,7 +72,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '25162710455',
     projectId: 'coach-mast-3r',
     storageBucket: 'coach-mast-3r.firebasestorage.app',
-    iosBundleId: 'com.example.musify',
+    iosBundleId: 'com.coachmaster.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

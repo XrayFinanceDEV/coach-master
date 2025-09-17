@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:25162710455:android:3e8a2777165e26dde6fc32",
         "android_client_info": {
-          "package_name": "com.example.musify"
+          "package_name": "com.coachmaster.app"
         }
       },
       "oauth_client": [
@@ -34,7 +34,7 @@
               "client_id": "25162710455-bv6gqr79f6s2md70kolsucmco2cn3csu.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.musify"
+                "bundle_id": "com.coachmaster.app"
               }
             }
           ]

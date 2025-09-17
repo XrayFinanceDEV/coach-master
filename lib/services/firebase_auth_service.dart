@@ -6,6 +6,7 @@ class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     // Let GoogleSignIn auto-detect the client ID from Firebase configuration
+    // For Android, the client ID will be automatically detected from google-services.json
     // Scopes for accessing user info
     scopes: [
       'email',

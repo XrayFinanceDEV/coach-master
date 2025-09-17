@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.musify"
+    namespace = "com.coachmaster.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -24,11 +24,11 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.musify"
+        applicationId = "com.coachmaster.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = flutter.minSdkVersion  // Android 5.0+ (most common minimum)
+        targetSdk = 33  // Android 13 (more compatible)
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

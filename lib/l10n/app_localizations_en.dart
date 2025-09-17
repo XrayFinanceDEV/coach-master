@@ -664,4 +664,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get matchCreatedSuccessfully => 'Match created successfully!';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get toBeDetermined => 'TBD';
+
+  @override
+  String get editConvocationsHelp =>
+      'Edit convocations in case of errors or players not coming to the scheduled match.';
 }

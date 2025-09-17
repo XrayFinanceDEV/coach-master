@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:coachmaster/models/match.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/core/repository_instances.dart';
-import 'package:coachmaster/services/match_convocation_repository.dart';
-import 'package:coachmaster/services/match_statistic_repository.dart';
+import 'package:coachmaster/services/base_match_convocation_repository.dart';
+import 'package:coachmaster/services/base_match_statistic_repository.dart';
 import 'package:coachmaster/features/matches/widgets/match_form_bottom_sheet.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 
@@ -26,7 +26,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
     final convocationRepository = ref.watch(matchConvocationRepositoryProvider);
     final statisticRepository = ref.watch(matchStatisticRepositoryProvider);
     
-    final matches = matchRepository.getMatchesForTeam(widget.teamId)
+    final matches = (matchRepository.getMatchesForTeam(widget.teamId) as List<Match>)
       ..sort((a, b) => b.date.compareTo(a.date)); // Sort by date, newest first
     final team = teamRepository.getTeam(widget.teamId);
     final players = playerRepository.getPlayersForTeam(widget.teamId);
@@ -122,8 +122,8 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
 
 
   Widget _buildMatchCard(Match match, team, List<Player> players, 
-      MatchConvocationRepository convocationRepository, 
-      MatchStatisticRepository statisticRepository) {
+      BaseMatchConvocationRepository convocationRepository, 
+      BaseMatchStatisticRepository statisticRepository) {
     // Get convocation data for this match
     final convocationsData = convocationRepository.getConvocationsForMatch(match.id);
     final convocationCount = convocationsData.length;

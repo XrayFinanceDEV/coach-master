@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:coachmaster/models/player.dart';
+import 'package:coachmaster/models/match_statistic.dart';
+import 'package:coachmaster/models/training_attendance.dart';
 import 'package:coachmaster/services/base_sync_repository.dart';
 import 'package:coachmaster/services/firestore_sync_service.dart';
 
@@ -42,16 +45,87 @@ class PlayerSyncRepository extends BaseSyncRepository<Player> {
     return getAll().where((player) => player.position.toLowerCase() == position.toLowerCase()).toList();
   }
 
-  List<Player> getTopScorers({int limit = 10}) {
+  List<Player> getAllTopScorers({int limit = 10}) {
     final players = getAll();
     players.sort((a, b) => b.goals.compareTo(a.goals));
     return players.take(limit).toList();
   }
 
-  List<Player> getTopAssists({int limit = 10}) {
+  List<Player> getAllTopAssists({int limit = 10}) {
     final players = getAll();
     players.sort((a, b) => b.assists.compareTo(a.assists));
     return players.take(limit).toList();
+  }
+
+  // Team-specific leaderboard methods
+  List<Player> getTopScorers(String teamId, {int limit = 5}) {
+    final teamPlayers = getPlayersForTeam(teamId);
+    teamPlayers.sort((a, b) => b.goals.compareTo(a.goals));
+    return teamPlayers.take(limit).toList();
+  }
+
+  List<Player> getTopAssistors(String teamId, {int limit = 5}) {
+    final teamPlayers = getPlayersForTeam(teamId);
+    teamPlayers.sort((a, b) => b.assists.compareTo(a.assists));
+    return teamPlayers.take(limit).toList();
+  }
+
+  List<Player> getTopRated(String teamId, {int limit = 5}) {
+    final teamPlayers = getPlayersForTeam(teamId);
+    final ratedPlayers = teamPlayers.where((p) => p.avgRating != null).toList();
+    ratedPlayers.sort((a, b) => b.avgRating!.compareTo(a.avgRating!));
+    return ratedPlayers.take(limit).toList();
+  }
+
+  // Statistical calculation methods
+  Future<void> updatePlayerStatisticsFromMatchStats(String playerId, List<MatchStatistic> allMatchStats) async {
+    final player = getPlayer(playerId);
+    if (player == null) return;
+    final playerMatchStats = allMatchStats.where((stat) => stat.playerId == playerId);
+    
+    int totalGoals = playerMatchStats.fold(0, (sum, stat) => sum + stat.goals);
+    int totalAssists = playerMatchStats.fold(0, (sum, stat) => sum + stat.assists);
+    int totalYellowCards = playerMatchStats.fold(0, (sum, stat) => sum + stat.yellowCards);
+    int totalRedCards = playerMatchStats.fold(0, (sum, stat) => sum + stat.redCards);
+    int totalMinutes = playerMatchStats.fold(0, (sum, stat) => sum + stat.minutesPlayed);
+    
+    // Calculate average rating (excluding null ratings)
+    final ratingsWithValues = playerMatchStats.where((stat) => stat.rating != null);
+    double? avgRating;
+    if (ratingsWithValues.isNotEmpty) {
+      double totalRating = ratingsWithValues.fold(0.0, (sum, stat) => sum + stat.rating!);
+      avgRating = totalRating / ratingsWithValues.length;
+    }
+    final updatedPlayer = player.updateStatistics(
+      goals: totalGoals,
+      assists: totalAssists,
+      yellowCards: totalYellowCards,
+      redCards: totalRedCards,
+      totalMinutes: totalMinutes,
+      avgRating: avgRating,
+    );
+    await updatePlayer(updatedPlayer);
+  }
+
+  Future<void> updatePlayerAbsences(String playerId, List<TrainingAttendance> allAttendances) async {
+    final player = getPlayer(playerId);
+    if (player == null) return;
+
+    // Count absences from training attendance records
+    final playerAttendances = allAttendances.where((attendance) => attendance.playerId == playerId);
+    final absences = playerAttendances.where((attendance) => attendance.status == TrainingAttendanceStatus.absent).length;
+
+    // Create a new player with updated absences using the existing updateStatistics method
+    final updatedPlayer = player.updateStatistics(
+      goals: player.goals,
+      assists: player.assists,
+      yellowCards: player.yellowCards,
+      redCards: player.redCards,
+      totalMinutes: player.totalMinutes,
+      avgRating: player.avgRating,
+      absences: absences,
+    );
+    await updatePlayer(updatedPlayer);
   }
 
   // Implementation of abstract methods from BaseSyncRepository
@@ -60,6 +134,20 @@ class PlayerSyncRepository extends BaseSyncRepository<Player> {
 
   @override
   Map<String, dynamic> toMap(Player item) {
+    // Handle photo path - URLs from Firebase Storage are allowed, large base64 data is excluded
+    String? safePhotoPath = item.photoPath;
+    if (item.photoPath != null && 
+        item.photoPath!.length > 1000000 && 
+        !item.photoPath!.startsWith('http')) {
+      // If the image data is too large and not a URL, exclude it from sync
+      // Large base64 images should be uploaded to Firebase Storage first
+      if (kDebugMode) {
+        print('🖼️ PlayerSync: Excluding large base64 image for ${item.firstName} ${item.lastName} (${item.photoPath!.length} bytes)');
+        print('🖼️ PlayerSync: Use Firebase Storage for images > 1MB');
+      }
+      safePhotoPath = null;
+    }
+    
     return {
       'id': item.id,
       'teamId': item.teamId,
@@ -68,7 +156,7 @@ class PlayerSyncRepository extends BaseSyncRepository<Player> {
       'position': item.position,
       'preferredFoot': item.preferredFoot,
       'birthDate': item.birthDate.toIso8601String(),
-      'photoPath': item.photoPath,
+      'photoPath': safePhotoPath,
       'medicalInfo': item.medicalInfo,
       'emergencyContact': item.emergencyContact,
       'goals': item.goals,

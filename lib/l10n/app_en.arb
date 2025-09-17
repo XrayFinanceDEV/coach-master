@@ -275,5 +275,10 @@
   "updateMatch": "Update Match",
   "createMatch": "Create Match",
   "matchUpdatedSuccessfully": "Match updated successfully!",
-  "matchCreatedSuccessfully": "Match created successfully!"
+  "matchCreatedSuccessfully": "Match created successfully!",
+  "status": "Status",
+  "result": "Result",
+  "toBeDetermined": "TBD",
+  "totalPlayers": "Total Players",
+  "editConvocationsHelp": "Edit convocations in case of errors or players not coming to the scheduled match."
 }

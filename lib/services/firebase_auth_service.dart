@@ -15,6 +15,9 @@ class FirebaseAuthService {
     forceCodeForRefreshToken: false,
   );
   
+  // Prevent concurrent Google Sign-In operations
+  bool _isGoogleSignInInProgress = false;
+  
   // Simple email/password authentication
   Future<UserCredential?> signInWithEmail(String email, String password) async {
     try {
@@ -69,6 +72,9 @@ class FirebaseAuthService {
     return user;
   }
   
+  // Getter alias for currentUser
+  User? get currentUser => getCurrentUser();
+  
   Stream<User?> authStateChanges() {
     return _auth.authStateChanges().map((user) {
       if (kDebugMode) {
@@ -81,44 +87,38 @@ class FirebaseAuthService {
   
   // Google Sign-In authentication
   Future<UserCredential?> signInWithGoogle() async {
+    // Prevent concurrent sign-in operations
+    if (_isGoogleSignInInProgress) {
+      if (kDebugMode) {
+        print('🔥 FirebaseAuth: Google Sign-In already in progress, skipping...');
+      }
+      return null;
+    }
+    
     try {
+      _isGoogleSignInInProgress = true;
+      
       if (kDebugMode) {
         print('🔥 FirebaseAuth: Attempting Google Sign-In');
       }
       
       GoogleSignInAccount? googleUser;
       
-      // FedCM-compatible approach: Always try silent sign-in first
+      // Use only interactive sign-in to avoid race conditions
       try {
-        googleUser = await _googleSignIn.signInSilently();
-        if (googleUser != null) {
-          if (kDebugMode) {
-            print('🔥 FirebaseAuth: Silent sign-in successful');
-          }
+        googleUser = await _googleSignIn.signIn();
+        if (kDebugMode) {
+          print('🔥 FirebaseAuth: Interactive sign-in completed');
         }
       } catch (e) {
         if (kDebugMode) {
-          print('🔥 FirebaseAuth: Silent sign-in failed: $e');
+          print('🔥 FirebaseAuth: Interactive sign-in failed: $e');
         }
-      }
-      
-      // If silent sign-in failed, use interactive sign-in
-      if (googleUser == null) {
-        try {
-          googleUser = await _googleSignIn.signIn();
-          if (kDebugMode) {
-            print('🔥 FirebaseAuth: Interactive sign-in initiated');
-          }
-        } catch (e) {
-          if (kDebugMode) {
-            print('🔥 FirebaseAuth: Interactive sign-in failed: $e');
-          }
-          // On web, provide specific guidance for FedCM
-          if (kIsWeb && e.toString().contains('popup')) {
-            throw Exception('Google Sign-In requires popup access. Please allow popups and try again.');
-          }
-          rethrow;
+        // On web, provide specific guidance for FedCM
+        if (kIsWeb && e.toString().contains('popup')) {
+          throw Exception('Google Sign-In requires popup access. Please allow popups and try again.');
         }
+        rethrow;
       }
       
       if (googleUser == null) {
@@ -164,6 +164,8 @@ class FirebaseAuthService {
       }
       
       throw Exception('Google Sign-In failed: $e');
+    } finally {
+      _isGoogleSignInInProgress = false;
     }
   }
 

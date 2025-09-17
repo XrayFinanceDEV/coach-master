@@ -300,7 +300,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               children: [
                 Expanded(
                   child: _buildStatusItem(
-                    'Status',
+                    AppLocalizations.of(context)!.status,
                     _getStatusText(match.status),
                     _getStatusColor(match.status),
                   ),
@@ -310,7 +310,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                     match.goalsFor != null && match.goalsAgainst != null)
                   Expanded(
                     child: _buildStatusItem(
-                      'Result',
+                      AppLocalizations.of(context)!.result,
                       '${match.goalsFor}-${match.goalsAgainst}',
                       _getResultColor(match.result),
                     ),
@@ -318,8 +318,8 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                 else
                   Expanded(
                     child: _buildStatusItem(
-                      'Result',
-                      'TBD',
+                      AppLocalizations.of(context)!.result,
+                      AppLocalizations.of(context)!.toBeDetermined,
                       Colors.grey,
                     ),
                   ),
@@ -422,7 +422,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Total Players',
+                        AppLocalizations.of(context)!.totalPlayers,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w500,
@@ -444,7 +444,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
             const SizedBox(height: 12),
             
             Text(
-              'Edit convocations in case of errors or players not coming to the scheduled match.',
+              AppLocalizations.of(context)!.editConvocationsHelp,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.grey[600],
               ),
@@ -484,11 +484,11 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
   String _getStatusText(MatchStatus status) {
     switch (status) {
       case MatchStatus.scheduled:
-        return 'Scheduled';
+        return AppLocalizations.of(context)!.scheduled;
       case MatchStatus.live:
-        return 'Live';
+        return AppLocalizations.of(context)!.live;
       case MatchStatus.completed:
-        return 'Completed';
+        return AppLocalizations.of(context)!.completed;
     }
   }
   
@@ -681,7 +681,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               )
             else
               Column(
-                children: notes.map((note) => _buildNoteItem(context, ref, note, match)).toList(),
+                children: notes.map<Widget>((note) => _buildNoteItem(context, ref, note, match)).toList(),
               ),
           ],
         ),

@@ -7,6 +7,9 @@ import 'package:coachmaster/services/team_sync_repository.dart';
 import 'package:coachmaster/services/player_sync_repository.dart';
 import 'package:coachmaster/services/training_sync_repository.dart';
 import 'package:coachmaster/services/match_sync_repository.dart';
+import 'package:coachmaster/services/match_convocation_sync_repository.dart';
+import 'package:coachmaster/services/match_statistic_sync_repository.dart';
+import 'package:coachmaster/services/note_sync_repository.dart';
 import 'package:coachmaster/models/sync_status.dart';
 
 class SyncManager {
@@ -24,6 +27,9 @@ class SyncManager {
   PlayerSyncRepository? _playerRepository;
   TrainingSyncRepository? _trainingRepository;
   MatchSyncRepository? _matchRepository;
+  MatchConvocationSyncRepository? _matchConvocationRepository;
+  MatchStatisticSyncRepository? _matchStatisticRepository;
+  NoteSyncRepository? _noteRepository;
 
   // Streams
   StreamController<SyncStatus> _syncStatusController = StreamController<SyncStatus>.broadcast();
@@ -61,6 +67,15 @@ class SyncManager {
     _matchRepository = MatchSyncRepository(syncService: _syncService);
     await _matchRepository!.initForUser(firebaseUser.uid);
 
+    _matchConvocationRepository = MatchConvocationSyncRepository(syncService: _syncService);
+    await _matchConvocationRepository!.initForUser(firebaseUser.uid);
+
+    _matchStatisticRepository = MatchStatisticSyncRepository(syncService: _syncService);
+    await _matchStatisticRepository!.initForUser(firebaseUser.uid);
+
+    _noteRepository = NoteSyncRepository(syncService: _syncService);
+    await _noteRepository!.initForUser(firebaseUser.uid);
+
     // Forward sync status from sync service
     _syncService!.syncStatusStream.listen((status) {
       _syncStatusController.add(status);
@@ -86,6 +101,9 @@ class SyncManager {
     await _playerRepository?.close();
     await _trainingRepository?.close();
     await _matchRepository?.close();
+    await _matchConvocationRepository?.close();
+    await _matchStatisticRepository?.close();
+    await _noteRepository?.close();
 
     _syncService = null;
     _seasonRepository = null;
@@ -93,6 +111,9 @@ class SyncManager {
     _playerRepository = null;
     _trainingRepository = null;
     _matchRepository = null;
+    _matchConvocationRepository = null;
+    _matchStatisticRepository = null;
+    _noteRepository = null;
     _currentUserId = null;
     _isInitialized = false;
 
@@ -139,6 +160,27 @@ class SyncManager {
     return _matchRepository!;
   }
 
+  MatchConvocationSyncRepository get matchConvocationRepository {
+    if (_matchConvocationRepository == null || !_isInitialized) {
+      throw Exception('SyncManager not initialized. Call initializeForUser() first.');
+    }
+    return _matchConvocationRepository!;
+  }
+
+  MatchStatisticSyncRepository get matchStatisticRepository {
+    if (_matchStatisticRepository == null || !_isInitialized) {
+      throw Exception('SyncManager not initialized. Call initializeForUser() first.');
+    }
+    return _matchStatisticRepository!;
+  }
+
+  NoteSyncRepository get noteRepository {
+    if (_noteRepository == null || !_isInitialized) {
+      throw Exception('SyncManager not initialized. Call initializeForUser() first.');
+    }
+    return _noteRepository!;
+  }
+
   // Sync operations
   Future<void> performFullSync() async {
     if (_syncService == null || !_isInitialized) {
@@ -153,6 +195,39 @@ class SyncManager {
     }
 
     await _syncService!.performFullSync();
+  }
+
+  // Force download from Firestore across all repositories (useful for cross-device sync)
+  Future<void> forceDownloadAll() async {
+    if (_syncService == null || !_isInitialized) {
+      if (kDebugMode) {
+        print('🔄 SyncManager: Cannot force download - not initialized');
+      }
+      return;
+    }
+
+    if (kDebugMode) {
+      print('🔄 SyncManager: Force downloading all data from Firestore');
+    }
+
+    try {
+      await _seasonRepository?.forceDownloadFromFirestore();
+      await _teamRepository?.forceDownloadFromFirestore();
+      await _playerRepository?.forceDownloadFromFirestore();
+      await _trainingRepository?.forceDownloadFromFirestore();
+      await _matchRepository?.forceDownloadFromFirestore();
+      await _matchConvocationRepository?.forceDownloadFromFirestore();
+      await _matchStatisticRepository?.forceDownloadFromFirestore();
+      await _noteRepository?.forceDownloadFromFirestore();
+
+      if (kDebugMode) {
+        print('🟢 SyncManager: Force download completed');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('🔴 SyncManager: Force download failed - $e');
+      }
+    }
   }
 
   // Sync all local data to Firestore (useful for migration)
@@ -171,6 +246,9 @@ class SyncManager {
     await _playerRepository?.syncAllToFirestore();
     await _trainingRepository?.syncAllToFirestore();
     await _matchRepository?.syncAllToFirestore();
+    await _matchConvocationRepository?.syncAllToFirestore();
+    await _matchStatisticRepository?.syncAllToFirestore();
+    await _noteRepository?.syncAllToFirestore();
 
     if (kDebugMode) {
       print('🟢 SyncManager: All local data synced to Firestore');

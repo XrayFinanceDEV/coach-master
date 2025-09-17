@@ -1363,6 +1363,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Match created successfully!'**
   String get matchCreatedSuccessfully;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get status;
+
+  /// No description provided for @toBeDetermined.
+  ///
+  /// In en, this message translates to:
+  /// **'TBD'**
+  String get toBeDetermined;
+
+  /// No description provided for @editConvocationsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit convocations in case of errors or players not coming to the scheduled match.'**
+  String get editConvocationsHelp;
 }
 
 class _AppLocalizationsDelegate

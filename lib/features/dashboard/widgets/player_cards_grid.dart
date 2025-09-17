@@ -39,7 +39,9 @@ class _PlayerCardsGridState extends ConsumerState<PlayerCardsGrid> {
     final playerRepository = ref.watch(playerRepositoryProvider);
     // Watch for image updates to force rebuilds
     ref.watch(playerImageUpdateProvider);
-    final players = playerRepository.getPlayersForTeam(widget.teamId);
+    // Watch refresh counter for Firebase sync updates
+    ref.watch(refreshCounterProvider);
+    final players = playerRepository.getPlayersForTeam(widget.teamId) as List<Player>;
     final sortedPlayers = _sortPlayers(players);
 
     return Card(

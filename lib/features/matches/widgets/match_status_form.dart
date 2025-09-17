@@ -1310,6 +1310,9 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
         await playerRepository.updatePlayerStatisticsFromMatchStats(player.id, allMatchStats);
       }
       
+      // Increment refresh counter to trigger UI rebuilds across all screens
+      ref.read(refreshCounterProvider.notifier).increment();
+      
       widget.onCompleted();
       
       if (mounted) {

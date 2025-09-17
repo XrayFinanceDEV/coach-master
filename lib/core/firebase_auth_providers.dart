@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:coachmaster/services/firebase_auth_service.dart';
+import 'package:coachmaster/services/sync_manager.dart';
 import 'package:coachmaster/models/auth_state.dart';
 
 class FirebaseAuthNotifier extends Notifier<AuthState> {
@@ -67,21 +68,59 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
   }
   
   Future<void> _initializeUserData(String userId) async {
-    // Placeholder for user-specific repository initialization
-    // This will be implemented in Phase 5 when we enhance repositories
     if (kDebugMode) {
       print('🔥 FirebaseAuthNotifier: Initializing user data for $userId');
     }
     
-    // For now, just add a small delay to simulate initialization
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      // Get Firebase user from auth service
+      final firebaseUser = _authService?.currentUser;
+      if (firebaseUser == null) {
+        throw Exception('Firebase user is null during initialization');
+      }
+      
+      // Initialize SyncManager for the authenticated user
+      await SyncManager.instance.initializeForUser(firebaseUser);
+      
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: SyncManager initialized for user $userId');
+      }
+      
+      // Perform initial sync to get user data from Firestore
+      // Force download ensures cross-device data sync works properly
+      await SyncManager.instance.forceDownloadAll();
+      
+      // Also perform bidirectional sync to upload any local changes
+      await SyncManager.instance.performFullSync();
+      
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: Initial sync completed for user $userId');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: Error initializing user data: $e');
+      }
+      // Don't rethrow - allow auth to continue with local-only mode
+    }
   }
   
   Future<void> _cleanupUserData() async {
-    // Placeholder for user-specific data cleanup
-    // This will be implemented in Phase 5 when we enhance repositories
     if (kDebugMode) {
       print('🔥 FirebaseAuthNotifier: Cleaning up user data');
+    }
+    
+    try {
+      // Clean up SyncManager when user signs out
+      await SyncManager.instance.cleanup();
+      
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: SyncManager cleaned up');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: Error cleaning up user data: $e');
+      }
+      // Continue with cleanup even if sync cleanup fails
     }
   }
   

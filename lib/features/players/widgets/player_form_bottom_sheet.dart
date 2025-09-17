@@ -5,11 +5,8 @@ import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
+import 'package:coachmaster/services/player_image_service.dart';
 import 'dart:io';
-import 'dart:convert';
 
 class PlayerFormBottomSheet extends ConsumerStatefulWidget {
   final String teamId;
@@ -49,149 +46,98 @@ class _PlayerFormBottomSheetState extends ConsumerState<PlayerFormBottomSheet> {
     _photoPath = player?.photoPath;
   }
 
-  String _getMimeType(String fileName) {
-    final String ext = fileName.toLowerCase().split('.').last;
-    switch (ext) {
-      case 'jpg':
-      case 'jpeg':
-        return 'image/jpeg';
-      case 'png':
-        return 'image/png';
-      case 'webp':
-        return 'image/webp';
-      case 'gif':
-        return 'image/gif';
-      default:
-        return 'image/jpeg'; // default fallback
-    }
-  }
-
-  Future<String?> _saveImagePermanently(XFile imageFile) async {
-    try {
-      if (kIsWeb) {
-        // On web, convert to base64 data URL for permanent storage
-        final bytes = await imageFile.readAsBytes();
-        final String base64String = base64Encode(bytes);
-        final String mimeType = _getMimeType(imageFile.name);
-        final String dataUrl = 'data:$mimeType;base64,$base64String';
-        debugPrint('✅ Web image converted to data URL (${bytes.length} bytes)');
-        return dataUrl;
-      }
-      
-      // Get the app documents directory
-      final Directory appDocDir = await getApplicationDocumentsDirectory();
-      final String appDocPath = appDocDir.path;
-      
-      // Create a players directory if it doesn't exist
-      final Directory playersDir = Directory('$appDocPath/players');
-      if (!await playersDir.exists()) {
-        await playersDir.create(recursive: true);
-      }
-      
-      // Generate a unique filename using timestamp and original extension
-      final String fileName = '${DateTime.now().millisecondsSinceEpoch}${path.extension(imageFile.path)}';
-      final String permanentPath = '${playersDir.path}/$fileName';
-      
-      // Copy the file to permanent location
-      final File sourceFile = File(imageFile.path);
-      final File permanentFile = await sourceFile.copy(permanentPath);
-      
-      // Verify the file was copied successfully
-      if (await permanentFile.exists()) {
-        final int fileSize = await permanentFile.length();
-        debugPrint('✅ Image saved successfully: $permanentPath ($fileSize bytes)');
-        return permanentFile.path;
-      } else {
-        debugPrint('❌ Failed to save image file');
-        return null;
-      }
-    } catch (e) {
-      debugPrint('Error saving image permanently: $e');
-      return null;
-    }
-  }
 
   Future<void> _selectPhoto() async {
     // Store context-dependent objects before async operations
     final messenger = ScaffoldMessenger.of(context);
     
     try {
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 85, // Compress to reduce file size
-      );
+      if (kDebugMode) {
+        print('🖼️ PlayerForm: Starting image selection and processing...');
+      }
       
-      if (pickedFile != null) {
-        // Validate file format
-        final String fileName = pickedFile.name.toLowerCase();
-        final List<String> allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-        final bool isValidFormat = allowedExtensions.any((ext) => fileName.endsWith('.$ext'));
+      // Show loading indicator
+      if (mounted) {
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                SizedBox(width: 16),
+                Text('Processing image...'),
+              ],
+            ),
+            duration: Duration(seconds: 10),
+          ),
+        );
+      }
+      
+      // Generate a temporary player ID if this is a new player
+      final playerId = widget.player?.id ?? 'temp_${DateTime.now().millisecondsSinceEpoch}';
+      
+      // Use PlayerImageService for complete workflow: pick → compress → upload
+      final String? processedImagePath = await PlayerImageService.pickAndProcessPlayerImage(playerId);
+      
+      // Clear any loading indicators
+      if (mounted) {
+        messenger.clearSnackBars();
+      }
+      
+      if (processedImagePath != null) {
+        setState(() {
+          _photoPath = processedImagePath;
+        });
         
-        if (!isValidFormat) {
-          if (mounted) {
-            messenger.showSnackBar(
-              const SnackBar(
-                content: Text('Please select a valid image format (JPG, PNG, WEBP)'),
-                backgroundColor: Colors.orange,
-              ),
-            );
-          }
-          return;
+        if (mounted) {
+          final bool isFirebaseUrl = processedImagePath.startsWith('http');
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(isFirebaseUrl 
+                  ? 'Photo compressed and uploaded to cloud successfully!' 
+                  : 'Photo compressed and saved locally!'),
+              backgroundColor: Colors.green,
+            ),
+          );
         }
         
-        // Validate file size (2MB = 2 * 1024 * 1024 bytes)
-        final int fileSize = await pickedFile.length();
-        const int maxSizeBytes = 2 * 1024 * 1024; // 2MB
-        
-        if (fileSize > maxSizeBytes) {
-          if (mounted) {
-            final double fileSizeMB = fileSize / (1024 * 1024);
-            messenger.showSnackBar(
-              SnackBar(
-                content: Text('Image is too large (${fileSizeMB.toStringAsFixed(1)}MB). Please select an image smaller than 2MB.'),
-                backgroundColor: Colors.orange,
-              ),
-            );
-          }
-          return;
+        if (kDebugMode) {
+          print('🖼️ PlayerForm: ✅ Image processing completed: $processedImagePath');
+        }
+      } else {
+        if (mounted) {
+          messenger.showSnackBar(
+            const SnackBar(
+              content: Text('Image selection cancelled or failed'),
+              backgroundColor: Colors.orange,
+            ),
+          );
         }
         
-        // File is valid, save it permanently and update the photo path
-        final String? permanentPath = await _saveImagePermanently(pickedFile);
-        
-        if (permanentPath != null) {
-          setState(() {
-            _photoPath = permanentPath;
-          });
-          
-          if (mounted) {
-            messenger.showSnackBar(
-              const SnackBar(
-                content: Text('Photo selected successfully!'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-        } else {
-          if (mounted) {
-            messenger.showSnackBar(
-              const SnackBar(
-                content: Text('Failed to save photo. Please try again.'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
+        if (kDebugMode) {
+          print('🖼️ PlayerForm: ❌ Image processing failed or cancelled');
         }
       }
     } catch (e) {
+      // Clear any loading indicators
+      if (mounted) {
+        messenger.clearSnackBars();
+      }
+      
       if (mounted) {
         messenger.showSnackBar(
           SnackBar(
-            content: Text('Error selecting photo: $e'),
+            content: Text('Error processing photo: $e'),
             backgroundColor: Colors.red,
           ),
         );
+      }
+      
+      if (kDebugMode) {
+        print('🖼️ PlayerForm: ❌ Error in image processing: $e');
       }
     }
   }

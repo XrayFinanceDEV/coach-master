@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,10 +14,9 @@ import 'package:coachmaster/features/matches/match_list_screen.dart';
 import 'package:coachmaster/features/matches/match_detail_screen.dart';
 import 'package:coachmaster/features/dashboard/dashboard_screen.dart';
 import 'package:coachmaster/features/auth/login_screen.dart';
-import 'package:coachmaster/features/auth/multi_step_onboarding_screen.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/locale_provider.dart';
-import 'package:coachmaster/core/auth_providers.dart';
+import 'package:coachmaster/core/firebase_auth_providers.dart';
 import 'package:coachmaster/models/auth_state.dart';
 import 'package:coachmaster/models/season.dart';
 import 'package:coachmaster/models/team.dart';
@@ -800,7 +800,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         onChanged: null, // Disabled dropdown
                         items: const [
-                          DropdownMenuItem(
+                          DropdownMenuItem<String>(
                             value: 'current',
                             child: Row(
                               children: [
@@ -810,7 +810,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ],
                             ),
                           ),
-                          DropdownMenuItem(
+                          DropdownMenuItem<String>(
                             value: 'future',
                             enabled: false,
                             child: Row(
@@ -867,11 +867,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             }
                           },
                           items: [
-                            ...teams.map((team) => DropdownMenuItem(
+                            ...teams.map((team) => DropdownMenuItem<String>(
                               value: team.id,
                               child: Text(team.name),
                             )),
-                            const DropdownMenuItem(
+                            const DropdownMenuItem<String>(
                               value: 'CREATE_NEW',
                               child: Row(
                                 children: [
@@ -965,7 +965,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             isExpanded: true,
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             items: const [
-                              DropdownMenuItem(
+                              DropdownMenuItem<String>(
                                 value: 'en',
                                 child: Row(
                                   children: [
@@ -975,7 +975,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   ],
                                 ),
                               ),
-                              DropdownMenuItem(
+                              DropdownMenuItem<String>(
                                 value: 'it',
                                 child: Row(
                                   children: [
@@ -1063,18 +1063,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   // User Information Display
                   Consumer(
                     builder: (context, ref, child) {
-                      final authState = ref.watch(authNotifierProvider);
-                      final currentUser = authState.user;
+                      final authState = ref.watch(firebaseAuthProvider);
+                      final currentUser = authState.firebaseUser;
                       
-                      if (currentUser?.email != null) {
+                      if (currentUser != null) {
                         // Determine authentication method
                         String authMethod = 'Email/Password';
                         IconData authIcon = Icons.email;
                         Color authColor = Colors.blue;
                         
-                        // Check if it's a Google account (common Google domains or if name exists with email)
-                        if (currentUser!.email!.endsWith('@gmail.com') || 
-                            (currentUser.name.isNotEmpty && currentUser.name != currentUser.email)) {
+                        // Check if it's a Google account (common Google domains or if display name exists)
+                        final email = currentUser.email ?? '';
+                        final displayName = currentUser.displayName ?? '';
+                        if (email.endsWith('@gmail.com') || displayName.isNotEmpty) {
                           authMethod = 'Google Sign-In';
                           authIcon = Icons.login;
                           authColor = Colors.red;
@@ -1112,15 +1113,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                currentUser.email!,
+                                email,
                                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              if (currentUser.name.isNotEmpty && currentUser.name != currentUser.email) ...[
+                              if (displayName.isNotEmpty && displayName != email) ...[
                                 const SizedBox(height: 4),
                                 Text(
-                                  currentUser.name,
+                                  displayName,
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                                   ),
@@ -1162,10 +1163,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         
                         if (confirmed == true) {
                           // Store context before async operation
-                          final authNotifier = ref.read(authNotifierProvider.notifier);
+                          final authNotifier = ref.read(firebaseAuthProvider.notifier);
                           final messenger = ScaffoldMessenger.of(context);
                           
-                          await authNotifier.logout();
+                          await authNotifier.signOut();
                           
                           if (context.mounted) {
                             messenger.showSnackBar(
@@ -1189,104 +1190,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           
-          const SizedBox(height: 16),
-          
-          // Debug Section (temporary for database inspection)
-          Card(
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.bug_report,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Debug Tools',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            final authService = ref.read(authServiceProvider);
-                            authService.debugDatabase();
-                          },
-                          icon: const Icon(Icons.storage),
-                          label: const Text('Debug Database'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () async {
-                            final confirmed = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Clear Database'),
-                                content: const Text('This will delete all users and session data. Are you sure?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(false),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(true),
-                                    child: const Text('Clear All'),
-                                  ),
-                                ],
-                              ),
-                            );
-                            
-                            if (confirmed == true) {
-                              final authService = ref.read(authServiceProvider);
-                              await authService.clearAllData();
-                              
-                              // Increment refresh counter to trigger UI rebuilds across the app
-                              ref.read(refreshCounterProvider.notifier).increment();
-                              
-                              // Invalidate all providers to force data refresh
-                              ref.invalidate(seasonRepositoryProvider);
-                              ref.invalidate(teamRepositoryProvider);
-                              ref.invalidate(playerRepositoryProvider);
-                              ref.invalidate(trainingRepositoryProvider);
-                              ref.invalidate(matchRepositoryProvider);
-                              ref.invalidate(noteRepositoryProvider);
-                              ref.invalidate(onboardingRepositoryProvider);
-                              
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Database cleared successfully - all data removed')),
-                                );
-                              }
-                            }
-                          },
-                          icon: const Icon(Icons.delete_forever),
-                          label: const Text('Clear Database'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red[700],
-                            foregroundColor: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -1343,7 +1246,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   }
   
   streamController = StreamController<AuthState>();
-  ref.listen<AuthState>(authNotifierProvider, listener, fireImmediately: true);
+  ref.listen<AuthState>(firebaseAuthProvider, listener, fireImmediately: true);
   
   ref.onDispose(() {
     if (!streamController.isClosed) {
@@ -1355,49 +1258,36 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/login',
     refreshListenable: GoRouterRefreshStream(streamController.stream),
     redirect: (context, state) {
-      final authState = ref.read(authNotifierProvider);
+      final authState = ref.read(firebaseAuthProvider);
       final currentPath = state.matchedLocation;
+      
+      if (kDebugMode) {
+        print('🚦 Router: currentPath=$currentPath, isAuthenticated=${authState.isAuthenticated}, isFirebaseUser=${authState.isUsingFirebaseAuth}, isLoading=${authState.isLoading}');
+      }
       
       // If auth is still loading, don't redirect yet
       if (authState.isLoading) {
+        if (kDebugMode) {
+          print('🚦 Router: Auth still loading, staying on current path');
+        }
         return null;
       }
       
       final isAuthenticated = authState.isAuthenticated;
-      final isOnboardingCompleted = authState.user?.isOnboardingCompleted ?? false;
       
-      // If not authenticated and not on auth pages, redirect to login
-      if (!isAuthenticated && 
-          !currentPath.startsWith('/login') && 
-          !currentPath.startsWith('/onboarding')) {
+      // If not authenticated and not on login page, redirect to login
+      if (!isAuthenticated && !currentPath.startsWith('/login')) {
         return '/login';
       }
       
-      // If authenticated but onboarding not completed, check if it's a new user or existing Firebase user
-      if (isAuthenticated && !isOnboardingCompleted) {
-        // If user is on login or trying to access main app routes, let them through
-        // This handles existing Firebase users who don't have the onboardingCompleted flag
-        if (currentPath.startsWith('/login') || 
-            currentPath.startsWith('/home') ||
-            currentPath.startsWith('/players') ||
-            currentPath.startsWith('/trainings') ||
-            currentPath.startsWith('/matches') ||
-            currentPath.startsWith('/settings')) {
-          // Allow access - this is likely an existing Firebase user
-          return null;
+      // If authenticated and on login page, redirect to main app
+      if (isAuthenticated && currentPath.startsWith('/login')) {
+        if (kDebugMode) {
+          print('🚦 Router: Redirecting authenticated user from $currentPath to /players');
         }
-        
-        // Only redirect to onboarding if explicitly going to onboarding or initial load
-        if (!currentPath.startsWith('/onboarding') && currentPath != '/') {
-          return '/onboarding';
-        }
+        return '/players'; // Redirect to main app
       }
       
-      // If authenticated and on auth pages, redirect to main app
-      if (isAuthenticated && 
-          (currentPath.startsWith('/login') || currentPath.startsWith('/onboarding'))) {
-        return '/players';
-      }
       return null; // No redirect needed
     },
     routes: [
@@ -1405,12 +1295,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
-      ),
-      
-      // Multi-step onboarding route
-      GoRoute(
-        path: '/onboarding',
-        builder: (context, state) => const MultiStepOnboardingScreen(),
       ),
       
       StatefulShellRoute.indexedStack(

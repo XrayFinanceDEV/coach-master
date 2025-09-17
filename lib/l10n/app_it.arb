@@ -219,5 +219,10 @@
   "updateMatch": "Aggiorna Partita",
   "createMatch": "Crea Partita",
   "matchUpdatedSuccessfully": "Partita aggiornata con successo!",
-  "matchCreatedSuccessfully": "Partita creata con successo!"
+  "matchCreatedSuccessfully": "Partita creata con successo!",
+  "status": "Stato",
+  "result": "Risultato",
+  "toBeDetermined": "Da Definire",
+  "totalPlayers": "Giocatori Totali",
+  "editConvocationsHelp": "Modifica le convocazioni in caso di errori o giocatori che non partecipano alla partita."
 }

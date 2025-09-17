@@ -670,4 +670,14 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get matchCreatedSuccessfully => 'Partita creata con successo!';
+
+  @override
+  String get status => 'Stato';
+
+  @override
+  String get toBeDetermined => 'Da Definire';
+
+  @override
+  String get editConvocationsHelp =>
+      'Modifica le convocazioni in caso di errori o giocatori che non partecipano alla partita.';
 }

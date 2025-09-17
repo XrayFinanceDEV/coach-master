@@ -494,7 +494,7 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
               )
             else
               Column(
-                children: notes.map((note) => _buildNoteItem(context, ref, note, player)).toList(),
+                children: notes.map<Widget>((note) => _buildNoteItem(context, ref, note, player)).toList(),
               ),
           ],
         ),

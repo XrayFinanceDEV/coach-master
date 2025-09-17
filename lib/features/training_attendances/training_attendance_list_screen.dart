@@ -38,7 +38,7 @@ class TrainingAttendanceListScreen extends ConsumerWidget {
             trailing: DropdownButton<TrainingAttendanceStatus>(
               value: attendance.status,
               items: TrainingAttendanceStatus.values.map((status) {
-                return DropdownMenuItem(
+                return DropdownMenuItem<TrainingAttendanceStatus>(
                   value: status,
                   child: Text(status.toString().split('.').last),
                 );

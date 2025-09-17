@@ -126,3 +126,695 @@
 [debug] [2025-09-15T12:18:19.295Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
 [debug] [2025-09-15T12:18:19.320Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
 [debug] [2025-09-15T12:18:19.320Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-15T16:09:30.569Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T16:09:30.576Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T16:09:30.578Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.579Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.579Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T16:09:30.582Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T16:09:30.583Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.604Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.605Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.605Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T16:09:30.605Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T16:09:30.605Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.608Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.608Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.608Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T16:09:30.609Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T16:09:30.609Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.611Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.611Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.611Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T16:09:30.611Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T16:09:30.611Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.613Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.613Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.614Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T16:09:30.614Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T16:09:30.614Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.647Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T16:09:30.648Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T16:09:30.648Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.649Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.649Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T16:09:30.649Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T16:09:30.649Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.650Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.650Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.650Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T16:09:30.651Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T16:09:30.651Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.652Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.652Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.652Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T16:09:30.653Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T16:09:30.653Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.654Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.654Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.654Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T16:09:30.654Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T16:09:30.654Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.656Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.656Z] Checked if tokens are valid: false, expires at: 1757939716652
+[debug] [2025-09-15T16:09:30.656Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T16:09:30.656Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T16:09:30.656Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.686Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T16:09:30.686Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.696Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-09-15T16:09:30.696Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T16:09:30.701Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T16:09:30.701Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.708Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [none]
+[debug] [2025-09-15T16:09:30.708Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T16:09:30.710Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T16:09:30.711Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.717Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-09-15T16:09:30.717Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T16:09:30.724Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T16:09:30.724Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.731Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-09-15T16:09:30.731Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T16:09:30.732Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T16:09:30.732Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.741Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [none]
+[debug] [2025-09-15T16:09:30.741Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T16:09:30.753Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T16:09:30.753Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.761Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-09-15T16:09:30.761Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T16:09:30.766Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T16:09:30.766Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.773Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [none]
+[debug] [2025-09-15T16:09:30.773Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T16:09:30.775Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T16:09:30.775Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.781Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-09-15T16:09:30.781Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T16:09:30.783Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T16:09:30.783Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.790Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-09-15T16:09:30.790Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T16:09:30.796Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T16:09:30.796Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T16:09:30.805Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [none]
+[debug] [2025-09-15T16:09:30.805Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T16:09:31.384Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com 403
+[debug] [2025-09-15T16:09:31.384Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [omitted]
+[debug] [2025-09-15T16:09:31.450Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com 403
+[debug] [2025-09-15T16:09:31.450Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [omitted]
+[debug] [2025-09-15T16:09:31.504Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-09-15T16:09:31.505Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-09-15T16:09:31.533Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-09-15T16:09:31.533Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-09-15T16:09:31.559Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-09-15T16:09:31.560Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-09-15T16:09:31.562Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-09-15T16:09:31.562Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-09-15T16:09:31.575Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-09-15T16:09:31.575Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-09-15T16:09:31.583Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-09-15T16:09:31.583Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-09-15T16:09:31.731Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
+[debug] [2025-09-15T16:09:31.731Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-15T16:09:31.843Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
+[debug] [2025-09-15T16:09:31.843Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-15T16:09:31.844Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T16:09:31.847Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T16:09:31.847Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-15T16:09:31.848Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-15T16:09:31.861Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T16:09:31.864Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T16:09:31.864Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-15T16:09:31.865Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-15T17:51:46.282Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:51:46.292Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:51:46.295Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.295Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.296Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T17:51:46.299Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T17:51:46.300Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.336Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.336Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.336Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T17:51:46.337Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T17:51:46.337Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.342Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.343Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.343Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T17:51:46.344Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T17:51:46.344Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.346Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.346Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.346Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T17:51:46.347Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T17:51:46.347Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.349Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.349Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.349Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T17:51:46.350Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T17:51:46.350Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.389Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:51:46.391Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:51:46.392Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.392Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.392Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T17:51:46.393Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T17:51:46.393Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.395Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.395Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.395Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T17:51:46.395Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T17:51:46.395Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.397Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.397Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.397Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T17:51:46.398Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T17:51:46.398Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.400Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.400Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.400Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T17:51:46.401Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T17:51:46.401Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.402Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.403Z] Checked if tokens are valid: false, expires at: 1757956169796
+[debug] [2025-09-15T17:51:46.403Z] > refreshing access token with scopes: []
+[debug] [2025-09-15T17:51:46.403Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-15T17:51:46.403Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.435Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T17:51:46.435Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.448Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-09-15T17:51:46.448Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:51:46.469Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T17:51:46.469Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.479Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [none]
+[debug] [2025-09-15T17:51:46.479Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:51:46.486Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T17:51:46.486Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.498Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-09-15T17:51:46.498Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:51:46.500Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T17:51:46.501Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.509Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-09-15T17:51:46.509Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:51:46.513Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T17:51:46.513Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.524Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [none]
+[debug] [2025-09-15T17:51:46.524Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:51:46.548Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T17:51:46.549Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.558Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-09-15T17:51:46.559Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:51:46.563Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T17:51:46.564Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.575Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [none]
+[debug] [2025-09-15T17:51:46.575Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:51:46.578Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T17:51:46.578Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.586Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-09-15T17:51:46.586Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:51:46.588Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T17:51:46.589Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.596Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [none]
+[debug] [2025-09-15T17:51:46.596Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:51:46.601Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-15T17:51:46.602Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-15T17:51:46.610Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-09-15T17:51:46.610Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:51:47.158Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com 403
+[debug] [2025-09-15T17:51:47.158Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [omitted]
+[debug] [2025-09-15T17:51:47.242Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-09-15T17:51:47.242Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-09-15T17:51:47.254Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com 403
+[debug] [2025-09-15T17:51:47.254Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [omitted]
+[debug] [2025-09-15T17:51:47.306Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-09-15T17:51:47.306Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-09-15T17:51:47.317Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-09-15T17:51:47.317Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-09-15T17:51:47.348Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-09-15T17:51:47.348Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-09-15T17:51:47.404Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-09-15T17:51:47.404Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-09-15T17:51:47.426Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-09-15T17:51:47.427Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-09-15T17:51:47.584Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
+[debug] [2025-09-15T17:51:47.585Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-15T17:51:47.586Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:51:47.590Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:51:47.592Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-15T17:51:47.593Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-15T17:51:47.596Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
+[debug] [2025-09-15T17:51:47.596Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-15T17:51:47.607Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:51:47.614Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:51:47.614Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-15T17:51:47.615Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-15T17:56:40.601Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:56:40.607Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:56:40.609Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.610Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.610Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.610Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.611Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.611Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.611Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.612Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.612Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.612Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.613Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [none]
+[debug] [2025-09-15T17:56:40.613Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:56:40.633Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-09-15T17:56:40.634Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:56:40.636Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-09-15T17:56:40.636Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:56:40.637Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-09-15T17:56:40.637Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:56:40.639Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [none]
+[debug] [2025-09-15T17:56:40.639Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:56:40.671Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:56:40.672Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:56:40.673Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.673Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.673Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.673Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.674Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.674Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.674Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.674Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.674Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.674Z] Checked if tokens are valid: true, expires at: 1757962305602
+[debug] [2025-09-15T17:56:40.674Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [none]
+[debug] [2025-09-15T17:56:40.674Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:56:40.676Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-09-15T17:56:40.676Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:56:40.677Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-09-15T17:56:40.677Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:56:40.678Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-09-15T17:56:40.678Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:56:40.679Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [none]
+[debug] [2025-09-15T17:56:40.679Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-15T17:56:41.317Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com 403
+[debug] [2025-09-15T17:56:41.317Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [omitted]
+[debug] [2025-09-15T17:56:41.319Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com 403
+[debug] [2025-09-15T17:56:41.319Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [omitted]
+[debug] [2025-09-15T17:56:41.422Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-09-15T17:56:41.423Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-09-15T17:56:41.431Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-09-15T17:56:41.431Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-09-15T17:56:41.434Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-09-15T17:56:41.434Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-09-15T17:56:41.440Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-09-15T17:56:41.440Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-09-15T17:56:41.441Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-09-15T17:56:41.441Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-09-15T17:56:41.442Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-09-15T17:56:41.442Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-09-15T17:56:41.653Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
+[debug] [2025-09-15T17:56:41.653Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-15T17:56:41.654Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:56:41.657Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:56:41.658Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-15T17:56:41.658Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-15T17:56:41.661Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
+[debug] [2025-09-15T17:56:41.661Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-15T17:56:41.668Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:56:41.671Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-15T17:56:41.671Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-15T17:56:41.671Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-17T04:25:49.863Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:25:49.918Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:25:49.924Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:49.924Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:49.925Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T04:25:49.932Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T04:25:49.932Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:49.975Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:49.976Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:49.976Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T04:25:49.977Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T04:25:49.977Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:49.987Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:49.987Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:49.987Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T04:25:49.988Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T04:25:49.988Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:49.994Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:49.994Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:49.994Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T04:25:49.995Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T04:25:49.995Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.001Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:50.001Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:50.001Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T04:25:50.001Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T04:25:50.002Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.107Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:25:50.114Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:25:50.117Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:50.118Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:50.118Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T04:25:50.118Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T04:25:50.118Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.121Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:50.121Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:50.121Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T04:25:50.121Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T04:25:50.122Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.123Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:50.124Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:50.124Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T04:25:50.124Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T04:25:50.124Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.127Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:50.127Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:50.127Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T04:25:50.127Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T04:25:50.127Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.130Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:50.130Z] Checked if tokens are valid: false, expires at: 1757962305602
+[debug] [2025-09-17T04:25:50.130Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T04:25:50.130Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T04:25:50.134Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.213Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T04:25:50.213Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.248Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [none]
+[debug] [2025-09-17T04:25:50.248Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:25:50.271Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T04:25:50.272Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.291Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-09-17T04:25:50.292Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:25:50.303Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T04:25:50.303Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.355Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [none]
+[debug] [2025-09-17T04:25:50.355Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:25:50.368Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T04:25:50.368Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.434Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-09-17T04:25:50.435Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:25:50.449Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T04:25:50.449Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.484Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-09-17T04:25:50.484Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:25:50.487Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T04:25:50.487Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.538Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-09-17T04:25:50.538Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:25:50.556Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T04:25:50.556Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.597Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-09-17T04:25:50.597Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:25:50.605Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T04:25:50.605Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.614Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [none]
+[debug] [2025-09-17T04:25:50.614Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:25:50.618Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T04:25:50.618Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.656Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [none]
+[debug] [2025-09-17T04:25:50.656Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:25:50.667Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T04:25:50.667Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T04:25:50.688Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-09-17T04:25:50.689Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:25:51.176Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com 403
+[debug] [2025-09-17T04:25:51.176Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [omitted]
+[debug] [2025-09-17T04:25:51.201Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-09-17T04:25:51.202Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-09-17T04:25:51.316Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-09-17T04:25:51.316Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-09-17T04:25:51.327Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com 403
+[debug] [2025-09-17T04:25:51.327Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [omitted]
+[debug] [2025-09-17T04:25:51.328Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-09-17T04:25:51.328Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-09-17T04:25:51.350Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-09-17T04:25:51.350Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-09-17T04:25:51.423Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-09-17T04:25:51.424Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-09-17T04:25:51.478Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-09-17T04:25:51.482Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-09-17T04:25:51.491Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
+[debug] [2025-09-17T04:25:51.492Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-17T04:25:51.616Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
+[debug] [2025-09-17T04:25:51.617Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-17T04:25:51.624Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:25:51.631Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:25:51.632Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-17T04:25:51.633Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-17T04:25:51.660Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:25:51.664Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:25:51.665Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-17T04:25:51.665Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-17T04:26:06.242Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:26:06.286Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:26:06.287Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-17T04:26:06.287Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-17T04:26:06.329Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:26:06.344Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:26:06.356Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-17T04:26:06.356Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-17T04:38:22.230Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:38:22.237Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:38:22.239Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.239Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.240Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.240Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.240Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.241Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.241Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.241Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.241Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.242Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.243Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [none]
+[debug] [2025-09-17T04:38:22.243Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:38:22.267Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-09-17T04:38:22.267Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:38:22.269Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-09-17T04:38:22.269Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:38:22.271Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-09-17T04:38:22.271Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:38:22.272Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [none]
+[debug] [2025-09-17T04:38:22.272Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:38:22.314Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:38:22.315Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:38:22.315Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.315Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.316Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.316Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.317Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.317Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.317Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.317Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.317Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.317Z] Checked if tokens are valid: true, expires at: 1758086749668
+[debug] [2025-09-17T04:38:22.317Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [none]
+[debug] [2025-09-17T04:38:22.317Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:38:22.319Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-09-17T04:38:22.319Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:38:22.320Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-09-17T04:38:22.320Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:38:22.321Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-09-17T04:38:22.321Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:38:22.323Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [none]
+[debug] [2025-09-17T04:38:22.323Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T04:38:22.947Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com 403
+[debug] [2025-09-17T04:38:22.947Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [omitted]
+[debug] [2025-09-17T04:38:22.949Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com 403
+[debug] [2025-09-17T04:38:22.949Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [omitted]
+[debug] [2025-09-17T04:38:23.072Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-09-17T04:38:23.072Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-09-17T04:38:23.082Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-09-17T04:38:23.082Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-09-17T04:38:23.086Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-09-17T04:38:23.086Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-09-17T04:38:23.092Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-09-17T04:38:23.093Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-09-17T04:38:23.095Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-09-17T04:38:23.096Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-09-17T04:38:23.107Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-09-17T04:38:23.107Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-09-17T04:38:23.311Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
+[debug] [2025-09-17T04:38:23.311Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-17T04:38:23.312Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
+[debug] [2025-09-17T04:38:23.312Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-17T04:38:23.312Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:38:23.315Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:38:23.316Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-17T04:38:23.320Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-17T04:38:23.350Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:38:23.352Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T04:38:23.352Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-17T04:38:23.353Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-17T07:02:08.325Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T07:02:08.332Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T07:02:08.335Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.335Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.336Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T07:02:08.339Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T07:02:08.339Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.367Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.367Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.368Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T07:02:08.368Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T07:02:08.368Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.371Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.372Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.372Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T07:02:08.372Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T07:02:08.372Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.374Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.375Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.375Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T07:02:08.375Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T07:02:08.375Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.377Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.377Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.377Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T07:02:08.377Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T07:02:08.378Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.421Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T07:02:08.423Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T07:02:08.424Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.425Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.425Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T07:02:08.425Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T07:02:08.425Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.428Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.428Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.428Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T07:02:08.428Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T07:02:08.429Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.431Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.431Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.431Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T07:02:08.432Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T07:02:08.432Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.434Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.434Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.434Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T07:02:08.435Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T07:02:08.435Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.437Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.437Z] Checked if tokens are valid: false, expires at: 1758086749668
+[debug] [2025-09-17T07:02:08.437Z] > refreshing access token with scopes: []
+[debug] [2025-09-17T07:02:08.438Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-17T07:02:08.438Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.470Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T07:02:08.470Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.513Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [none]
+[debug] [2025-09-17T07:02:08.513Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T07:02:08.533Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T07:02:08.534Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.543Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-09-17T07:02:08.543Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T07:02:08.553Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T07:02:08.553Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.565Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-09-17T07:02:08.566Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T07:02:08.577Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T07:02:08.577Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.585Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [none]
+[debug] [2025-09-17T07:02:08.585Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T07:02:08.594Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T07:02:08.594Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.602Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-09-17T07:02:08.602Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T07:02:08.606Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T07:02:08.607Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.616Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-09-17T07:02:08.616Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T07:02:08.619Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T07:02:08.620Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.629Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-09-17T07:02:08.629Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T07:02:08.633Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T07:02:08.633Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.642Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [none]
+[debug] [2025-09-17T07:02:08.643Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T07:02:08.649Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T07:02:08.649Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.658Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-09-17T07:02:08.659Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T07:02:08.676Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-17T07:02:08.676Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-17T07:02:08.684Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [none]
+[debug] [2025-09-17T07:02:08.684Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com x-goog-quota-user=projects/coach-mast-3r
+[debug] [2025-09-17T07:02:09.259Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com 403
+[debug] [2025-09-17T07:02:09.260Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [omitted]
+[debug] [2025-09-17T07:02:09.338Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com 403
+[debug] [2025-09-17T07:02:09.338Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseio.com [omitted]
+[debug] [2025-09-17T07:02:09.387Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-09-17T07:02:09.387Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-09-17T07:02:09.404Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-09-17T07:02:09.404Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-09-17T07:02:09.421Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-09-17T07:02:09.421Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-09-17T07:02:09.431Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-09-17T07:02:09.431Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-09-17T07:02:09.439Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-09-17T07:02:09.440Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-09-17T07:02:09.446Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-09-17T07:02:09.447Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-09-17T07:02:09.624Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
+[debug] [2025-09-17T07:02:09.625Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-17T07:02:09.628Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ 200
+[debug] [2025-09-17T07:02:09.628Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/coach-mast-3r/services/ [omitted]
+[debug] [2025-09-17T07:02:09.629Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T07:02:09.632Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T07:02:09.633Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-17T07:02:09.633Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)
+[debug] [2025-09-17T07:02:09.646Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T07:02:09.649Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[error] Failed to fetch Firebase Project from Studio Workspace because WORKSPACE_SLUG environment variable is empty
+[debug] [2025-09-17T07:02:09.649Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-17T07:02:09.649Z] > authorizing via signed-in user (kropotkin.consulting@gmail.com)

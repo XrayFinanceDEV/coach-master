@@ -21,9 +21,13 @@ dependencies:
   firebase_core: ^4.1.0
   firebase_auth: ^6.0.2
   cloud_firestore: ^6.0.1
+  firebase_storage: ^13.0.1
   connectivity_plus: ^5.0.2
   google_sign_in: ^6.2.1
+  # Image handling dependencies
   image_picker: ^1.1.2
+  flutter_image_compress: ^2.3.0
+  image: ^4.2.0
   path_provider: ^2.1.3
   path: ^1.9.0
   crypto: ^3.0.3

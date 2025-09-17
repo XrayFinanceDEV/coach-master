@@ -31,6 +31,8 @@ CoachMaster is a modern Flutter sports team management application designed for 
 - **Navigation**: GoRouter 14.1.4 with StatefulShellRoute for persistent tabs
 - **Authentication**: Firebase Auth 6.0.2 with Google Sign-In 6.2.1 integration
 - **Storage**: Hybrid Hive 2.2.3 (local) + Cloud Firestore 6.0.1 (cloud sync)
+- **File Storage**: Firebase Storage 13.0.1 with automatic image compression
+- **Image Processing**: flutter_image_compress 2.3.0 + image 4.2.0 for optimization
 - **UI Framework**: Material Design 3.0 with custom dark theme
 - **Theme System**: Centralized AppColors class with orange (#FFA700) primary color
 - **Code Generation**: build_runner for Hive adapters and model serialization
@@ -52,6 +54,9 @@ CoachMaster is a modern Flutter sports team management application designed for 
   - `firebase_auth_service.dart` - Firebase Auth + Google Sign-In implementation
   - `sync_manager.dart` - Hybrid local/cloud data synchronization
   - `*_sync_repository.dart` - Cloud-enabled repositories
+  - `player_image_service.dart` - Complete player photo workflow (pick→compress→upload)
+  - `image_compression_service.dart` - Smart image compression to ~500KB with 9:16 ratio
+  - `firebase_storage_service.dart` - Cloud file storage with automatic cleanup
 - `lib/features/` - Feature-based organization with screens and widgets
   - `auth/` - Login and authentication screens with Google Sign-In
   - `dashboard/` - Home screen with speed dial FAB and widgets
@@ -346,6 +351,24 @@ if (context.mounted) {
 
 ## Current Features & Recent Improvements
 
+### Image Management System (Latest)
+- **Automatic Image Compression**: Smart compression to ~500KB while maintaining quality
+  - Target size: ~500KB for optimal Firebase Storage usage
+  - Aspect ratio optimization: 9:16 ratio (720x1280 or 1080x1920)
+  - Iterative quality reduction (95% → 10%) to hit target size
+- **Firebase Storage Integration**: Seamless cloud storage with automatic fallbacks
+  - User-specific storage paths: `users/{userId}/players/{playerId}/profile_{timestamp}.jpg`
+  - Automatic cleanup of old images (keeps latest 3 per player)
+  - Progress monitoring during uploads with user feedback
+- **Complete Player Photo Workflow**: Integrated pick → compress → upload → sync pipeline
+  - `PlayerImageService.pickAndProcessPlayerImage()` - One-call solution
+  - Platform-aware image handling (web base64, mobile file paths)
+  - Automatic fallback to local storage when offline or unauthenticated
+- **Enhanced Player Forms**: Updated photo selection with compression integration
+  - Real-time processing feedback with loading indicators
+  - Smart error handling with user-friendly messages
+  - Seamless integration with existing player management
+
 ### Match Management System (Latest)
 - **Match Status Form**: Multi-step wizard for match statistics with 6-7 steps
   - Step 1: Match result (goals for/against)
@@ -601,7 +624,38 @@ final forwards = players.where((p) =>
 - Optimize image loading with proper error handling and platform detection
 - Watch `playerImageUpdateProvider` for automatic rebuilds when player images change
 
-### Image Handling Best Practices
+### Image Management & Compression Guidelines
+
+#### Using PlayerImageService
+For all player photo operations, use the integrated PlayerImageService:
+```dart
+// Complete workflow: pick → compress → upload → return URL
+final photoUrl = await PlayerImageService.pickAndProcessPlayerImage(playerId);
+
+// Update player photo with cleanup
+final updatedPlayer = await PlayerImageService.updatePlayerPhoto(player, newPhotoPath);
+
+// Remove player photo with cleanup
+final updatedPlayer = await PlayerImageService.removePlayerPhoto(player);
+
+// Clean up all player images (when deleting player)
+await PlayerImageService.cleanupPlayerImages(playerId);
+```
+
+#### Image Compression Configuration
+The system automatically handles compression with these targets:
+- **Target Size**: ~500KB for optimal Firebase Storage usage
+- **Aspect Ratio**: 9:16 (720x1280 or 1080x1920)
+- **Quality Range**: 95% → 10% (iterative reduction)
+- **Format**: JPEG for maximum compatibility
+
+#### Firebase Storage Integration
+- **Path Structure**: `users/{userId}/players/{playerId}/profile_{timestamp}.jpg`
+- **Automatic Cleanup**: Keeps latest 3 images per player
+- **Fallback Strategy**: Local storage when offline or unauthenticated
+- **Progress Feedback**: Built-in loading indicators and error handling
+
+### Image Display Best Practices
 Always use the robust image pattern from the Players screen for consistent display:
 ```dart
 CircleAvatar(

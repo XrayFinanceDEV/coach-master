@@ -74,7 +74,7 @@ class MatchStatisticListScreen extends ConsumerWidget {
                   DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: 'Player'),
                     initialValue: selectedPlayerId,
-                    items: players.map((player) => DropdownMenuItem(value: player.id, child: Text('${player.firstName} ${player.lastName}'))).toList(),
+                    items: players.map((player) => DropdownMenuItem<String>(value: player.id, child: Text('${player.firstName} ${player.lastName}'))).toList(),
                     validator: (value) => value == null ? 'Required' : null,
                     onChanged: (value) => selectedPlayerId = value,
                   ),

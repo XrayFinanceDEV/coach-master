@@ -28,8 +28,8 @@ abstract class BaseSyncRepository<T> {
       print('🟢 ${entityType}Repository: Initialized for user $userId (${_box?.length ?? 0} items)');
     }
     
-    // If sync service is available and we have no local data, try to download from Firestore
-    if (_syncService != null && _syncService.isOnline && (_box?.isEmpty ?? true)) {
+    // If sync service is available and online, always try to download and merge from Firestore
+    if (_syncService != null && _syncService.isOnline) {
       await _downloadFromFirestore();
     }
   }
@@ -126,9 +126,12 @@ abstract class BaseSyncRepository<T> {
           final item = fromMap(itemData);
           final itemId = getEntityId(item);
           
-          // Only add if not already exists locally (avoid overwriting newer local changes)
-          if (!box.containsKey(itemId)) {
-            await box.put(itemId, item);
+          // Always merge remote data - this ensures cross-device sync works properly
+          // Remote data from Firestore should be considered authoritative for sync
+          await box.put(itemId, item);
+          
+          if (kDebugMode) {
+            print('🔄 ${entityType}Repository: Synced item $itemId from Firestore');
           }
         } catch (e) {
           if (kDebugMode) {
@@ -161,6 +164,17 @@ abstract class BaseSyncRepository<T> {
     for (final item in allItems) {
       await _markForSync(item, isDeleted: false);
     }
+  }
+
+  // Force download and merge all data from Firestore (useful for manual sync)
+  Future<void> forceDownloadFromFirestore() async {
+    if (_syncService == null || _currentUserId == null || !_syncService.isOnline) return;
+    
+    if (kDebugMode) {
+      print('🔄 ${entityType}Repository: Force downloading from Firestore');
+    }
+    
+    await _downloadFromFirestore();
   }
 
   // Close repository

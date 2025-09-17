@@ -560,7 +560,7 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
               )
             else
               Column(
-                children: notes.map((note) => _buildNoteItem(context, ref, note, training)).toList(),
+                children: notes.map<Widget>((note) => _buildNoteItem(context, ref, note, training)).toList(),
               ),
           ],
         ),

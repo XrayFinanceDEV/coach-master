@@ -72,7 +72,7 @@ class TeamSelectionCard extends StatelessWidget {
                     initialValue: seasons.any((s) => s.id == selectedSeasonId) ? selectedSeasonId : null,
                     hint: const Text('-- Select Season --'),
                     items: seasons.map((season) {
-                      return DropdownMenuItem(
+                      return DropdownMenuItem<String>(
                         value: season.id,
                         child: Text(season.name),
                       );
@@ -110,7 +110,7 @@ class TeamSelectionCard extends StatelessWidget {
                     initialValue: teams.any((t) => t.id == selectedTeamId) ? selectedTeamId : null,
                     hint: const Text('-- Select Team --'),
                     items: teams.map((team) {
-                      return DropdownMenuItem(
+                      return DropdownMenuItem<String>(
                         value: team.id,
                         child: Text(team.name),
                       );

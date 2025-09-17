@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
+import 'package:coachmaster/models/season.dart';
 import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/match.dart';
@@ -39,11 +40,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final seasonRepo = ref.read(seasonRepositoryProvider);
     final teamRepo = ref.read(teamRepositoryProvider);
     
-    final seasons = seasonRepo.getSeasons();
+    final seasons = seasonRepo.getSeasons() as List<Season>;
     if (seasons.isNotEmpty && selectedSeasonId == null) {
       selectedSeasonId = seasons.first.id;
       
-      final teams = teamRepo.getTeamsForSeason(selectedSeasonId!);
+      final teams = teamRepo.getTeamsForSeason(selectedSeasonId!) as List<Team>;
       if (teams.isNotEmpty && selectedTeamId == null) {
         selectedTeamId = teams.first.id;
         setState(() {});
@@ -53,21 +54,38 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch refresh counter to rebuild when Firebase sync completes
+    ref.watch(refreshCounterProvider);
 
     final seasonRepo = ref.watch(seasonRepositoryProvider);
     final teamRepo = ref.watch(teamRepositoryProvider);
 
-    final seasons = seasonRepo.getSeasons();
-    final teams = selectedSeasonId != null ? teamRepo.getTeamsForSeason(selectedSeasonId!) : <Team>[];
+    final seasons = seasonRepo.getSeasons() as List<Season>;
+    final teams = selectedSeasonId != null ? teamRepo.getTeamsForSeason(selectedSeasonId!) as List<Team> : <Team>[];
 
     final selectedSeason = selectedSeasonId != null ? seasonRepo.getSeason(selectedSeasonId!) : null;
     final selectedTeam = selectedTeamId != null ? teamRepo.getTeam(selectedTeamId!) : null;
 
+    // Auto-select defaults if they're not set but data is available
+    if (seasons.isNotEmpty && selectedSeasonId == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          selectedSeasonId = seasons.first.id;
+          // Get teams for the newly selected season
+          final seasonTeams = teamRepo.getTeamsForSeason(seasons.first.id) as List<Team>;
+          if (seasonTeams.isNotEmpty && selectedTeamId == null) {
+            selectedTeamId = seasonTeams.first.id;
+          }
+        });
+      });
+    }
+
     // Get team data for dashboard
     final playerRepo = ref.watch(playerRepositoryProvider);
     final matchRepo = ref.watch(matchRepositoryProvider);
-    final players = selectedTeamId != null ? playerRepo.getPlayersForTeam(selectedTeamId!) : <Player>[];
-    final matches = selectedTeamId != null ? matchRepo.getMatchesForTeam(selectedTeamId!) : <Match>[];
+    final players = selectedTeamId != null ? playerRepo.getPlayersForTeam(selectedTeamId!) as List<Player> : <Player>[];
+    final matches = selectedTeamId != null ? matchRepo.getMatchesForTeam(selectedTeamId!) as List<Match> : <Match>[];
+
 
     final result = Scaffold(
       appBar: AppBar(
@@ -102,8 +120,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            if (teams.isEmpty && seasons.isNotEmpty) ...[
-              _buildEmptyTeamsMessage(),
+            if (seasons.isEmpty) ...[
+              _buildWelcomeMessage(),
+            ] else if (selectedTeamId == null || selectedTeam == null) ...[
+              // Show loading or team selection state instead of "empty teams"
+              if (teams.isEmpty && seasons.isNotEmpty) ...[
+                _buildEmptyTeamsMessage(),
+              ] else ...[
+                // Teams exist but none selected - show loading or selection
+                Center(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 40),
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Loading team data...',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ] else if (selectedTeam != null && players.isNotEmpty) ...[
               TeamStatisticsCard(
                 team: selectedTeam,
@@ -124,8 +164,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ] else if (selectedTeam != null && players.isEmpty) ...[
               _buildEmptyPlayersMessage(),
-            ] else if (seasons.isEmpty) ...[
-              _buildWelcomeMessage(),
             ],
           ],
         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:coachmaster/core/auth_providers.dart';
+import 'package:coachmaster/core/firebase_auth_providers.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -60,9 +60,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     try {
-      await ref.read(authNotifierProvider.notifier).login(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
+      await ref.read(firebaseAuthProvider.notifier).signInWithEmail(
+        _emailController.text.trim(),
+        _passwordController.text,
       );
 
       if (mounted) {
@@ -91,7 +91,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     try {
-      await ref.read(authNotifierProvider.notifier).signInWithGoogle();
+      await ref.read(firebaseAuthProvider.notifier).signInWithGoogle();
 
       if (mounted) {
         // Navigation will be handled by the router redirect logic
@@ -112,13 +112,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  void _navigateToOnboarding() {
-    context.go('/onboarding');
-  }
-
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authNotifierProvider);
+    final authState = ref.watch(firebaseAuthProvider);
     
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -428,32 +424,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 
                 // Sign Up Section
                 Text(
-                  'New to CoachMaster?',
+                  'New to CoachMaster? Use Google Sign-In or Email Registration above.',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                   textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                
-                OutlinedButton(
-                  onPressed: _isLoading ? null : _navigateToOnboarding,
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  child: Text(
-                    'Create New Account',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                 ),
                 
                 const SizedBox(height: 24),

@@ -73,8 +73,8 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       final convocations = convocationRepository.getConvocationsForMatch(widget.match.id);
       final existingStats = statisticRepository.getStatisticsForMatch(widget.match.id);
       
-      final newConvocatedPlayers = players.where((player) => 
-          convocations.any((conv) => conv.playerId == player.id)).toList();
+      final newConvocatedPlayers = players.where((player) =>
+          convocations.any((conv) => conv.playerId == player.id) == true).toList();
       
       // Only update state if mounted and data has changed
       if (mounted && _convocatedPlayers != newConvocatedPlayers) {
@@ -92,7 +92,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       // Initialize player stats - load existing data if available, otherwise use zeros
       for (final player in newConvocatedPlayers) {
         final existingStat = existingStats.firstWhere(
-          (stat) => stat.playerId == player.id,
+          (stat) => (stat.playerId == player.id) == true,
           orElse: () => MatchStatistic.create(
             matchId: widget.match.id,
             playerId: player.id,
@@ -928,16 +928,16 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
   }) {
     // Group players by position matching the exact same logic as player form
     // Attacco (Attack)
-    final attackPlayers = _convocatedPlayers.where((p) => 
-        _isAttackPosition(p.position)).toList();
+    final attackPlayers = _convocatedPlayers.where((p) =>
+        _isAttackPosition(p.position) == true).toList();
     
     // Centro Campo (Midfield)
-    final midfieldPlayers = _convocatedPlayers.where((p) => 
-        _isMidfieldPosition(p.position)).toList();
+    final midfieldPlayers = _convocatedPlayers.where((p) =>
+        _isMidfieldPosition(p.position) == true).toList();
     
     // Difesa (Defense) - all remaining players including goalkeepers
-    final defenseePlayers = _convocatedPlayers.where((p) => 
-        _isDefensePosition(p.position)).toList();
+    final defenseePlayers = _convocatedPlayers.where((p) =>
+        _isDefensePosition(p.position) == true).toList();
     
     // Debug: Print player positions and categorization (remove in production)
     if (kDebugMode) {

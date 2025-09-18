@@ -46,8 +46,8 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     final convocations = convocationRepository.getConvocationsForMatch(widget.matchId);
     final statistics = statisticRepository.getStatisticsForMatch(widget.matchId);
     final team = teamRepository.getTeam(match.teamId);
-    final convocatedPlayers = players.where((player) => 
-        convocations.any((conv) => conv.playerId == player.id)).toList();
+    final convocatedPlayers = players.where((player) =>
+        convocations.any((conv) => conv.playerId == player.id) == true).toList();
 
     // Auto-open convocation management if no players are convocated and we haven't shown it yet
     WidgetsBinding.instance.addPostFrameCallback((_) {

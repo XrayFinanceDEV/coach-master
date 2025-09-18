@@ -7,6 +7,7 @@ import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/match.dart';
 import 'package:coachmaster/core/repository_instances.dart';
+import 'package:coachmaster/core/firebase_auth_providers.dart';
 import 'package:coachmaster/features/dashboard/widgets/team_statistics_card.dart';
 import 'package:coachmaster/features/dashboard/widgets/player_cards_grid.dart';
 import 'package:coachmaster/features/dashboard/widgets/leaderboards_section.dart';
@@ -54,9 +55,59 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Check if auth is still initializing - show loading screen instead of accessing repositories
+    final authState = ref.watch(firebaseAuthProvider);
+    if (authState.isInitializing) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Loading your dashboard...',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Setting up your teams and players',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     // Watch refresh counter to rebuild when Firebase sync completes
     ref.watch(refreshCounterProvider);
 
+    // Now safe to access repositories
     final seasonRepo = ref.watch(seasonRepositoryProvider);
     final teamRepo = ref.watch(teamRepositoryProvider);
 

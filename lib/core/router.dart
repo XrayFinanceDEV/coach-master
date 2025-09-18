@@ -18,6 +18,7 @@ import 'package:coachmaster/features/onboarding/onboarding_screen.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/locale_provider.dart';
 import 'package:coachmaster/core/firebase_auth_providers.dart';
+import 'package:coachmaster/core/app_initialization.dart';
 import 'package:coachmaster/models/auth_state.dart';
 import 'package:coachmaster/models/season.dart';
 import 'package:coachmaster/models/team.dart';
@@ -1334,10 +1335,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       final currentPath = state.matchedLocation;
 
       if (kDebugMode) {
-        print('🚦 Router: currentPath=$currentPath, isAuthenticated=${authState.isAuthenticated}, isFirebaseUser=${authState.isUsingFirebaseAuth}, isLoading=${authState.isLoading}');
+        print('🚦 Router: currentPath=$currentPath, isAuthenticated=${authState.isAuthenticated}, isFirebaseUser=${authState.isUsingFirebaseAuth}, isLoading=${authState.isLoading}, isInitializing=${authState.isInitializing}');
       }
 
-      // If auth is still loading, don't redirect yet
+      // If auth is still loading or initializing, don't redirect yet
       if (authState.isLoading) {
         if (kDebugMode) {
           print('🚦 Router: Auth still loading, staying on current path');
@@ -1346,16 +1347,25 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       final isAuthenticated = authState.isAuthenticated;
+      final isFullyReady = authState.isFullyReady;
 
       // If not authenticated and not on login page, redirect to login
       if (!isAuthenticated && !currentPath.startsWith('/login')) {
         return '/login';
       }
 
-      // If authenticated, check onboarding status
+      // If authenticated, check if fully ready before redirecting
       if (isAuthenticated) {
-        // Check if user is on login page
+        // Check if user is on login page and fully ready to navigate
         if (currentPath.startsWith('/login')) {
+          // Only proceed if fully initialized
+          if (!isFullyReady) {
+            if (kDebugMode) {
+              print('🚦 Router: User authenticated but still initializing, staying on login');
+            }
+            return null; // Stay on login screen while loading
+          }
+
           // Check onboarding completion
           final isOnboardingCompleted = ref.read(onboardingStatusProvider);
           if (kDebugMode) {
@@ -1383,6 +1393,18 @@ final routerProvider = Provider<GoRouter>((ref) {
               print('🚦 Router: User needs onboarding, redirecting from $currentPath to /onboarding');
             }
             return '/onboarding';
+          }
+        }
+
+        // For Firebase users, ensure they don't access data-dependent screens too early
+        if (authState.isUsingFirebaseAuth && authState.isInitializing) {
+          // If user tries to access data screens while still initializing, keep them on login
+          final dataRoutes = ['/home', '/players', '/trainings', '/matches', '/settings'];
+          if (dataRoutes.any((route) => currentPath.startsWith(route))) {
+            if (kDebugMode) {
+              print('🚦 Router: Preventing access to $currentPath while initializing, redirecting to login');
+            }
+            return '/login';
           }
         }
       }

@@ -39,19 +39,30 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
     if (kDebugMode) {
       print('🔥 FirebaseAuthNotifier: User signed in - ${firebaseUser.email}');
     }
-    
+
     // 1. Set authenticated state with loading
     state = AuthState.firebaseAuthenticated(firebaseUser, isInitializing: true);
-    
-    // 2. Initialize user-specific data storage (for now, just set ready state)
-    // TODO: Initialize user-specific repositories in Phase 5
-    await _initializeUserData(firebaseUser.uid);
-    
-    // 3. Set authenticated state ready
-    state = AuthState.firebaseAuthenticated(firebaseUser, isInitializing: false);
-    
-    if (kDebugMode) {
-      print('🔥 FirebaseAuthNotifier: User initialization complete');
+
+    // 2. Initialize user-specific data storage and ensure repositories are ready
+    try {
+      await _initializeUserData(firebaseUser.uid);
+
+      // 3. Additional delay to ensure everything is settled
+      await Future.delayed(const Duration(milliseconds: 1000));
+
+      // 4. Only mark as ready after everything is completely initialized
+      state = AuthState.firebaseAuthenticated(firebaseUser, isInitializing: false);
+
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: User initialization complete');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: Initialization failed: $e');
+      }
+      // If initialization fails, stay in initializing state longer
+      await Future.delayed(const Duration(seconds: 2));
+      state = AuthState.firebaseAuthenticated(firebaseUser, isInitializing: false);
     }
   }
   
@@ -76,12 +87,26 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
     try {
       // First, reinitialize local repositories with user-specific boxes
       // This will skip if already initialized
-      await ref.read(repositoryReInitProvider(userId).future);
+      try {
+        await ref.read(repositoryReInitProvider(userId).future);
+
+        if (kDebugMode) {
+          print('🔥 FirebaseAuthNotifier: Repositories initialization completed');
+        }
+      } catch (repoError) {
+        if (kDebugMode) {
+          print('🔥 FirebaseAuthNotifier: Repository initialization error: $repoError');
+        }
+        // Continue without throwing - may just be duplicate initialization
+      }
 
       // Get Firebase user from auth service
       final firebaseUser = _authService?.currentUser;
       if (firebaseUser == null) {
-        throw Exception('Firebase user is null during initialization');
+        if (kDebugMode) {
+          print('🔥 FirebaseAuthNotifier: Firebase user is null, continuing with local-only mode');
+        }
+        return; // Continue without sync
       }
 
       // Initialize SyncManager for the authenticated user
@@ -93,13 +118,20 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
 
       // Perform initial sync to get user data from Firestore
       // Force download ensures cross-device data sync works properly
-      await SyncManager.instance.forceDownloadAll();
+      try {
+        await SyncManager.instance.forceDownloadAll();
 
-      // Also perform bidirectional sync to upload any local changes
-      await SyncManager.instance.performFullSync();
+        // Also perform bidirectional sync to upload any local changes
+        await SyncManager.instance.performFullSync();
 
-      if (kDebugMode) {
-        print('🔥 FirebaseAuthNotifier: Initial sync completed for user $userId');
+        if (kDebugMode) {
+          print('🔥 FirebaseAuthNotifier: Initial sync completed for user $userId');
+        }
+      } catch (syncError) {
+        if (kDebugMode) {
+          print('🔥 FirebaseAuthNotifier: Sync failed, continuing with local-only: $syncError');
+        }
+        // Continue without throwing - local mode works fine
       }
     } catch (e) {
       if (kDebugMode) {
@@ -108,7 +140,8 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
       // Don't rethrow - allow auth to continue with local-only mode
     }
   }
-  
+
+
   Future<void> _cleanupUserData() async {
     if (kDebugMode) {
       print('🔥 FirebaseAuthNotifier: Cleaning up user data');

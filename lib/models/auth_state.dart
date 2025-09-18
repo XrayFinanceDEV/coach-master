@@ -69,6 +69,7 @@ class AuthState {
   bool get isLoading => status == AuthStatus.loading || (status == AuthStatus.authenticated && isInitializing);
   bool get isLoadingState => isLoading; // Alias for FirebaseTestScreen compatibility
   bool get hasError => errorMessage != null;
+  bool get isFullyReady => isAuthenticated && !isInitializing;
   
   // Firebase user properties (for new auth system)
   String? get email => firebaseUser?.email ?? user?.email;

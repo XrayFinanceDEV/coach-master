@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:coachmaster/core/firebase_auth_providers.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -93,8 +92,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
 
       if (mounted) {
-        // Navigation will be handled by the router redirect logic
-        context.go('/home');
+        // Let the router handle navigation based on auth state and onboarding status
+        // Do not force navigation here to avoid conflicts
       }
     } catch (e) {
       if (mounted) {
@@ -121,8 +120,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref.read(firebaseAuthProvider.notifier).signInWithGoogle();
 
       if (mounted) {
-        // Navigation will be handled by the router redirect logic
-        context.go('/home');
+        // Let the router handle navigation based on auth state and onboarding status
+        // Do not force navigation here to avoid conflicts
       }
     } catch (e) {
       if (mounted) {
@@ -142,7 +141,58 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(firebaseAuthProvider);
-    
+
+    // Show loading overlay when authenticated but still initializing
+    if (authState.isAuthenticated && authState.isInitializing) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Loading animation
+              Container(
+                width: 80,
+                height: 80,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              Text(
+                'Setting up your account...',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+
+              Text(
+                'Synchronizing your teams and players',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(

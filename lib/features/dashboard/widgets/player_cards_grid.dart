@@ -6,6 +6,7 @@ import 'package:coachmaster/l10n/app_localizations.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
+import 'package:coachmaster/core/image_utils.dart';
 import 'dart:io';
 
 class PlayerCardsGrid extends ConsumerStatefulWidget {
@@ -209,48 +210,17 @@ class _PlayerCardsGridState extends ConsumerState<PlayerCardsGrid> {
                               )
                             : null,
                       ),
-                      child: player.photoPath != null && player.photoPath!.isNotEmpty
-                          ? ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10),
-                              ),
-                              child: kIsWeb
-                                  ? (player.photoPath!.startsWith('data:') || player.photoPath!.startsWith('blob:') || player.photoPath!.startsWith('http')
-                                      ? Image.network(
-                                          player.photoPath!,
-                                          key: ValueKey(player.photoPath), // Force rebuild when photo changes
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) {
-                                            debugPrint('Failed to load web image: ${player.photoPath}, Error: $error');
-                                            return _buildPlayerInitials(player);
-                                          },
-                                        )
-                                      : _buildPlayerInitials(player)) // Web with file path - show initials
-                                  : Image.file(
-                                      File(player.photoPath!),
-                                      key: ValueKey(player.photoPath), // Force rebuild when photo changes
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        debugPrint('Failed to load file image: ${player.photoPath}, Error: $error');
-                                        return Container(
-                                          color: Colors.red[100],
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(Icons.error, color: Colors.red),
-                                              const SizedBox(height: 4),
-                                              Text('Image\nError', 
-                                                style: TextStyle(fontSize: 10, color: Colors.red[800]),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                            )
-                          : _buildPlayerInitials(player),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                        ),
+                        child: ImageUtils.buildSafeImage(
+                          imagePath: player.photoPath,
+                          fit: BoxFit.cover,
+                          errorWidget: _buildPlayerInitials(player),
+                        ),
+                      ),
                     ),
                     
                     // Statistics Overlay (Top Left)

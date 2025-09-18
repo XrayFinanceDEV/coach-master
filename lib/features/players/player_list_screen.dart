@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
+import 'package:coachmaster/core/image_utils.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 import 'package:coachmaster/features/players/widgets/player_form_bottom_sheet.dart';
 
@@ -579,21 +580,17 @@ class _PlayerCard extends ConsumerWidget {
           ],
         ) : null,
       ),
-      child: (player.photoPath != null && player.photoPath!.isNotEmpty)
-          ? ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(10),
-                topRight: Radius.circular(10),
-              ),
-              child: Image(
-                image: kIsWeb && (player.photoPath!.startsWith('data:') || player.photoPath!.startsWith('blob:') || player.photoPath!.startsWith('http'))
-                    ? NetworkImage(player.photoPath!) as ImageProvider
-                    : (!kIsWeb ? FileImage(File(player.photoPath!)) as ImageProvider : NetworkImage(player.photoPath!)),
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => _buildPlayerInitials(),
-              ),
-            )
-          : _buildPlayerInitials(),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+        child: ImageUtils.buildSafeImage(
+          imagePath: player.photoPath,
+          fit: BoxFit.cover,
+          errorWidget: _buildPlayerInitials(),
+        ),
+      ),
     );
   }
 

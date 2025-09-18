@@ -17,7 +17,7 @@ final appReadyProvider = Provider<bool>((ref) {
   );
 });
 
-/// Provider to check onboarding status
+/// Provider to check onboarding status (synchronous for router compatibility)
 final onboardingStatusProvider = Provider<bool>((ref) {
   // Ensure app is ready before checking onboarding status
   final appReady = ref.watch(appReadyProvider);
@@ -25,7 +25,9 @@ final onboardingStatusProvider = Provider<bool>((ref) {
     // Return false to show onboarding screen while initializing
     return false;
   }
-  
+
   final onboardingRepo = ref.watch(onboardingRepositoryProvider);
+  // Use local storage for immediate synchronous response
+  // Cross-platform sync will happen in background via Firestore
   return onboardingRepo.isOnboardingCompleted;
 });

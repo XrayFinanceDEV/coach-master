@@ -193,8 +193,7 @@ class _TrainingsScreenState extends ConsumerState<TrainingsScreen> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('${_formatDate(training.date)} • ${_formatTimeRange(training.startTime, training.endTime)}'),
-                        Text('📍 ${training.location}'),
+                        Text('${_formatDate(training.date)}'),
                         if (training.objectives.isNotEmpty)
                           Text('🎯 ${training.objectives.join(', ')}'),
                       ],
@@ -216,16 +215,6 @@ class _TrainingsScreenState extends ConsumerState<TrainingsScreen> {
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
-  
-  String _formatTimeRange(TimeOfDay start, TimeOfDay end) {
-    return '${_formatTime(start)} - ${_formatTime(end)}';
-  }
-  
-  String _formatTime(TimeOfDay time) {
-    final hour = time.hour.toString().padLeft(2, '0');
-    final minute = time.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
-  }
 
   void _showAddTrainingBottomSheet(BuildContext context, WidgetRef ref, List<Team> teams) {
     if (teams.isEmpty) {
@@ -239,9 +228,6 @@ class _TrainingsScreenState extends ConsumerState<TrainingsScreen> {
     final formKey = GlobalKey<FormState>();
     String selectedTeamId = teams.first.id;
     DateTime selectedDate = DateTime.now();
-    TimeOfDay startTime = const TimeOfDay(hour: 18, minute: 0);
-    TimeOfDay endTime = const TimeOfDay(hour: 19, minute: 30);
-    String location = '';
     List<String> objectives = [];
 
     showModalBottomSheet(
@@ -296,7 +282,7 @@ class _TrainingsScreenState extends ConsumerState<TrainingsScreen> {
                             controller: scrollController,
                             child: Column(
                               children: [
-                                
+
                                 // Date Selection
                                 InkWell(
                                   onTap: () async {
@@ -329,80 +315,7 @@ class _TrainingsScreenState extends ConsumerState<TrainingsScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-                                
-                                // Start Time
-                                InkWell(
-                                  onTap: () async {
-                                    final picked = await showTimePicker(
-                                      context: context,
-                                      initialTime: startTime,
-                                    );
-                                    if (picked != null) {
-                                      setDialogState(() {
-                                        startTime = picked;
-                                      });
-                                    }
-                                  },
-                                  child: Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey[400]!),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.access_time),
-                                        const SizedBox(width: 12),
-                                        Text('${AppLocalizations.of(context)!.startTime}: ${_formatTime(startTime)}'),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                
-                                // End Time
-                                InkWell(
-                                  onTap: () async {
-                                    final picked = await showTimePicker(
-                                      context: context,
-                                      initialTime: endTime,
-                                    );
-                                    if (picked != null) {
-                                      setDialogState(() {
-                                        endTime = picked;
-                                      });
-                                    }
-                                  },
-                                  child: Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey[400]!),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.access_time),
-                                        const SizedBox(width: 12),
-                                        Text('${AppLocalizations.of(context)!.endTime}: ${_formatTime(endTime)}'),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                
-                                // Location
-                                TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: AppLocalizations.of(context)!.location,
-                                    border: const OutlineInputBorder(),
-                                  ),
-                                  validator: (value) => value!.isEmpty ? AppLocalizations.of(context)!.required : null,
-                                  onSaved: (value) => location = value!,
-                                ),
-                                const SizedBox(height: 16),
-                                
+
                                 // Objectives
                                 TextFormField(
                                   decoration: InputDecoration(
@@ -444,9 +357,9 @@ class _TrainingsScreenState extends ConsumerState<TrainingsScreen> {
                                   final newTraining = Training.create(
                                     teamId: selectedTeamId,
                                     date: selectedDate,
-                                    startTime: startTime,
-                                    endTime: endTime,
-                                    location: location,
+                                    startTime: const TimeOfDay(hour: 18, minute: 0), // Default time
+                                    endTime: const TimeOfDay(hour: 19, minute: 30), // Default time
+                                    location: 'Training Location', // Default location
                                     objectives: objectives,
                                   );
                                   
@@ -1309,18 +1222,25 @@ class _ScaffoldWithNavBarState extends ConsumerState<ScaffoldWithNavBar> {
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
-  // Create a stream controller to listen to auth changes
-  late final StreamController<AuthState> streamController;
-  
-  void listener(AuthState? previous, AuthState next) {
+  // Create a stream controller to listen to auth and onboarding changes
+  late final StreamController<String> streamController;
+
+  void authListener(AuthState? previous, AuthState next) {
     if (!streamController.isClosed) {
-      streamController.add(next);
+      streamController.add('auth_change_${DateTime.now().millisecondsSinceEpoch}');
     }
   }
-  
-  streamController = StreamController<AuthState>();
-  ref.listen<AuthState>(firebaseAuthProvider, listener, fireImmediately: true);
-  
+
+  void onboardingListener(bool? previous, bool next) {
+    if (!streamController.isClosed) {
+      streamController.add('onboarding_change_${DateTime.now().millisecondsSinceEpoch}');
+    }
+  }
+
+  streamController = StreamController<String>();
+  ref.listen<AuthState>(firebaseAuthProvider, authListener, fireImmediately: true);
+  ref.listen<bool>(onboardingStatusProvider, onboardingListener, fireImmediately: true);
+
   ref.onDispose(() {
     if (!streamController.isClosed) {
       streamController.close();
@@ -1388,6 +1308,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         // Check if authenticated user needs onboarding (but not on onboarding page)
         if (currentPath != '/onboarding') {
           final isOnboardingCompleted = ref.read(onboardingStatusProvider);
+
           if (!isOnboardingCompleted) {
             if (kDebugMode) {
               print('🚦 Router: User needs onboarding, redirecting from $currentPath to /onboarding');

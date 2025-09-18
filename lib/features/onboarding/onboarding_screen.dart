@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -63,12 +64,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       );
       await onboardingRepo.saveSettings(onboardingSettings);
 
+      // Debug: Check if settings were saved correctly
+      if (kDebugMode) {
+        print('🚀 Onboarding: Settings saved, checking completion status...');
+        final isCompleted = onboardingRepo.isOnboardingCompleted;
+        print('🚀 Onboarding: isCompleted = $isCompleted');
+      }
+
       // Increment refresh counter to trigger UI rebuilds across the app
       ref.read(refreshCounterProvider.notifier).increment();
-      
+
       // Invalidate the onboarding status provider to trigger router rebuild
       ref.invalidate(onboardingStatusProvider);
-      
+
+      // Wait a moment to ensure provider refresh
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Debug: Check provider status after invalidation
+      if (kDebugMode) {
+        final providerStatus = ref.read(onboardingStatusProvider);
+        print('🚀 Onboarding: Provider status after invalidation = $providerStatus');
+      }
+
       // Navigate to main app
       if (mounted) {
         context.go('/home');

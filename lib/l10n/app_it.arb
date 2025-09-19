@@ -224,5 +224,21 @@
   "result": "Risultato",
   "toBeDetermined": "Da Definire",
   "totalPlayers": "Giocatori Totali",
-  "editConvocationsHelp": "Modifica le convocazioni in caso di errori o giocatori che non partecipano alla partita."
+  "editConvocationsHelp": "Modifica le convocazioni in caso di errori o giocatori che non partecipano alla partita.",
+  "loadingDashboard": "Caricamento dashboard...",
+  "settingUpTeams": "Configurazione squadre e giocatori",
+  "loadingTeamData": "Caricamento dati squadra...",
+  "pleaseSelectTeamFirst": "Seleziona prima una squadra!",
+  "noPlayersFound": "Nessun giocatore trovato",
+  "addPlayersToTeam": "Aggiungi giocatori alla tua squadra per iniziare",
+  "allPlayers": "Tutti i Giocatori",
+  "tutti": "Tutti",
+  "attacco": "Attacco",
+  "centrocampo": "Centrocampo",
+  "difesa": "Difesa",
+  "altro": "Altro",
+  "player": "giocatore",
+  "players": "giocatori",
+  "giocatore": "giocatore",
+  "giocatori": "giocatori"
 }

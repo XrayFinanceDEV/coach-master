@@ -280,5 +280,21 @@
   "result": "Result",
   "toBeDetermined": "TBD",
   "totalPlayers": "Total Players",
-  "editConvocationsHelp": "Edit convocations in case of errors or players not coming to the scheduled match."
+  "editConvocationsHelp": "Edit convocations in case of errors or players not coming to the scheduled match.",
+  "loadingDashboard": "Loading your dashboard...",
+  "settingUpTeams": "Setting up your teams and players",
+  "loadingTeamData": "Loading team data...",
+  "pleaseSelectTeamFirst": "Please select a team first!",
+  "noPlayersFound": "No players found",
+  "addPlayersToTeam": "Add players to your team to get started",
+  "allPlayers": "All Players",
+  "tutti": "All",
+  "attacco": "Attack",
+  "centrocampo": "Midfield",
+  "difesa": "Defense",
+  "altro": "Other",
+  "player": "player",
+  "players": "players",
+  "giocatore": "player",
+  "giocatori": "players"
 }

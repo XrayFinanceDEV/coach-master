@@ -93,7 +93,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Loading your dashboard...',
+                AppLocalizations.of(context)!.loadingDashboard,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -103,7 +103,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Setting up your teams and players',
+                AppLocalizations.of(context)!.settingUpTeams,
                 style: TextStyle(
                   fontSize: 14,
                   color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
@@ -205,7 +205,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       const CircularProgressIndicator(),
                       const SizedBox(height: 16),
                       Text(
-                        'Loading team data...',
+                        AppLocalizations.of(context)!.loadingTeamData,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -421,7 +421,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   void _showAddPlayerDialog() {
     if (selectedTeamId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a team first!')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectTeamFirst)),
       );
       return;
     }
@@ -447,7 +447,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   void _showAddTrainingDialog() {
     if (selectedTeamId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a team first!')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectTeamFirst)),
       );
       return;
     }
@@ -475,7 +475,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   void _showAddMatchDialog() {
     if (selectedTeamId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a team first!')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectTeamFirst)),
       );
       return;
     }

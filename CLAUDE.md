@@ -19,6 +19,9 @@ CoachMaster is a modern Flutter sports team management application designed for 
 - `flutter packages pub run build_runner build` - Generate Hive adapters and other code
 - `flutter packages pub run build_runner watch` - Watch for changes and auto-generate code
 
+### Localization
+- `flutter gen-l10n` - Generate localization files after modifying ARB files
+
 ### Dependencies
 - `flutter pub get` - Install dependencies
 - `flutter pub upgrade` - Upgrade dependencies
@@ -353,6 +356,21 @@ if (context.mounted) {
 
 ## Current Features & Recent Improvements
 
+### Translation System Consistency (Latest)
+- **Complete Screen Localization**: All major user-facing screens now have complete Italian/English translations
+  - Dashboard loading states and error messages fully localized
+  - Players screen empty states and filter labels properly translated
+  - Position filtering system uses centralized ARB keys instead of hardcoded logic
+  - Eliminated conditional language checking in favor of AppLocalizations pattern
+- **Enhanced ARB Management**: Added comprehensive translation keys for all UI elements
+  - Loading messages: `loadingDashboard`, `settingUpTeams`, `loadingTeamData`
+  - User interaction feedback: `pleaseSelectTeamFirst`, `noPlayersFound`, `addPlayersToTeam`
+  - Position system: `allPlayers`, `attacco`, `centrocampo`, `difesa` with proper pluralization
+- **Code Quality Improvements**: Replaced hardcoded localization logic with proper ARB lookups
+  - Consistent `AppLocalizations.of(context)!` pattern throughout codebase
+  - No compilation errors after translation updates
+  - Centralized translation management for maintainability
+
 ### Image Management System (Latest)
 - **Automatic Image Compression**: Smart compression to ~500KB while maintaining quality
   - Target size: ~500KB for optimal Firebase Storage usage
@@ -593,6 +611,9 @@ String _getLocalizedFilterLabel(BuildContext context, String filterKey) {
 - **Success/Error Messages**: Always provide localized feedback for user actions
 - **Italian Football Terms**: Use authentic terminology (Casa/Trasferta, Squadra Avversaria, etc.)
 - **Compilation Check**: Verify `flutter analyze` passes after adding new localization keys
+- **No Hardcoded Logic**: Replace conditional language checking with centralized ARB key lookups
+- **Consistent Pattern**: Use `AppLocalizations.of(context)!` throughout instead of manual locale detection
+- **Translation Completeness**: All user-facing screens and forms must have complete Italian/English translations
 
 ### Match Statistics & Player Updates
 **Critical Pattern**: Always update player aggregate statistics after match completion:

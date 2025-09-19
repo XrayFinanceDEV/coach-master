@@ -113,7 +113,7 @@ abstract class AppLocalizations {
   /// No description provided for @players.
   ///
   /// In en, this message translates to:
-  /// **'Players'**
+  /// **'players'**
   String get players;
 
   /// No description provided for @trainings.
@@ -1381,6 +1381,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit convocations in case of errors or players not coming to the scheduled match.'**
   String get editConvocationsHelp;
+
+  /// No description provided for @loadingDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your dashboard...'**
+  String get loadingDashboard;
+
+  /// No description provided for @settingUpTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Setting up your teams and players'**
+  String get settingUpTeams;
+
+  /// No description provided for @loadingTeamData.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading team data...'**
+  String get loadingTeamData;
+
+  /// No description provided for @pleaseSelectTeamFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a team first!'**
+  String get pleaseSelectTeamFirst;
+
+  /// No description provided for @noPlayersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No players found'**
+  String get noPlayersFound;
+
+  /// No description provided for @addPlayersToTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Add players to your team to get started'**
+  String get addPlayersToTeam;
+
+  /// No description provided for @allPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'All Players'**
+  String get allPlayers;
+
+  /// No description provided for @tutti.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get tutti;
+
+  /// No description provided for @attacco.
+  ///
+  /// In en, this message translates to:
+  /// **'Attack'**
+  String get attacco;
+
+  /// No description provided for @centrocampo.
+  ///
+  /// In en, this message translates to:
+  /// **'Midfield'**
+  String get centrocampo;
+
+  /// No description provided for @difesa.
+  ///
+  /// In en, this message translates to:
+  /// **'Defense'**
+  String get difesa;
+
+  /// No description provided for @altro.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get altro;
+
+  /// No description provided for @player.
+  ///
+  /// In en, this message translates to:
+  /// **'player'**
+  String get player;
+
+  /// No description provided for @giocatore.
+  ///
+  /// In en, this message translates to:
+  /// **'player'**
+  String get giocatore;
+
+  /// No description provided for @giocatori.
+  ///
+  /// In en, this message translates to:
+  /// **'players'**
+  String get giocatori;
 }
 
 class _AppLocalizationsDelegate

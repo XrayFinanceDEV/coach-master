@@ -15,7 +15,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home => 'Home';
 
   @override
-  String get players => 'Players';
+  String get players => 'players';
 
   @override
   String get trainings => 'Trainings';
@@ -674,4 +674,49 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get editConvocationsHelp =>
       'Edit convocations in case of errors or players not coming to the scheduled match.';
+
+  @override
+  String get loadingDashboard => 'Loading your dashboard...';
+
+  @override
+  String get settingUpTeams => 'Setting up your teams and players';
+
+  @override
+  String get loadingTeamData => 'Loading team data...';
+
+  @override
+  String get pleaseSelectTeamFirst => 'Please select a team first!';
+
+  @override
+  String get noPlayersFound => 'No players found';
+
+  @override
+  String get addPlayersToTeam => 'Add players to your team to get started';
+
+  @override
+  String get allPlayers => 'All Players';
+
+  @override
+  String get tutti => 'All';
+
+  @override
+  String get attacco => 'Attack';
+
+  @override
+  String get centrocampo => 'Midfield';
+
+  @override
+  String get difesa => 'Defense';
+
+  @override
+  String get altro => 'Other';
+
+  @override
+  String get player => 'player';
+
+  @override
+  String get giocatore => 'player';
+
+  @override
+  String get giocatori => 'players';
 }

@@ -118,35 +118,19 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
   }
 
   String _getLocalizedFilterLabel(BuildContext context, String filterKey) {
-    final currentLocale = Localizations.localeOf(context).languageCode;
-    
-    if (currentLocale == 'it') {
-      switch (filterKey) {
-        case 'all':
-          return 'Tutti';
-        case 'attack':
-          return 'Attacco';
-        case 'midfield':
-          return 'Centrocampo';
-        case 'defense':
-          return 'Difesa';
-        default:
-          return 'Tutti';
-      }
-    } else {
-      // English labels
-      switch (filterKey) {
-        case 'all':
-          return 'All Players';
-        case 'attack':
-          return 'Attack';
-        case 'midfield':
-          return 'Midfield';
-        case 'defense':
-          return 'Defense';
-        default:
-          return 'All Players';
-      }
+    final localizations = AppLocalizations.of(context)!;
+
+    switch (filterKey) {
+      case 'all':
+        return localizations.allPlayers;
+      case 'attack':
+        return localizations.attacco;
+      case 'midfield':
+        return localizations.centrocampo;
+      case 'defense':
+        return localizations.difesa;
+      default:
+        return localizations.allPlayers;
     }
   }
 
@@ -297,41 +281,27 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
   }
 
   String _getLocalizedSectionName(BuildContext context, String section) {
-    final currentLocale = Localizations.localeOf(context).languageCode;
-    
-    if (currentLocale == 'it') {
-      switch (section) {
-        case 'attack':
-          return 'Attacco';
-        case 'midfield':
-          return 'Centro Campo';
-        case 'defense':
-          return 'Difesa';
-        default:
-          return 'Altro';
-      }
-    } else {
-      // English section names
-      switch (section) {
-        case 'attack':
-          return 'Attack';
-        case 'midfield':
-          return 'Midfield';
-        case 'defense':
-          return 'Defense';
-        default:
-          return 'Other';
-      }
+    final localizations = AppLocalizations.of(context)!;
+
+    switch (section) {
+      case 'attack':
+        return localizations.attack;
+      case 'midfield':
+        return localizations.midfield;
+      case 'defense':
+        return localizations.defense;
+      default:
+        return localizations.altro;
     }
   }
 
   String _getLocalizedPlayerCount(BuildContext context, int count) {
-    final currentLocale = Localizations.localeOf(context).languageCode;
-    
-    if (currentLocale == 'it') {
-      return count == 1 ? '$count giocatore' : '$count giocatori';
+    final localizations = AppLocalizations.of(context)!;
+
+    if (count == 1) {
+      return '$count ${localizations.giocatore}';
     } else {
-      return count == 1 ? '$count player' : '$count players';
+      return '$count ${localizations.giocatori}';
     }
   }
 
@@ -493,14 +463,14 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No players found',
+            AppLocalizations.of(context)!.noPlayersFound,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Colors.grey[600],
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Add players to your team to get started',
+            AppLocalizations.of(context)!.addPlayersToTeam,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.grey[500],
             ),

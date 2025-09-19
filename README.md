@@ -142,6 +142,9 @@ flutter pub get
 # Generate code (for Hive adapters)
 flutter packages pub run build_runner build
 
+# Generate localization files
+flutter gen-l10n
+
 # Run the app
 flutter run
 ```
@@ -153,12 +156,17 @@ flutter run
 - `flutter build apk` - Build Android APK
 - `flutter build ios` - Build iOS app
 - `flutter build web` - Build web version
+- `flutter gen-l10n` - Generate localization files after ARB changes
 
 ### Code Generation
-Run after modifying model annotations:
+Run after modifying model annotations or translations:
 ```bash
+# For Hive adapters
 flutter packages pub run build_runner build --delete-conflicting-outputs
 flutter packages pub run build_runner watch  # For continuous generation
+
+# For localization after ARB file changes
+flutter gen-l10n
 ```
 
 ### Theme Customization
@@ -172,6 +180,14 @@ class AppColors {
 ```
 
 ## 🎯 Recent Updates & Improvements
+
+### Translation System Overhaul (Latest)
+- ✅ **Complete Screen Localization**: All major user-facing screens fully translated (Italian/English)
+- ✅ **Centralized Translation Keys**: Replaced hardcoded localization logic with ARB key lookups
+- ✅ **Dashboard Translations**: Loading states, error messages, and user feedback fully localized
+- ✅ **Players Screen Consistency**: Filter labels, empty states, and pluralization properly translated
+- ✅ **Enhanced ARB Management**: Comprehensive translation keys for all UI elements
+- ✅ **Code Quality**: Consistent `AppLocalizations.of(context)!` pattern throughout codebase
 
 ### UI/UX Enhancements
 - ✅ **Speed Dial FAB**: Expandable floating action button on home screen
@@ -257,8 +273,12 @@ final permanentFile = await sourceFile.copy(permanentPath);
 - **Web Performance**: Progressive Web App (PWA) capabilities
 
 ### Completed Recently ✅
+- ✅ **Translation System Consistency**: Complete Italian/English localization across all major screens
+- ✅ **Centralized ARB Management**: Replaced hardcoded language logic with proper translation keys
+- ✅ **Dashboard Localization**: All loading states and user messages properly translated
+- ✅ **Players Screen Translation**: Filter buttons, empty states, and position labels fully localized
 - ✅ **Enhanced Player Screen**: Card-based layout with Italian football terminology
-- ✅ **Position Filtering System**: Smart filter buttons with bilingual support  
+- ✅ **Position Filtering System**: Smart filter buttons with bilingual support
 - ✅ **Football Organization**: Logical position grouping (Attacco/Centro Campo/Difesa)
 - ✅ **Bilingual Interface**: Dynamic Italian/English translation for all player components
 - ✅ **Professional Position Terms**: Authentic Italian football positions (Attaccante, Trequartista, Mediano, etc.)

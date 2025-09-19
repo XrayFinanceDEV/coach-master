@@ -432,28 +432,31 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Text(
-                            player.position,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                          Flexible(
+                            child: Text(
+                              player.position,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 12),
                           Icon(
                             isPresent ? Icons.check_circle : Icons.cancel,
                             size: 16,
-                            color: isPresent 
-                                ? Colors.green 
+                            color: isPresent
+                                ? Colors.green
                                 : Theme.of(context).colorScheme.error,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             isPresent ? (localizations?.present ?? 'Present') : (localizations?.absent ?? 'Absent'),
                             style: TextStyle(
-                              color: isPresent 
-                                  ? Colors.green 
+                              color: isPresent
+                                  ? Colors.green
                                   : Theme.of(context).colorScheme.error,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,

@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:coachmaster/models/onboarding_settings.dart';
 import 'package:coachmaster/models/season.dart';
 import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/core/repository_instances.dart';
@@ -17,15 +16,13 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _coachNameController = TextEditingController();
   final _seasonController = TextEditingController(text: '2025-26');
   final _teamNameController = TextEditingController();
-  
+
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _coachNameController.dispose();
     _seasonController.dispose();
     _teamNameController.dispose();
     super.dispose();
@@ -41,34 +38,43 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     });
 
     try {
-      final onboardingRepo = ref.read(onboardingRepositoryProvider);
       final seasonRepo = ref.read(seasonRepositoryProvider);
       final teamRepo = ref.read(teamRepositoryProvider);
 
+      if (kDebugMode) {
+        print('🚀 Onboarding: Starting team creation process');
+        print('🚀 Onboarding: Season repo type: ${seasonRepo.runtimeType}');
+        print('🚀 Onboarding: Team repo type: ${teamRepo.runtimeType}');
+      }
+
       // Create the season
       final season = Season.create(name: _seasonController.text.trim());
+      if (kDebugMode) {
+        print('🚀 Onboarding: Created season: ${season.name} (ID: ${season.id})');
+      }
       await seasonRepo.addSeason(season);
+      if (kDebugMode) {
+        print('🚀 Onboarding: Season saved to repository');
+      }
 
-      // Create the team
+      // Create the team - this is what completes onboarding
       final team = Team.create(
         name: _teamNameController.text.trim(),
         seasonId: season.id,
       );
-      await teamRepo.addTeam(team);
-
-      // Save onboarding settings
-      final onboardingSettings = OnboardingSettings.create(
-        coachName: _coachNameController.text.trim(),
-        seasonName: _seasonController.text.trim(),
-        teamName: _teamNameController.text.trim(),
-      );
-      await onboardingRepo.saveSettings(onboardingSettings);
-
-      // Debug: Check if settings were saved correctly
       if (kDebugMode) {
-        print('🚀 Onboarding: Settings saved, checking completion status...');
-        final isCompleted = onboardingRepo.isOnboardingCompleted;
-        print('🚀 Onboarding: isCompleted = $isCompleted');
+        print('🚀 Onboarding: Created team: ${team.name} (ID: ${team.id}) for season ${season.id}');
+      }
+      await teamRepo.addTeam(team);
+      if (kDebugMode) {
+        print('🚀 Onboarding: Team saved to repository');
+
+        // Verify the team was actually saved
+        final allTeams = teamRepo.getTeams();
+        print('🚀 Onboarding: Total teams after creation: ${allTeams.length}');
+        for (final t in allTeams) {
+          print('🚀 Onboarding: Team found: ${t.name} (ID: ${t.id})');
+        }
       }
 
       // Increment refresh counter to trigger UI rebuilds across the app
@@ -80,15 +86,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       // Wait a moment to ensure provider refresh
       await Future.delayed(const Duration(milliseconds: 100));
 
-      // Debug: Check provider status after invalidation
       if (kDebugMode) {
-        final providerStatus = ref.read(onboardingStatusProvider);
-        print('🚀 Onboarding: Provider status after invalidation = $providerStatus');
+        print('🚀 Onboarding: Checking onboarding status after team creation');
+        final hasTeams = ref.read(onboardingStatusProvider);
+        print('🚀 Onboarding: onboardingStatusProvider says hasTeams: $hasTeams');
+
+        // Double-check by reading teams directly
+        final directCheck = teamRepo.getTeams();
+        print('🚀 Onboarding: Direct team check shows ${directCheck.length} teams');
+
+        print('🚀 Onboarding: Redirecting to main app');
       }
 
       // Navigate to main app
       if (mounted) {
-        context.go('/home');
+        context.go('/players');
       }
     } catch (e) {
       if (mounted) {
@@ -140,7 +152,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Let\'s set up your coaching profile',
+                  'Let\'s create your first team',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey,
@@ -148,26 +160,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
-                
-                // Coach Name Field
-                TextFormField(
-                  controller: _coachNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Coach Name',
-                    hintText: 'Enter your name',
-                    prefixIcon: Icon(Icons.person),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return null;
-                  },
-                  textInputAction: TextInputAction.next,
-                ),
-                const SizedBox(height: 20),
-                
+
                 // Season Field
                 TextFormField(
                   controller: _seasonController,

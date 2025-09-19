@@ -1,13 +1,11 @@
 import 'package:coachmaster/models/match.dart';
 import 'package:coachmaster/services/base_sync_repository.dart';
-import 'package:coachmaster/services/firestore_sync_service.dart';
 
 class MatchSyncRepository extends BaseSyncRepository<Match> {
-  MatchSyncRepository({FirestoreSyncService? syncService}) 
+  MatchSyncRepository({super.syncService})
     : super(
         boxName: 'matches',
         entityType: 'matches',
-        syncService: syncService,
       );
 
   // Legacy methods for backward compatibility

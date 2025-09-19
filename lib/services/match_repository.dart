@@ -4,8 +4,9 @@ import 'package:coachmaster/models/match.dart';
 class MatchRepository {
   late Box<Match> _matchBox;
 
-  Future<void> init() async {
-    _matchBox = await Hive.openBox<Match>('matches');
+  Future<void> init({String? userId}) async {
+    final boxName = userId != null ? 'matches_$userId' : 'matches';
+    _matchBox = await Hive.openBox<Match>(boxName);
   }
 
   List<Match> getMatches() {

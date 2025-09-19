@@ -52,13 +52,13 @@ Future<void> initializeRepositories({String? userId}) async {
       _teamRepository!.init(userId: userId),
       _playerRepository!.init(userId: userId),
       _trainingRepository!.init(userId: userId),
-      _trainingAttendanceRepository!.init(), // TODO: Add userId support
-      _matchRepository!.init(), // TODO: Add userId support
-      _matchConvocationRepository!.init(), // TODO: Add userId support
-      _matchStatisticRepository!.init(), // TODO: Add userId support
+      _trainingAttendanceRepository!.init(userId: userId),
+      _matchRepository!.init(userId: userId),
+      _matchConvocationRepository!.init(userId: userId),
+      _matchStatisticRepository!.init(userId: userId),
       _onboardingRepository!.init(), // Global, not user-specific
       _userRepository!.init(), // Global, not user-specific
-      _noteRepository!.init(), // TODO: Add userId support
+      _noteRepository!.init(userId: userId),
     ]);
 
     // Mark repositories as initialized
@@ -110,7 +110,9 @@ Future<void> closeRepositories() async {
 
   } catch (e) {
     // Handle close errors gracefully
-    print('Error closing repositories: $e');
+    if (kDebugMode) {
+      print('Error closing repositories: $e');
+    }
   }
 }
 
@@ -120,16 +122,22 @@ final repositoryReInitProvider = FutureProvider.family<void, String>((ref, userI
     // Check if repositories are already initialized for this user
     // Use a simple null check since we don't have isInitialized on all repos yet
     if (_seasonRepository != null) {
-      print('🔄 Repositories already initialized, skipping reinitialization for user: $userId');
+      if (kDebugMode) {
+        print('🔄 Repositories already initialized, skipping reinitialization for user: $userId');
+      }
       return;
     }
 
     // Reinitialize with user-specific boxes
     await initializeRepositories(userId: userId);
 
-    print('🔄 Repositories reinitialized for user: $userId');
+    if (kDebugMode) {
+      print('🔄 Repositories reinitialized for user: $userId');
+    }
   } catch (e) {
-    print('❌ Error reinitializing repositories for user $userId: $e');
+    if (kDebugMode) {
+      print('❌ Error reinitializing repositories for user $userId: $e');
+    }
     rethrow;
   }
 });
@@ -202,12 +210,13 @@ final seasonRepositoryProvider = Provider<dynamic>((ref) {
     return SyncManager.instance.seasonRepository;
   }
 
-  // Return a safe fallback instead of throwing an error during initialization
-  if (!initialized || _seasonRepository == null) {
-    // Return a mock repository that provides empty results instead of crashing
-    return _createMockSeasonRepository();
+  // Fallback to base repository if initialized (better than mock during onboarding)
+  if (initialized && _seasonRepository != null) {
+    return _seasonRepository!;
   }
-  return _seasonRepository!;
+
+  // Return a safe fallback instead of throwing an error during initialization
+  return _createMockSeasonRepository();
 });
 
 // Returns TeamRepository or TeamSyncRepository (both have same interface)
@@ -215,16 +224,20 @@ final teamRepositoryProvider = Provider<dynamic>((ref) {
   final authState = ref.watch(firebaseAuthProvider);
   final initialized = ref.watch(repositoriesInitializedProvider);
 
+  // For Firebase users, prefer sync repository if available
   if (authState.isUsingFirebaseAuth &&
       !authState.isInitializing &&
       SyncManager.instance.isInitialized) {
     return SyncManager.instance.teamRepository;
   }
 
-  if (!initialized || _teamRepository == null) {
-    return _createMockTeamRepository();
+  // Fallback to base repository if initialized (better than mock during onboarding)
+  if (initialized && _teamRepository != null) {
+    return _teamRepository!;
   }
-  return _teamRepository!;
+
+  // Only use mock as last resort
+  return _createMockTeamRepository();
 });
 
 // Returns PlayerRepository or PlayerSyncRepository (both have same interface)

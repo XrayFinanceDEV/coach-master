@@ -5,9 +5,10 @@ class NoteRepository {
   static const String boxName = 'notes';
   Box<Note>? _box;
 
-  Future<void> init() async {
+  Future<void> init({String? userId}) async {
+    final actualBoxName = userId != null ? '${boxName}_$userId' : boxName;
     if (_box?.isOpen != true) {
-      _box = await Hive.openBox<Note>(boxName);
+      _box = await Hive.openBox<Note>(actualBoxName);
     }
   }
 

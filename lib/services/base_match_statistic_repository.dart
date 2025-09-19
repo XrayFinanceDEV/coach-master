@@ -2,7 +2,7 @@ import 'package:coachmaster/models/match_statistic.dart';
 
 abstract class BaseMatchStatisticRepository {
   // Legacy methods for backward compatibility
-  Future<void> init();
+  Future<void> init({String? userId});
   
   List<MatchStatistic> getStatistics();
   MatchStatistic? getStatistic(String id);

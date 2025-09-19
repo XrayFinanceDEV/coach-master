@@ -1,13 +1,11 @@
 import 'package:coachmaster/models/note.dart';
 import 'package:coachmaster/services/base_sync_repository.dart';
-import 'package:coachmaster/services/firestore_sync_service.dart';
 
 class NoteSyncRepository extends BaseSyncRepository<Note> {
-  NoteSyncRepository({FirestoreSyncService? syncService}) 
+  NoteSyncRepository({super.syncService})
     : super(
         boxName: 'notes',
         entityType: 'notes',
-        syncService: syncService,
       );
 
   // Legacy methods for backward compatibility

@@ -4,11 +4,9 @@ import 'package:flutter/foundation.dart';
 
 class TeamRepository {
   late Box<Team> _teamBox;
-  String? _currentUserId;
   bool _isInitialized = false;
 
   Future<void> init({String? userId}) async {
-    _currentUserId = userId;
     // Use user-specific box to prevent cross-user data conflicts
     final boxName = userId != null ? 'teams_$userId' : 'teams';
     _teamBox = await Hive.openBox<Team>(boxName);
@@ -25,7 +23,7 @@ class TeamRepository {
       for (final key in _teamBox.keys) {
         try {
           final team = _teamBox.get(key);
-          if (team != null && team is Team) {
+          if (team != null) {
             teams.add(team);
           }
         } catch (e) {
@@ -46,7 +44,7 @@ class TeamRepository {
   Team? getTeam(String id) {
     try {
       final team = _teamBox.get(id);
-      if (team != null && team is Team) {
+      if (team != null) {
         return team;
       }
     } catch (e) {
@@ -78,7 +76,7 @@ class TeamRepository {
         try {
           final team = _teamBox.get(key);
           // Type check to ensure we have a valid Team object
-          if (team != null && team is Team && team.seasonId == seasonId) {
+          if (team != null && team.seasonId == seasonId) {
             teamsMap[team.id] = team;
           }
         } catch (e) {
@@ -114,7 +112,7 @@ class TeamRepository {
       for (final key in _teamBox.keys) {
         try {
           final team = _teamBox.get(key);
-          if (team != null && team is Team) {
+          if (team != null) {
             if (uniqueTeams.containsKey(team.id)) {
               // Mark this key for deletion (it's a duplicate)
               keysToDelete.add(key);
@@ -176,7 +174,7 @@ class TeamRepository {
       // If cleanup fails entirely, try to close and reopen the box
       try {
         await _teamBox.close();
-        final boxName = _currentUserId != null ? 'teams_${_currentUserId}' : 'teams';
+        final boxName = 'teams';
         _teamBox = await Hive.openBox<Team>(boxName);
         if (kDebugMode) {
           print('🟢 TeamRepository: Reopened box after cleanup error');
@@ -227,7 +225,7 @@ class TeamRepository {
       // If clear fails, try to close and reopen the box
       try {
         await _teamBox.close();
-        final boxName = _currentUserId != null ? 'teams_${_currentUserId}' : 'teams';
+        final boxName = 'teams';
         _teamBox = await Hive.openBox<Team>(boxName);
         await _teamBox.clear();
         if (kDebugMode) {

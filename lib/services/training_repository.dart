@@ -4,10 +4,8 @@ import 'package:flutter/foundation.dart';
 
 class TrainingRepository {
   late Box<Training> _trainingBox;
-  String? _currentUserId;
 
   Future<void> init({String? userId}) async {
-    _currentUserId = userId;
     // Use user-specific box to prevent cross-user data conflicts
     final boxName = userId != null ? 'trainings_$userId' : 'trainings';
     _trainingBox = await Hive.openBox<Training>(boxName);

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:coachmaster/services/analytics_service.dart';
 
 class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -24,10 +25,16 @@ class FirebaseAuthService {
         print('🔥 FirebaseAuth: Attempting sign in for ${email.trim().toLowerCase()}');
       }
       
-      return await _auth.signInWithEmailAndPassword(
-        email: email.trim().toLowerCase(), 
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email.trim().toLowerCase(),
         password: password
       );
+
+      // Track successful login
+      await AnalyticsService.logLogin(method: 'email');
+      await AnalyticsService.setUserId(credential.user?.uid ?? '');
+
+      return credential;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
         print('🔥 FirebaseAuth: Sign in failed - ${e.code}: ${e.message}');
@@ -49,7 +56,11 @@ class FirebaseAuthService {
       
       // Update user profile with name
       await credential.user?.updateDisplayName(name);
-      
+
+      // Track successful registration
+      await AnalyticsService.logSignUp(method: 'email');
+      await AnalyticsService.setUserId(credential.user?.uid ?? '');
+
       if (kDebugMode) {
         print('🔥 FirebaseAuth: Registration successful for ${credential.user?.email}');
       }
@@ -148,11 +159,15 @@ class FirebaseAuthService {
       
       // Sign in to Firebase with the Google credential
       final userCredential = await _auth.signInWithCredential(credential);
-      
+
+      // Track successful Google sign-in
+      await AnalyticsService.logLogin(method: 'google');
+      await AnalyticsService.setUserId(userCredential.user?.uid ?? '');
+
       if (kDebugMode) {
         print('🔥 FirebaseAuth: Google Sign-In successful for ${userCredential.user?.email}');
       }
-      
+
       return userCredential;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {

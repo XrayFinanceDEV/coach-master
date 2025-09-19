@@ -3,14 +3,13 @@ import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/match_statistic.dart';
 import 'package:coachmaster/models/training_attendance.dart';
 import 'package:coachmaster/services/base_sync_repository.dart';
-import 'package:coachmaster/services/firestore_sync_service.dart';
+import 'package:coachmaster/services/analytics_service.dart';
 
 class PlayerSyncRepository extends BaseSyncRepository<Player> {
-  PlayerSyncRepository({FirestoreSyncService? syncService}) 
+  PlayerSyncRepository({super.syncService})
     : super(
         boxName: 'players',
         entityType: 'players',
-        syncService: syncService,
       );
 
   // Legacy methods for backward compatibility
@@ -26,6 +25,9 @@ class PlayerSyncRepository extends BaseSyncRepository<Player> {
   // Enhanced methods with sync support
   Future<void> addPlayer(Player player) async {
     await addWithSync(player);
+
+    // Track player creation
+    await AnalyticsService.logPlayerAdded();
   }
 
   Future<void> updatePlayer(Player player) async {

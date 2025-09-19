@@ -1,15 +1,12 @@
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
 import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/services/base_sync_repository.dart';
-import 'package:coachmaster/services/firestore_sync_service.dart';
 
 class TeamSyncRepository extends BaseSyncRepository<Team> {
-  TeamSyncRepository({FirestoreSyncService? syncService}) 
+  TeamSyncRepository({super.syncService})
     : super(
         boxName: 'teams',
         entityType: 'teams',
-        syncService: syncService,
       );
 
   // Legacy methods for backward compatibility

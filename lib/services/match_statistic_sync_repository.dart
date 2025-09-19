@@ -1,19 +1,17 @@
 import 'package:coachmaster/models/match_statistic.dart';
 import 'package:coachmaster/services/base_sync_repository.dart';
-import 'package:coachmaster/services/firestore_sync_service.dart';
 import 'package:coachmaster/services/base_match_statistic_repository.dart';
 
 class MatchStatisticSyncRepository extends BaseSyncRepository<MatchStatistic> implements BaseMatchStatisticRepository {
-  MatchStatisticSyncRepository({FirestoreSyncService? syncService}) 
+  MatchStatisticSyncRepository({super.syncService})
     : super(
         boxName: 'matchStatistics',
         entityType: 'match_statistics',
-        syncService: syncService,
       );
 
   // Legacy methods for backward compatibility
   @override
-  Future<void> init() async {
+  Future<void> init({String? userId}) async {
     if (!isInitialized) {
       throw Exception('MatchStatisticSyncRepository: Use initForUser() instead of init() for sync support');
     }

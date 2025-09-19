@@ -4,11 +4,9 @@ import 'package:flutter/foundation.dart';
 
 class SeasonRepository {
   late Box<Season> _seasonBox;
-  String? _currentUserId;
   bool _isInitialized = false;
 
   Future<void> init({String? userId}) async {
-    _currentUserId = userId;
     // Use user-specific box to prevent cross-user data conflicts
     final boxName = userId != null ? 'seasons_$userId' : 'seasons';
     _seasonBox = await Hive.openBox<Season>(boxName);

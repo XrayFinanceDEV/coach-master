@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +6,6 @@ import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
 import 'package:coachmaster/core/image_utils.dart';
-import 'dart:io';
 
 class PlayerCardsGrid extends ConsumerStatefulWidget {
   final String teamId; // Changed: now takes teamId instead of players list

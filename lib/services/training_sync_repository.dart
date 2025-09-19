@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:coachmaster/models/training.dart';
 import 'package:coachmaster/services/base_sync_repository.dart';
-import 'package:coachmaster/services/firestore_sync_service.dart';
 
 class TrainingSyncRepository extends BaseSyncRepository<Training> {
-  TrainingSyncRepository({FirestoreSyncService? syncService}) 
+  TrainingSyncRepository({super.syncService})
     : super(
         boxName: 'trainings',
         entityType: 'trainings',
-        syncService: syncService,
       );
 
   // Legacy methods for backward compatibility

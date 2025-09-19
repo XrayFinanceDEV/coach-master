@@ -23,6 +23,7 @@ import 'package:coachmaster/models/auth_state.dart';
 import 'package:coachmaster/models/season.dart';
 import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/models/training.dart';
+import 'package:coachmaster/services/analytics_service.dart';
 
 // GoRouter refresh stream to listen to auth state changes
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -89,11 +90,21 @@ class _PlayersScreenState extends ConsumerState<PlayersScreen> {
         ),
       );
     }
-    
-    // Get current season (latest season)
-    final currentSeason = seasons.first;
-    final teams = teamRepo.getTeamsForSeason(currentSeason.id);
-    
+
+    // Find the season that has teams (prioritize seasons with teams)
+    Season? currentSeason;
+    for (var season in seasons) {
+      final teamsInSeason = teamRepo.getTeamsForSeason(season.id);
+      if (teamsInSeason.isNotEmpty) {
+        currentSeason = season;
+        break;
+      }
+    }
+
+    // If no season with teams found, use the first season
+    currentSeason ??= seasons.first;
+    final teams = teamRepo.getTeamsForSeason(currentSeason!.id);
+
     if (teams.isEmpty) {
       return Scaffold(
         appBar: AppBar(
@@ -193,7 +204,7 @@ class _TrainingsScreenState extends ConsumerState<TrainingsScreen> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('${_formatDate(training.date)}'),
+                        Text(_formatDate(training.date)),
                         if (training.objectives.isNotEmpty)
                           Text('🎯 ${training.objectives.join(', ')}'),
                       ],
@@ -433,11 +444,21 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
         ),
       );
     }
-    
-    // Get current season (latest season)
-    final currentSeason = seasons.first;
-    final teams = teamRepo.getTeamsForSeason(currentSeason.id);
-    
+
+    // Find the season that has teams (prioritize seasons with teams)
+    Season? currentSeason;
+    for (var season in seasons) {
+      final teamsInSeason = teamRepo.getTeamsForSeason(season.id);
+      if (teamsInSeason.isNotEmpty) {
+        currentSeason = season;
+        break;
+      }
+    }
+
+    // If no season with teams found, use the first season
+    currentSeason ??= seasons.first;
+    final teams = teamRepo.getTeamsForSeason(currentSeason!.id);
+
     if (teams.isEmpty) {
       return Scaffold(
         appBar: AppBar(
@@ -503,7 +524,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       await teamRepo.cleanupDuplicateTeams();
     } catch (e) {
       // If cleanup fails due to corrupted data, clear everything
-      print('Settings: Cleanup failed, clearing corrupted data: $e');
+      if (kDebugMode) {
+        print('Settings: Cleanup failed, clearing corrupted data: $e');
+      }
       await teamRepo.clearCorruptedData();
     }
 
@@ -516,7 +539,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       }
     }
 
-    var currentSeason = seasons.cast<Season?>().firstWhere(
+    // Find the season that has teams (prioritize seasons with teams)
+    Season? currentSeason;
+    for (var season in seasons.where((s) => s.name == '2025-26')) {
+      final teamsInSeason = teamRepo.getTeamsForSeason(season.id);
+      if (kDebugMode) {
+        print('🔧 Settings: Season ${season.id} has ${teamsInSeason.length} teams');
+      }
+      if (teamsInSeason.isNotEmpty) {
+        currentSeason = season;
+        if (kDebugMode) {
+          print('🔧 Settings: Selected season with teams: ${season.id}');
+        }
+        break;
+      }
+    }
+
+    // If no season with teams found, pick the first one
+    currentSeason ??= seasons.cast<Season?>().firstWhere(
       (s) => s?.name == '2025-26',
       orElse: () => null,
     );
@@ -722,7 +762,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         teams = <Team>[];
       }
     } catch (e) {
-      print('Settings: Error getting teams, returning empty list: $e');
+      if (kDebugMode) {
+        print('Settings: Error getting teams, returning empty list: $e');
+      }
       teams = <Team>[];
     }
     
@@ -995,7 +1037,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     subtitle: Text(AppLocalizations.of(context)!.useDarkTheme),
                     value: false,
                     onChanged: (value) {
-                      // TODO: Implement dark mode toggle
+                      // Dark mode toggle placeholder
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Dark mode toggle - Coming soon!')),
                       );
@@ -1008,7 +1050,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     subtitle: Text(AppLocalizations.of(context)!.receiveReminders),
                     value: true,
                     onChanged: (value) {
-                      // TODO: Implement notifications toggle
+                      // Notifications toggle placeholder
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Notifications toggle - Coming soon!')),
                       );
@@ -1150,6 +1192,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         if (confirmed == true) {
                           // Store context before async operation
                           final authNotifier = ref.read(firebaseAuthProvider.notifier);
+                          if (!context.mounted) return;
                           final messenger = ScaffoldMessenger.of(context);
                           
                           await authNotifier.signOut();
@@ -1250,6 +1293,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/login',
     refreshListenable: GoRouterRefreshStream(streamController.stream),
+    observers: [AnalyticsService.observer],
     redirect: (context, state) {
       final authState = ref.read(firebaseAuthProvider);
       final currentPath = state.matchedLocation;
@@ -1286,32 +1330,32 @@ final routerProvider = Provider<GoRouter>((ref) {
             return null; // Stay on login screen while loading
           }
 
-          // Check onboarding completion
-          final isOnboardingCompleted = ref.read(onboardingStatusProvider);
+          // Check if user has teams (simple onboarding check)
+          final hasTeams = ref.read(onboardingStatusProvider);
           if (kDebugMode) {
-            print('🚦 Router: Onboarding completed: $isOnboardingCompleted');
+            print('🚦 Router: User has teams: $hasTeams');
           }
 
-          if (!isOnboardingCompleted) {
+          if (!hasTeams) {
             if (kDebugMode) {
-              print('🚦 Router: Redirecting to onboarding');
+              print('🚦 Router: No teams found, redirecting to onboarding');
             }
             return '/onboarding';
           }
 
           if (kDebugMode) {
-            print('🚦 Router: Redirecting authenticated user from $currentPath to /players');
+            print('🚦 Router: User has teams, redirecting to players');
           }
           return '/players';
         }
 
-        // Check if authenticated user needs onboarding (but not on onboarding page)
+        // Check if authenticated user has teams (but not on onboarding page)
         if (currentPath != '/onboarding') {
-          final isOnboardingCompleted = ref.read(onboardingStatusProvider);
+          final hasTeams = ref.read(onboardingStatusProvider);
 
-          if (!isOnboardingCompleted) {
+          if (!hasTeams) {
             if (kDebugMode) {
-              print('🚦 Router: User needs onboarding, redirecting from $currentPath to /onboarding');
+              print('🚦 Router: User has no teams, redirecting from $currentPath to /onboarding');
             }
             return '/onboarding';
           }

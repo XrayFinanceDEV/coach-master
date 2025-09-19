@@ -6,10 +6,8 @@ import 'package:coachmaster/models/training_attendance.dart';
 
 class PlayerRepository {
   late Box<Player> _playerBox;
-  String? _currentUserId;
 
   Future<void> init({String? userId}) async {
-    _currentUserId = userId;
     // Use user-specific box to prevent cross-user data conflicts
     final boxName = userId != null ? 'players_$userId' : 'players';
     _playerBox = await Hive.openBox<Player>(boxName);

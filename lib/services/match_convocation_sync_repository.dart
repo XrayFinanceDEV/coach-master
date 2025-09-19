@@ -1,19 +1,17 @@
 import 'package:coachmaster/models/match_convocation.dart';
 import 'package:coachmaster/services/base_sync_repository.dart';
-import 'package:coachmaster/services/firestore_sync_service.dart';
 import 'package:coachmaster/services/base_match_convocation_repository.dart';
 
 class MatchConvocationSyncRepository extends BaseSyncRepository<MatchConvocation> implements BaseMatchConvocationRepository {
-  MatchConvocationSyncRepository({FirestoreSyncService? syncService}) 
+  MatchConvocationSyncRepository({super.syncService})
     : super(
         boxName: 'matchConvocations',
         entityType: 'match_convocations',
-        syncService: syncService,
       );
 
   // Legacy methods for backward compatibility
   @override
-  Future<void> init() async {
+  Future<void> init({String? userId}) async {
     if (!isInitialized) {
       throw Exception('MatchConvocationSyncRepository: Use initForUser() instead of init() for sync support');
     }

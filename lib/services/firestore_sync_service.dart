@@ -19,7 +19,7 @@ class FirestoreSyncService {
   bool _isOnline = false;
   Timer? _syncTimer;
   
-  StreamController<SyncStatus> _syncStatusController = StreamController<SyncStatus>.broadcast();
+  final StreamController<SyncStatus> _syncStatusController = StreamController<SyncStatus>.broadcast();
   Stream<SyncStatus> get syncStatusStream => _syncStatusController.stream;
 
   // Initialize sync service for a specific user

@@ -27,7 +27,7 @@ android {
         applicationId = "com.coachmaster.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion  // Android 5.0+ (most common minimum)
+        minSdk = 26  // Increased for Firebase compatibility
         targetSdk = 33  // Android 13 (more compatible)
         versionCode = flutter.versionCode
         versionName = flutter.versionName

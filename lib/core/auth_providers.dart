@@ -140,7 +140,6 @@ class AuthNotifier extends Notifier<AuthState> {
           print('🟡 AuthNotifier: Found local user, but using Firebase auth now');
         }
         // For now, just show unauthenticated - user needs to log in with Firebase
-        // TODO: Implement user migration in future phase if needed
       }
       state = const AuthState.unauthenticated();
     } catch (e) {

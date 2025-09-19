@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coachmaster/models/dashboard_data.dart';
 import 'package:coachmaster/models/player.dart';
@@ -16,7 +17,9 @@ final _dashboardDataComputedProvider = Provider.family<DashboardData, String>((r
   final playerRepo = ref.read(playerRepositoryProvider);
   final matchRepo = ref.read(matchRepositoryProvider);
   
-  print('🚀 Computing dashboard data for team: $teamId');
+  if (kDebugMode) {
+    print('🚀 Computing dashboard data for team: $teamId');
+  }
   final startTime = DateTime.now();
   
   final players = playerRepo.getPlayersForTeam(teamId);
@@ -26,7 +29,9 @@ final _dashboardDataComputedProvider = Provider.family<DashboardData, String>((r
   final leaderboards = _calculateLeaderboardsOnce(players);
   
   final endTime = DateTime.now();
-  print('🚀 Dashboard data computed in ${endTime.difference(startTime).inMilliseconds}ms');
+  if (kDebugMode) {
+    print('🚀 Dashboard data computed in ${endTime.difference(startTime).inMilliseconds}ms');
+  }
   
   return DashboardData(
     players: players,

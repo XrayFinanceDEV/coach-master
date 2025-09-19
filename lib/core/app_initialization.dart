@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 
@@ -17,17 +18,35 @@ final appReadyProvider = Provider<bool>((ref) {
   );
 });
 
-/// Provider to check onboarding status (synchronous for router compatibility)
+/// Provider to check if user has completed setup by checking if they have teams
 final onboardingStatusProvider = Provider<bool>((ref) {
-  // Ensure app is ready before checking onboarding status
+  // Ensure app is ready before checking
   final appReady = ref.watch(appReadyProvider);
   if (!appReady) {
     // Return false to show onboarding screen while initializing
+    if (kDebugMode) {
+      print('🎯 OnboardingStatus: App not ready, returning false');
+    }
     return false;
   }
 
-  final onboardingRepo = ref.watch(onboardingRepositoryProvider);
-  // Use local storage for immediate synchronous response
-  // Cross-platform sync will happen in background via Firestore
-  return onboardingRepo.isOnboardingCompleted;
+  // Simple approach: check if user has any teams
+  // Firebase is the source of truth - if they have teams, they've completed onboarding
+  final teamRepo = ref.watch(teamRepositoryProvider);
+  final allTeams = teamRepo.getTeams();
+
+  if (kDebugMode) {
+    print('🎯 OnboardingStatus: Team repo type: ${teamRepo.runtimeType}');
+    print('🎯 OnboardingStatus: Found ${allTeams.length} teams');
+    for (final team in allTeams) {
+      print('🎯 OnboardingStatus: Team: ${team.name} (ID: ${team.id})');
+    }
+  }
+
+  // If user has teams, onboarding is complete
+  final hasTeams = allTeams.isNotEmpty;
+  if (kDebugMode) {
+    print('🎯 OnboardingStatus: Returning hasTeams: $hasTeams');
+  }
+  return hasTeams;
 });

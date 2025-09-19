@@ -16,10 +16,12 @@ class PerformanceMonitor {
       _measurements[operation] = _measurements[operation] ?? [];
       _measurements[operation]!.add(duration);
       
+      // ignore: avoid_print
       print('🚀 Performance: $operation took ${duration}ms');
       
       if (_measurements[operation]!.length >= 10) {
         final avg = _measurements[operation]!.reduce((a, b) => a + b) / _measurements[operation]!.length;
+        // ignore: avoid_print
         print('🚀 Performance: $operation average: ${avg.toStringAsFixed(1)}ms over ${_measurements[operation]!.length} samples');
         _measurements[operation]!.clear();
       }

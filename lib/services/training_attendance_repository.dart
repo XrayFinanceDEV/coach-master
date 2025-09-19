@@ -4,8 +4,9 @@ import 'package:coachmaster/models/training_attendance.dart';
 class TrainingAttendanceRepository {
   late Box<TrainingAttendance> _attendanceBox;
 
-  Future<void> init() async {
-    _attendanceBox = await Hive.openBox<TrainingAttendance>('trainingAttendances');
+  Future<void> init({String? userId}) async {
+    final boxName = userId != null ? 'trainingAttendances_$userId' : 'trainingAttendances';
+    _attendanceBox = await Hive.openBox<TrainingAttendance>(boxName);
   }
 
   List<TrainingAttendance> getAttendances() {

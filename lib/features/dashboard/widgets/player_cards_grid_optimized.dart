@@ -23,7 +23,7 @@ class PlayerCardsGridOptimized extends ConsumerStatefulWidget {
 
 class _PlayerCardsGridOptimizedState extends ConsumerState<PlayerCardsGridOptimized> {
   String sortMode = 'position';
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   int _currentPage = 0;
 
   @override

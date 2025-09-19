@@ -6,8 +6,9 @@ class MatchConvocationRepository implements BaseMatchConvocationRepository {
   late Box<MatchConvocation> _convocationBox;
 
   @override
-  Future<void> init() async {
-    _convocationBox = await Hive.openBox<MatchConvocation>('matchConvocations');
+  Future<void> init({String? userId}) async {
+    final boxName = userId != null ? 'matchConvocations_$userId' : 'matchConvocations';
+    _convocationBox = await Hive.openBox<MatchConvocation>(boxName);
   }
 
   @override

@@ -7,12 +7,28 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:25162710455:android:3e8a2777165e26dde6fc32",
+        "mobilesdk_app_id": "1:25162710455:android:e57f1c945badad58e6fc32",
         "android_client_info": {
-          "package_name": "com.example.musify"
+          "package_name": "com.coachmaster.app"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "25162710455-amr9816n8s75mjc63ukl42rgotqqlndi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.coachmaster.app",
+            "certificate_hash": "1be4fec78f812722c74fe66fc4ea23176fc0e71a"
+          }
+        },
+        {
+          "client_id": "25162710455-rnd75in9a64tflofmjrvoajhl0ukv1un.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.coachmaster.app",
+            "certificate_hash": "a1c4c9a5c7d64a06a0794db92d1038e108db16f6"
+          }
+        },
         {
           "client_id": "25162710455-d1qu31pjtbsrj1ohke54akutc7cn4ogp.apps.googleusercontent.com",
           "client_type": 3

@@ -6,8 +6,9 @@ class MatchStatisticRepository implements BaseMatchStatisticRepository {
   late Box<MatchStatistic> _statisticBox;
 
   @override
-  Future<void> init() async {
-    _statisticBox = await Hive.openBox<MatchStatistic>('matchStatistics');
+  Future<void> init({String? userId}) async {
+    final boxName = userId != null ? 'matchStatistics_$userId' : 'matchStatistics';
+    _statisticBox = await Hive.openBox<MatchStatistic>(boxName);
   }
 
   @override

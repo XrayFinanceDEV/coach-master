@@ -2,7 +2,7 @@ import 'package:coachmaster/models/match_convocation.dart';
 
 abstract class BaseMatchConvocationRepository {
   // Legacy methods for backward compatibility
-  Future<void> init();
+  Future<void> init({String? userId});
   
   List<MatchConvocation> getConvocations();
   MatchConvocation? getConvocation(String id);

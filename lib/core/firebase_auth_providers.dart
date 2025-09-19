@@ -6,6 +6,7 @@ import 'package:coachmaster/services/firebase_auth_service.dart';
 import 'package:coachmaster/services/sync_manager.dart';
 import 'package:coachmaster/models/auth_state.dart';
 import 'package:coachmaster/core/repository_instances.dart';
+import 'package:coachmaster/core/app_initialization.dart';
 
 class FirebaseAuthNotifier extends Notifier<AuthState> {
   FirebaseAuthService? _authService;
@@ -71,8 +72,7 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
       print('🔥 FirebaseAuthNotifier: User signed out');
     }
     
-    // 1. Clean up user-specific data (for now, just set unauthenticated)
-    // TODO: Close user-specific Hive boxes in Phase 5
+    // 1. Clean up user-specific data
     await _cleanupUserData();
     
     // 2. Set unauthenticated state
@@ -114,6 +114,13 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
 
       if (kDebugMode) {
         print('🔥 FirebaseAuthNotifier: SyncManager initialized for user $userId');
+      }
+
+      // Invalidate onboarding status provider to force router to check teams
+      ref.invalidate(onboardingStatusProvider);
+
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: Team data synced, onboarding status refreshed');
       }
 
       // Perform initial sync to get user data from Firestore

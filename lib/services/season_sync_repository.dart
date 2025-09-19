@@ -1,13 +1,11 @@
 import 'package:coachmaster/models/season.dart';
 import 'package:coachmaster/services/base_sync_repository.dart';
-import 'package:coachmaster/services/firestore_sync_service.dart';
 
 class SeasonSyncRepository extends BaseSyncRepository<Season> {
-  SeasonSyncRepository({FirestoreSyncService? syncService}) 
+  SeasonSyncRepository({super.syncService})
     : super(
         boxName: 'seasons',
         entityType: 'seasons',
-        syncService: syncService,
       );
 
   // Legacy methods for backward compatibility

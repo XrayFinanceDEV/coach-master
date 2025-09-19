@@ -40,11 +40,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   void _autoSelectDefaults() {
     final seasonRepo = ref.read(seasonRepositoryProvider);
     final teamRepo = ref.read(teamRepositoryProvider);
-    
+
     final seasons = seasonRepo.getSeasons() as List<Season>;
     if (seasons.isNotEmpty && selectedSeasonId == null) {
-      selectedSeasonId = seasons.first.id;
-      
+      // Find the season that has teams (prioritize seasons with teams)
+      Season? currentSeason;
+      for (var season in seasons) {
+        final teamsInSeason = teamRepo.getTeamsForSeason(season.id) as List<Team>;
+        if (teamsInSeason.isNotEmpty) {
+          currentSeason = season;
+          break;
+        }
+      }
+
+      // If no season with teams found, use the first season
+      currentSeason ??= seasons.first;
+      selectedSeasonId = currentSeason.id;
+
       final teams = teamRepo.getTeamsForSeason(selectedSeasonId!) as List<Team>;
       if (teams.isNotEmpty && selectedTeamId == null) {
         selectedTeamId = teams.first.id;

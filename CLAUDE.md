@@ -32,6 +32,7 @@ CoachMaster is a modern Flutter sports team management application designed for 
 - **Authentication**: Firebase Auth 6.0.2 with Google Sign-In 6.2.1 integration
 - **Storage**: Hybrid Hive 2.2.3 (local) + Cloud Firestore 6.0.1 (cloud sync)
 - **File Storage**: Firebase Storage 13.0.1 with automatic image compression
+- **Analytics**: Firebase Analytics 12.0.1 for user behavior and feature tracking
 - **Image Processing**: flutter_image_compress 2.3.0 + image 4.2.0 for optimization
 - **UI Framework**: Material Design 3.0 with custom dark theme
 - **Theme System**: Centralized AppColors class with orange (#FFA700) primary color
@@ -51,9 +52,10 @@ CoachMaster is a modern Flutter sports team management application designed for 
   - `firebase_auth_providers.dart` - Firebase authentication state management
 - `lib/models/` - Data models with Hive type adapters (.g.dart files auto-generated)
 - `lib/services/` - Repository pattern and authentication services
-  - `firebase_auth_service.dart` - Firebase Auth + Google Sign-In implementation
+  - `firebase_auth_service.dart` - Firebase Auth + Google Sign-In implementation with analytics
+  - `analytics_service.dart` - Firebase Analytics tracking for user behavior and features
   - `sync_manager.dart` - Hybrid local/cloud data synchronization
-  - `*_sync_repository.dart` - Cloud-enabled repositories
+  - `*_sync_repository.dart` - Cloud-enabled repositories with analytics integration
   - `player_image_service.dart` - Complete player photo workflow (pick→compress→upload)
   - `image_compression_service.dart` - Smart image compression to ~500KB with 9:16 ratio
   - `firebase_storage_service.dart` - Cloud file storage with automatic cleanup
@@ -739,3 +741,112 @@ The app now uses a hybrid storage approach:
 - **Cloud Sync**: Firestore synchronization for authenticated users
 - **Automatic**: Background sync when user is authenticated
 - **Offline Support**: Full app functionality without internet connection
+
+## Firebase Analytics Integration
+
+### Analytics Architecture
+The app includes comprehensive Firebase Analytics tracking to monitor user behavior, feature usage, and app performance:
+
+#### Analytics Setup
+- **Firebase Analytics**: Version 12.0.1 integrated with existing Firebase project
+- **Configuration**: Uses same `google-services.json` configuration as other Firebase services
+- **Router Integration**: Automatic screen view tracking via `FirebaseAnalyticsObserver`
+- **Cross-Platform**: Works seamlessly across web, Android, and iOS platforms
+
+#### Key Components
+- `lib/services/analytics_service.dart` - Core analytics service with comprehensive event tracking
+- `lib/core/analytics_providers.dart` - Riverpod providers for dependency injection
+- `docs/FIREBASE_ANALYTICS_SETUP.md` - Complete setup and usage documentation
+
+#### Tracked Events
+
+**User Events:**
+- Login/signup with method tracking (email, Google)
+- User ID assignment for session tracking
+- Language preference changes
+
+**Team Management:**
+- Team creation and season setup
+- Settings configuration changes
+
+**Player Management:**
+- Player creation and updates
+- Photo upload and management
+- Player statistics tracking
+
+**Training Events:**
+- Training session creation
+- Attendance tracking with participant counts
+- Notes and coaching observations
+
+**Match Events:**
+- Match creation and scheduling
+- Match completion with results
+- Statistics saving with player participation
+- Convocation management
+
+**Feature Usage:**
+- Screen navigation (automatic)
+- Speed dial FAB usage
+- Bottom sheet form interactions
+- Search and filtering actions
+
+**Error Tracking:**
+- Sync failures and recovery
+- Authentication errors
+- Image processing failures
+- General app errors with context
+
+#### Analytics Integration Points
+
+**Authentication Service:**
+```dart
+// Automatic tracking in firebase_auth_service.dart
+await AnalyticsService.logLogin(method: 'email');
+await AnalyticsService.setUserId(credential.user?.uid ?? '');
+```
+
+**Repository Level:**
+```dart
+// Example in player_sync_repository.dart
+await addWithSync(player);
+await AnalyticsService.logPlayerAdded();
+```
+
+**Screen Navigation:**
+```dart
+// Automatic via router configuration
+observers: [AnalyticsService.observer]
+```
+
+#### Privacy and Data Handling
+- **User ID Only**: No personally identifiable information logged
+- **Aggregated Data**: All metrics are aggregated and anonymized
+- **Debug Logging**: Console output in development for verification
+- **GDPR Compliant**: Follows Firebase Analytics privacy guidelines
+
+#### Usage Patterns
+```dart
+// Track feature usage
+await AnalyticsService.logFeatureUsed(featureName: 'player_filter');
+
+// Track custom events with parameters
+await AnalyticsService.logMatchCompleted(
+  goalsFor: 3,
+  goalsAgainst: 1,
+  result: 'win',
+);
+
+// Error tracking
+await AnalyticsService.logError(
+  errorType: 'sync_failure',
+  errorMessage: 'Failed to sync player data',
+);
+```
+
+#### Development Guidelines
+- **Event Naming**: Use descriptive snake_case names for events
+- **Parameter Limits**: Follow Firebase's parameter naming and count limits
+- **Debug Mode**: All events log to console in development
+- **User Properties**: Set relevant user properties for segmentation
+- **Custom Dimensions**: Use parameters for additional context

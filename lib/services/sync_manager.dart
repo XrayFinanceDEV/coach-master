@@ -32,7 +32,7 @@ class SyncManager {
   NoteSyncRepository? _noteRepository;
 
   // Streams
-  StreamController<SyncStatus> _syncStatusController = StreamController<SyncStatus>.broadcast();
+  final StreamController<SyncStatus> _syncStatusController = StreamController<SyncStatus>.broadcast();
   Stream<SyncStatus> get syncStatusStream => _syncStatusController.stream;
 
   // Initialize sync manager for a specific user

@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "25162710455-amr9816n8s75mjc63ukl42rgotqqlndi.apps.googleusercontent.com",
+          "client_id": "25162710455-90oa0mom5hiamhemev1rmhvg3tdknbgs.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.coachmaster.app",
-            "certificate_hash": "1be4fec78f812722c74fe66fc4ea23176fc0e71a"
+            "certificate_hash": "0397afbc45c4bececb9a9a4424b2322c062d89c5"
           }
         },
         {

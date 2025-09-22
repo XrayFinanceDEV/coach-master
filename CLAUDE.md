@@ -356,7 +356,27 @@ if (context.mounted) {
 
 ## Current Features & Recent Improvements
 
-### Translation System Consistency (Latest)
+### Production Ready & Google Play Store (Latest)
+- **Android API 35 Compliance**: Updated target SDK for Google Play Store requirements
+  - Compile SDK: API 36 (latest Android SDK for plugin compatibility)
+  - Target SDK: API 35 (Android 15 - required by Google Play Store)
+  - Min SDK: API 26 (Firebase compatibility and reasonable device support)
+  - Build Tools: Gradle 8.12 with Kotlin support
+- **Firebase Configuration Updates**: Updated SHA-1 certificates for production authentication
+  - Release SHA-1: `03:97:AF:BC:45:C4:BE:CE:CB:9A:9A:44:24:B2:32:2C:06:2D:89:C5`
+  - Debug SHA-1: `A1:C4:C9:A5:C7:D6:4A:06:A0:79:4D:B9:2D:10:38:E1:08:DB:16:F6`
+  - Updated `google-services.json` with correct certificate hashes
+- **Player Image System Fixes**: Enhanced cross-platform image handling
+  - Fixed Firebase Storage URL support on mobile platforms
+  - Enhanced `ImageUtils.getSafeImageProvider()` for robust image loading
+  - Updated `PlayerImageService.getImageProvider()` with proper error handling
+  - Improved image display consistency across player cards and detail screens
+- **Release Build Optimization**: Ready for Google Play Console submission
+  - Signed AAB files with proper keystore configuration
+  - Tree-shaken fonts (99%+ size reduction)
+  - Plugin compatibility with latest Android SDK
+
+### Translation System Consistency
 - **Complete Screen Localization**: All major user-facing screens now have complete Italian/English translations
   - Dashboard loading states and error messages fully localized
   - Players screen empty states and filter labels properly translated
@@ -665,6 +685,28 @@ final updatedPlayer = await PlayerImageService.removePlayerPhoto(player);
 await PlayerImageService.cleanupPlayerImages(playerId);
 ```
 
+#### Enhanced Image Display with ImageUtils
+The core image handling has been improved for robust cross-platform support:
+```dart
+// Use centralized safe image provider
+final imageProvider = ImageUtils.getSafeImageProvider(photoPath);
+
+// Build safe image widgets
+ImageUtils.buildSafeImage(
+  imagePath: player.photoPath,
+  fit: BoxFit.cover,
+  errorWidget: fallbackWidget,
+);
+
+// Create player avatars with proper fallbacks
+ImageUtils.buildPlayerAvatar(
+  firstName: player.firstName,
+  lastName: player.lastName,
+  photoPath: player.photoPath,
+  radius: 24,
+);
+```
+
 #### Image Compression Configuration
 The system automatically handles compression with these targets:
 - **Target Size**: ~500KB for optimal Firebase Storage usage
@@ -677,30 +719,40 @@ The system automatically handles compression with these targets:
 - **Automatic Cleanup**: Keeps latest 3 images per player
 - **Fallback Strategy**: Local storage when offline or unauthenticated
 - **Progress Feedback**: Built-in loading indicators and error handling
+- **Cross-Platform URLs**: Supports Firebase Storage URLs, local files, and base64 data
 
 ### Image Display Best Practices
-Always use the robust image pattern from the Players screen for consistent display:
+Use the enhanced ImageUtils for consistent and robust image display:
 ```dart
-CircleAvatar(
-  key: ValueKey('${player.id}-${player.photoPath}'), // Force rebuild when photo changes
+// Modern approach using ImageUtils (Recommended)
+ImageUtils.buildPlayerAvatar(
+  firstName: player.firstName,
+  lastName: player.lastName,
+  photoPath: player.photoPath,
   radius: 24,
   backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-  backgroundImage: player.photoPath != null && player.photoPath!.isNotEmpty
-      ? (kIsWeb && (player.photoPath!.startsWith('data:') || player.photoPath!.startsWith('blob:') || player.photoPath!.startsWith('http'))
-          ? NetworkImage(player.photoPath!) as ImageProvider
-          : (!kIsWeb ? FileImage(File(player.photoPath!)) as ImageProvider : null))
-      : null,
-  child: player.photoPath == null || player.photoPath!.isEmpty ||
-      (kIsWeb && !player.photoPath!.startsWith('data:') && !player.photoPath!.startsWith('blob:') && !player.photoPath!.startsWith('http'))
-      ? Text(
-          '${player.firstName[0]}${player.lastName[0]}',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        )
-      : null,
-),
+  textColor: Theme.of(context).colorScheme.primary,
+);
+
+// For custom image containers
+Container(
+  decoration: BoxDecoration(
+    image: DecorationImage(
+      image: ImageUtils.getSafeImageProvider(player.photoPath!) ??
+             AssetImage('assets/placeholder.png'),
+      fit: BoxFit.cover,
+    ),
+  ),
+);
+
+// For safe image widgets with error handling
+ImageUtils.buildSafeImage(
+  imagePath: player.photoPath,
+  width: 200,
+  height: 200,
+  fit: BoxFit.cover,
+  errorWidget: Icon(Icons.person, size: 48),
+);
 ```
 
 ## Architecture Decisions & Workflow
@@ -773,6 +825,16 @@ The app includes comprehensive Firebase Analytics tracking to monitor user behav
 - **Configuration**: Uses same `google-services.json` configuration as other Firebase services
 - **Router Integration**: Automatic screen view tracking via `FirebaseAnalyticsObserver`
 - **Cross-Platform**: Works seamlessly across web, Android, and iOS platforms
+
+### Production Configuration
+- **SHA-1 Certificates**: Updated for production authentication
+  - Release Keystore SHA-1: `03:97:AF:BC:45:C4:BE:CE:CB:9A:9A:44:24:B2:32:2C:06:2D:89:C5`
+  - Debug Keystore SHA-1: `A1:C4:C9:A5:C7:D6:4A:06:A0:79:4D:B9:2D:10:38:E1:08:DB:16:F6`
+- **Google Services**: Updated `google-services.json` with correct certificate hashes
+- **Android Build**: Configured for Google Play Store submission
+  - Target SDK: API 35 (Android 15)
+  - Compile SDK: API 36 (latest for plugin compatibility)
+  - Signed AAB files ready for upload
 
 #### Key Components
 - `lib/services/analytics_service.dart` - Core analytics service with comprehensive event tracking

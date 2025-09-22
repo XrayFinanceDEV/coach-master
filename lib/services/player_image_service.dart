@@ -324,23 +324,41 @@ class PlayerImageService {
   static ImageProvider? getImageProvider(String? imagePath) {
     if (imagePath == null || imagePath.isEmpty) return null;
 
-    if (isWebUrl(imagePath)) {
-      // Firebase Storage URL or other web URL
-      return NetworkImage(imagePath);
-    } else if (isLocalFile(imagePath)) {
-      // Local file path
-      if (!kIsWeb) {
-        return FileImage(File(imagePath));
-      } else {
-        // On web, treat as network image
+    try {
+      if (isWebUrl(imagePath)) {
+        // Firebase Storage URL or other web URL
         return NetworkImage(imagePath);
+      } else if (isBase64Data(imagePath)) {
+        // Base64 data URL
+        return NetworkImage(imagePath);
+      } else if (isLocalFile(imagePath)) {
+        // Local file path
+        if (!kIsWeb) {
+          // For Android/iOS, handle both network URLs and local files
+          if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+            // Firebase Storage URLs or other network images
+            return NetworkImage(imagePath);
+          } else {
+            // Local file paths - safely check file existence
+            final file = File(imagePath);
+            if (file.existsSync()) {
+              return FileImage(file);
+            }
+            return null;
+          }
+        } else {
+          // On web, treat as network image
+          return NetworkImage(imagePath);
+        }
       }
-    } else if (isBase64Data(imagePath)) {
-      // Base64 data URL
-      return NetworkImage(imagePath);
-    }
 
-    return null;
+      return null;
+    } catch (e) {
+      if (kDebugMode) {
+        print('🔴 PlayerImageService: Error loading image: $e');
+      }
+      return null;
+    }
   }
 
   /// Clean up temporary files

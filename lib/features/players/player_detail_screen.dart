@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +6,7 @@ import 'package:coachmaster/models/note.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/features/players/widgets/player_form_bottom_sheet.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
-import 'dart:io';
+import 'package:coachmaster/core/image_utils.dart';
 
 class PlayerDetailScreen extends ConsumerStatefulWidget {
   final String playerId;
@@ -18,6 +17,11 @@ class PlayerDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
+
+  /// Safely create an ImageProvider that handles all cases properly
+  ImageProvider? _getSafeImageProvider(String photoPath) {
+    return ImageUtils.getSafeImageProvider(photoPath);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -160,16 +164,11 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
                               end: Alignment.bottomRight,
                             ),
                     ),
-                    child: player.photoPath != null && player.photoPath!.isNotEmpty
+                    child: player.photoPath != null && player.photoPath!.isNotEmpty && _getSafeImageProvider(player.photoPath!) != null
                         ? Container(
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                image: kIsWeb && (player.photoPath!.startsWith('data:') || 
-                                       player.photoPath!.startsWith('blob:') || 
-                                       player.photoPath!.startsWith('http'))
-                                    ? NetworkImage(player.photoPath!) as ImageProvider
-                                    : (!kIsWeb ? FileImage(File(player.photoPath!)) as ImageProvider 
-                                      : NetworkImage(player.photoPath!)),
+                                image: _getSafeImageProvider(player.photoPath!)!,
                                 fit: BoxFit.cover,
                               ),
                             ),

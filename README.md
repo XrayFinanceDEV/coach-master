@@ -11,6 +11,13 @@ A modern, comprehensive Flutter sports team management application designed for 
 - **Season/Team Management**: Streamlined team and season selection
 - **Responsive Design**: Mobile-first with overflow protection
 
+### 🔥 Firebase Integration
+- **Authentication**: Google Sign-In with Firebase Auth 6.0.2
+- **Cloud Storage**: Firebase Firestore for data synchronization
+- **File Storage**: Firebase Storage with automatic image compression
+- **Analytics**: Firebase Analytics for user behavior tracking
+- **Hybrid Architecture**: Local-first with cloud sync capabilities
+
 ### 👥 Enhanced Player Management  
 - **Card-Based Layout**: Hero-style player cards (2 per row) with professional football imagery
 - **Position Filtering**: Smart filter buttons (All/Attack/Midfield/Defense) with Italian terminology
@@ -20,7 +27,8 @@ A modern, comprehensive Flutter sports team management application designed for 
 - **Orange Stats Badges**: Goals and assists displayed as floating overlay badges
 - **Advanced Player Profiles**: Complete information with stunning visual design
 - **Bottom Sheet Forms**: Modern, draggable forms with organized position dropdowns
-- **Cross-Platform Photos**: Web and mobile image support with validation
+- **Enhanced Image Management**: Firebase Storage integration with automatic compression
+- **Cross-Platform Photos**: Web and mobile image support with robust error handling
 - **Statistics Tracking**: Goals, assists, cards, minutes played with position-based analysis
 
 ### 🏃 Training Management
@@ -45,7 +53,7 @@ A modern, comprehensive Flutter sports team management application designed for 
 
 ### Theme & Branding
 - **Dark Theme**: Professional dark UI throughout the application
-- **Orange Accents**: Consistent orange (#FF7F00) primary color system
+- **Orange Accents**: Consistent orange (#FFA700) primary color system
 - **Material 3**: Modern Material Design 3.0 components and styling
 - **Consistent Headers**: Orange icons + screen names across all screens
 
@@ -55,36 +63,54 @@ A modern, comprehensive Flutter sports team management application designed for 
 - **Mobile Optimized**: Responsive design preventing overflow errors
 - **Intuitive Navigation**: Persistent bottom navigation with tab icons
 
-## Photo Upload System
+## 📱 Image Management System
+
+### Firebase Storage Integration
+- **Cloud Storage**: Firebase Storage for image hosting and synchronization
+- **Automatic Compression**: Smart compression to ~500KB while maintaining quality
+- **Aspect Ratio Optimization**: 9:16 ratio (720x1280 or 1080x1920)
+- **User-Specific Paths**: `users/{userId}/players/{playerId}/profile_{timestamp}.jpg`
+- **Automatic Cleanup**: Keeps latest 3 images per player
 
 ### Supported Formats
-- **JPEG/JPG**: Standard photo format
+- **JPEG/JPG**: Standard photo format with compression
 - **PNG**: With transparency support
 - **WEBP**: Modern web format
 
 ### Features
-- **File Size Limit**: Maximum 2MB per photo
-- **Format Validation**: Automatic format checking with user feedback
+- **Smart Compression**: Target size ~500KB for optimal Firebase Storage usage
 - **Cross-Platform**: Works on web, mobile, and desktop
-- **Real-time Preview**: Immediate photo preview in dialogs
-- **Persistent Storage**: Photos saved permanently to app directory
+- **Real-time Preview**: Immediate photo preview in forms
+- **Fallback Strategy**: Local storage when offline or unauthenticated
+- **Progress Feedback**: Loading indicators and error handling
 
 ### Technical Implementation
-- **Web**: Base64 data URLs for browser persistence
-- **Mobile/Desktop**: Local file system storage in app documents
-- **Image Compression**: Automatic quality optimization (85%)
-- **Error Handling**: Graceful fallback with user-friendly messages
+- **Web**: Base64 data URLs and Firebase Storage URLs
+- **Mobile/Desktop**: Firebase Storage URLs and local file fallbacks
+- **Iterative Compression**: Quality reduction (95% → 10%) to hit target size
+- **Platform Detection**: Automatic handling of different image types
+- **Error Recovery**: Graceful fallback with user-friendly messages
 
 ## 🏗️ Architecture
 
 ### Tech Stack
 - **Framework**: Flutter 3.35.2+ with Dart
 - **State Management**: Riverpod 2.5.1 for reactive state management
-- **Navigation**: GoRouter 14.1.4 with persistent bottom navigation
-- **Local Storage**: Hive 2.2.3 with type adapters
-- **UI Components**: Material Design 3.0 with custom theming
-- **Photo Handling**: Cross-platform image management
-- **Build Tools**: build_runner for code generation
+- **Navigation**: GoRouter 14.1.4 with StatefulShellRoute for persistent tabs
+- **Authentication**: Firebase Auth 6.0.2 with Google Sign-In 6.2.1 integration
+- **Storage**: Hybrid Hive 2.2.3 (local) + Cloud Firestore 6.0.1 (cloud sync)
+- **File Storage**: Firebase Storage 13.0.1 with automatic image compression
+- **Analytics**: Firebase Analytics 12.0.1 for user behavior and feature tracking
+- **Image Processing**: flutter_image_compress 2.3.0 + image 4.2.0 for optimization
+- **UI Framework**: Material Design 3.0 with custom dark theme
+- **Theme System**: Centralized AppColors class with orange (#FFA700) primary color
+- **Code Generation**: build_runner for Hive adapters and model serialization
+
+### Android Configuration
+- **Compile SDK**: API 36 (latest Android SDK for plugin compatibility)
+- **Target SDK**: API 35 (Android 15 - required by Google Play Store)
+- **Min SDK**: API 26 (Firebase compatibility and reasonable device support)
+- **Build Tools**: Gradle 8.12 with Kotlin support
 
 ### Modern UI Components
 - **DraggableScrollableSheet**: For bottom sheet forms
@@ -173,15 +199,23 @@ flutter gen-l10n
 The app uses a centralized theme system in `lib/core/theme.dart`:
 ```dart
 class AppColors {
-  static const Color primary = Color(0xFFFF7F00); // Orange
+  static const Color primary = Color(0xFFFFA700); // Orange
   static const Color secondary = Color(0xFF607D8B); // Blue Grey
-  // ... other colors
+  static const Color darkBackground = Color(0xFF121212);
+  static const Color darkSurface = Color(0xFF1E1E1E);
 }
 ```
 
 ## 🎯 Recent Updates & Improvements
 
-### Translation System Overhaul (Latest)
+### Production Ready & Google Play Store (Latest)
+- ✅ **Android API 35 Compliance**: Updated for Google Play Store requirements
+- ✅ **Firebase Configuration**: Updated SHA-1 certificates for authentication
+- ✅ **Player Image System Fix**: Enhanced cross-platform image handling
+- ✅ **Release Build Optimization**: Signed AAB ready for Play Store submission
+- ✅ **Plugin Compatibility**: Compile SDK 36 for latest plugin support
+
+### Translation System Overhaul
 - ✅ **Complete Screen Localization**: All major user-facing screens fully translated (Italian/English)
 - ✅ **Centralized Translation Keys**: Replaced hardcoded localization logic with ARB key lookups
 - ✅ **Dashboard Translations**: Loading states, error messages, and user feedback fully localized
@@ -272,23 +306,30 @@ final permanentFile = await sourceFile.copy(permanentPath);
 - **CI/CD**: Automated build, testing, and deployment pipeline
 - **Web Performance**: Progressive Web App (PWA) capabilities
 
-### Completed Recently ✅
-- ✅ **Translation System Consistency**: Complete Italian/English localization across all major screens
-- ✅ **Centralized ARB Management**: Replaced hardcoded language logic with proper translation keys
-- ✅ **Dashboard Localization**: All loading states and user messages properly translated
-- ✅ **Players Screen Translation**: Filter buttons, empty states, and position labels fully localized
+### Firebase & Cloud Integration ✅
+- ✅ **Firebase Authentication**: Google Sign-In with email/password support
+- ✅ **Cloud Firestore**: Real-time data synchronization across devices
+- ✅ **Firebase Storage**: Cloud image hosting with automatic compression
+- ✅ **Firebase Analytics**: User behavior tracking and feature analytics
+- ✅ **Hybrid Storage**: Local-first architecture with cloud sync capabilities
+- ✅ **SHA-1 Configuration**: Updated certificates for production authentication
+
+### Enhanced Player Management ✅
+- ✅ **Image System Overhaul**: Firebase Storage integration with smart compression
+- ✅ **Cross-Platform Images**: Robust handling of web URLs, local files, and base64 data
 - ✅ **Enhanced Player Screen**: Card-based layout with Italian football terminology
 - ✅ **Position Filtering System**: Smart filter buttons with bilingual support
 - ✅ **Football Organization**: Logical position grouping (Attacco/Centro Campo/Difesa)
-- ✅ **Bilingual Interface**: Dynamic Italian/English translation for all player components
 - ✅ **Professional Position Terms**: Authentic Italian football positions (Attaccante, Trequartista, Mediano, etc.)
 - ✅ **Speed Dial Integration**: Quick player creation from dashboard with navigation redirects
-- ✅ Multi-language support foundation with language picker
-- ✅ Modern UI components (bottom sheets, carousels, speed dials)
-- ✅ Dark theme with consistent orange branding
-- ✅ Mobile-responsive design with overflow protection
-- ✅ Enhanced player management with hero-style cards
-- ✅ Centralized theme system and design components
+
+### Production Ready ✅
+- ✅ **Android API 35**: Google Play Store compliance with latest requirements
+- ✅ **Release Builds**: Signed AAB files ready for distribution
+- ✅ **Plugin Compatibility**: All dependencies support latest Android SDK
+- ✅ **Build Optimization**: Tree-shaken fonts and optimized bundle size
+- ✅ **Translation System**: Complete Italian/English localization
+- ✅ **Modern UI**: Dark theme with consistent orange branding and Material 3
 
 ## Contributing
 

@@ -19,12 +19,21 @@ class ImageUtils {
         }
         return null;
       } else {
-        // For Android/iOS, safely check file existence
-        final file = File(photoPath);
-        if (file.existsSync()) {
-          return FileImage(file);
+        // For Android/iOS, handle both network URLs and local files
+        if (photoPath.startsWith('http://') || photoPath.startsWith('https://')) {
+          // Firebase Storage URLs or other network images
+          return NetworkImage(photoPath);
+        } else if (photoPath.startsWith('data:')) {
+          // Base64 data URLs
+          return NetworkImage(photoPath);
+        } else {
+          // Local file paths - safely check file existence
+          final file = File(photoPath);
+          if (file.existsSync()) {
+            return FileImage(file);
+          }
+          return null;
         }
-        return null;
       }
     } catch (e) {
       // Return null if any error occurs (including CORS errors)

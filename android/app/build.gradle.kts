@@ -19,7 +19,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.coachmaster.app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36  // Latest Android SDK (required by some plugins)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

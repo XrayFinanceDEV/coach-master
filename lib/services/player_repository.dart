@@ -76,13 +76,30 @@ class PlayerRepository {
 
   Future<void> updatePlayerAbsences(String playerId, List<TrainingAttendance> allAttendances) async {
     final player = getPlayer(playerId);
-    if (player == null) return;
+    if (player == null) {
+      if (kDebugMode) {
+        print('🔴 PlayerRepository: Player $playerId not found for absence update');
+      }
+      return;
+    }
 
     final playerAttendances = allAttendances.where((att) => att.playerId == playerId);
     int totalAbsences = playerAttendances.where((att) => att.status == TrainingAttendanceStatus.absent).length;
 
+    if (kDebugMode) {
+      print('🟠 PlayerRepository: Updating absences for ${player.firstName} ${player.lastName}');
+      print('   Player ID: $playerId');
+      print('   Total attendances for player: ${playerAttendances.length}');
+      print('   Total absences: $totalAbsences');
+      print('   Previous absence count: ${player.absences}');
+    }
+
     final updatedPlayer = player.updateStatistics(absences: totalAbsences);
     await updatePlayer(updatedPlayer);
+
+    if (kDebugMode) {
+      print('🟢 PlayerRepository: Updated player absences - new count: ${updatedPlayer.absences}');
+    }
   }
 
   // Get top players for leaderboards

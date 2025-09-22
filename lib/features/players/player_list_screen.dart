@@ -500,63 +500,41 @@ class _PlayerCard extends ConsumerWidget {
           border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
           color: Colors.grey[100],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
           children: [
-            Expanded(
-              flex: 3,
-              child: Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    _buildPlayerImage(context),
-                    _buildStatsOverlay(),
-                    _buildGradientOverlay(),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: _buildPlayerInfo(context),
-            ),
+            // Full square background image
+            _buildFullSquareImage(context),
+            // Stats overlay (top left)
+            _buildStatsOverlay(),
+            // Name and position overlay (bottom)
+            _buildPlayerInfoOverlay(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPlayerImage(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(10),
-          topRight: Radius.circular(10),
+  Widget _buildFullSquareImage(BuildContext context) {
+    return Positioned.fill(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          gradient: (player.photoPath == null || player.photoPath!.isEmpty) ? LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+            ],
+          ) : null,
         ),
-        gradient: (player.photoPath == null || player.photoPath!.isEmpty) ? LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(context).colorScheme.primary,
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-          ],
-        ) : null,
-      ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(10),
-          topRight: Radius.circular(10),
-        ),
-        child: ImageUtils.buildSafeImage(
-          imagePath: player.photoPath,
-          fit: BoxFit.cover,
-          errorWidget: _buildPlayerInitials(),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: ImageUtils.buildSafeImage(
+            imagePath: player.photoPath,
+            fit: BoxFit.cover,
+            errorWidget: _buildPlayerInitials(),
+          ),
         ),
       ),
     );
@@ -608,93 +586,98 @@ class _PlayerCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildGradientOverlay() {
+
+  Widget _buildPlayerInfoOverlay(BuildContext context) {
     return Positioned(
       bottom: 0,
       left: 0,
       right: 0,
       child: Container(
-        height: 60,
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
+            bottomLeft: Radius.circular(10),
+            bottomRight: Radius.circular(10),
           ),
           gradient: LinearGradient(
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
             colors: [
-              Colors.black.withValues(alpha: 0.6),
+              Colors.black.withValues(alpha: 0.8),
+              Colors.black.withValues(alpha: 0.3),
               Colors.transparent,
             ],
+            stops: const [0.0, 0.6, 1.0],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildPlayerInfo(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(10),
-          bottomRight: Radius.circular(10),
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '${player.firstName} ${player.lastName}',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            _formatBirthDate(player.birthDate),
-            style: const TextStyle(fontSize: 10, color: Colors.white70),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 2),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Text(
-                  player.position,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white70,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Player name
+            Text(
+              '${player.firstName} ${player.lastName}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                shadows: [
+                  Shadow(
+                    offset: Offset(1, 1),
+                    blurRadius: 2,
+                    color: Colors.black54,
                   ),
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                ],
               ),
-              if (_getFootAbbreviation(player.preferredFoot).isNotEmpty) ...[
-                Text(
-                  ' (${_getFootAbbreviation(player.preferredFoot)})',
-                  style: const TextStyle(fontSize: 10, color: Colors.white70),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+            const SizedBox(height: 4),
+            // Position and additional info
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    player.position,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(1, 1),
+                          blurRadius: 2,
+                          color: Colors.black54,
+                        ),
+                      ],
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
+                if (_getFootAbbreviation(player.preferredFoot).isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _getFootAbbreviation(player.preferredFoot),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
               ],
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  String _formatBirthDate(DateTime birthDate) {
-    return '${birthDate.day.toString().padLeft(2, '0')}/${birthDate.month.toString().padLeft(2, '0')}/${birthDate.year}';
-  }
 
   String _getFootAbbreviation(String preferredFoot) {
     final foot = preferredFoot.toLowerCase();

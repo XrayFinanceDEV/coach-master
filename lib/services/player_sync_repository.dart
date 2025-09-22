@@ -117,11 +117,24 @@ class PlayerSyncRepository extends BaseSyncRepository<Player> {
 
   Future<void> updatePlayerAbsences(String playerId, List<TrainingAttendance> allAttendances) async {
     final player = getPlayer(playerId);
-    if (player == null) return;
+    if (player == null) {
+      if (kDebugMode) {
+        print('🔴 PlayerSyncRepository: Player $playerId not found for absence update');
+      }
+      return;
+    }
 
     // Count absences from training attendance records
     final playerAttendances = allAttendances.where((attendance) => attendance.playerId == playerId);
     final absences = playerAttendances.where((attendance) => attendance.status == TrainingAttendanceStatus.absent).length;
+
+    if (kDebugMode) {
+      print('🟠 PlayerSyncRepository: Updating absences for ${player.firstName} ${player.lastName}');
+      print('   Player ID: $playerId');
+      print('   Total attendances for player: ${playerAttendances.length}');
+      print('   Total absences: $absences');
+      print('   Previous absence count: ${player.absences}');
+    }
 
     // Create a new player with updated absences using the existing updateStatistics method
     final updatedPlayer = player.updateStatistics(
@@ -134,6 +147,10 @@ class PlayerSyncRepository extends BaseSyncRepository<Player> {
       absences: absences,
     );
     await updatePlayer(updatedPlayer);
+
+    if (kDebugMode) {
+      print('🟢 PlayerSyncRepository: Updated player absences - new count: ${updatedPlayer.absences}');
+    }
   }
 
   // Implementation of abstract methods from BaseSyncRepository

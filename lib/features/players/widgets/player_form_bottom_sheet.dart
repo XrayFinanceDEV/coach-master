@@ -1,12 +1,19 @@
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
 import 'package:coachmaster/core/image_utils.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
-import 'package:coachmaster/services/player_image_service.dart';
+import 'package:coachmaster/services/image_crop_service.dart';
+import 'package:coachmaster/services/image_compression_service.dart';
+import 'package:coachmaster/services/firebase_storage_service.dart';
+import 'package:coachmaster/widgets/image_crop_dialog.dart';
 
 class PlayerFormBottomSheet extends ConsumerStatefulWidget {
   final String teamId;
@@ -33,6 +40,11 @@ class _PlayerFormBottomSheetState extends ConsumerState<PlayerFormBottomSheet> {
   late DateTime _birthDate;
   String? _photoPath;
 
+  // Crop preview variables
+  String? _tempImagePath;
+  Uint8List? _tempImageBytes;
+  Offset _cropOffset = const Offset(0.0, 0.3); // Default crop position
+
   @override
   void initState() {
     super.initState();
@@ -48,163 +60,424 @@ class _PlayerFormBottomSheetState extends ConsumerState<PlayerFormBottomSheet> {
 
 
   Future<void> _selectPhoto() async {
-    // Store context-dependent objects before async operations
-    final messenger = ScaffoldMessenger.of(context);
-    
     try {
       if (kDebugMode) {
-        print('🖼️ PlayerForm: Starting image selection and processing...');
+        print('🖼️ PlayerForm: Starting image selection for crop dialog...');
       }
-      
-      // Show loading indicator
+
+      // Step 1: Pick image from gallery
+      final ImagePicker picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1080,
+        maxHeight: 1920,
+        imageQuality: 90,
+      );
+
+      if (pickedFile == null) {
+        if (kDebugMode) {
+          print('🖼️ PlayerForm: User cancelled image selection');
+        }
+        return;
+      }
+
+      // Step 2: Store temporary image data
+      if (kIsWeb) {
+        _tempImageBytes = await pickedFile.readAsBytes();
+        _tempImagePath = null;
+      } else {
+        _tempImagePath = pickedFile.path;
+        _tempImageBytes = null;
+      }
+
+      // Step 3: Show crop dialog
       if (mounted) {
-        messenger.showSnackBar(
-          const SnackBar(
-            content: Row(
-              children: [
-                SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-                SizedBox(width: 16),
-                Text('Processing image...'),
-              ],
-            ),
-            duration: Duration(seconds: 10),
+        final cropOffset = await showImageCropDialog(
+          context: context,
+          imagePath: _tempImagePath,
+          imageBytes: _tempImageBytes,
+        );
+
+        if (cropOffset != null) {
+          // User confirmed crop position, now process the image
+          _cropOffset = cropOffset;
+          await _applyCropAndProcess();
+        } else {
+          // User cancelled crop dialog
+          setState(() {
+            _tempImagePath = null;
+            _tempImageBytes = null;
+          });
+        }
+      }
+
+      if (kDebugMode) {
+        print('🖼️ PlayerForm: Image selection and crop dialog completed');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error selecting image: $e'),
+            backgroundColor: Colors.red,
           ),
         );
       }
-      
+
+      if (kDebugMode) {
+        print('🖼️ PlayerForm: ❌ Error selecting image: $e');
+      }
+    }
+  }
+
+  Future<void> _applyCropAndProcess() async {
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      if (kDebugMode) {
+        print('🖼️ PlayerForm: Applying crop and processing image...');
+      }
+
       // Generate a temporary player ID if this is a new player
       final playerId = widget.player?.id ?? 'temp_${DateTime.now().millisecondsSinceEpoch}';
-      
-      // Use PlayerImageService for complete workflow: pick → compress → upload
-      final String? processedImagePath = await PlayerImageService.pickAndProcessPlayerImage(playerId);
-      
+
+      // Process the already-selected image with crop positioning
+      String? processedImagePath;
+
+      if (kIsWeb && _tempImageBytes != null) {
+        // Phase 1: Cropping
+        if (mounted) {
+          messenger.showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  SizedBox(width: 16),
+                  Text('🔲 Cropping image...'),
+                ],
+              ),
+              duration: Duration(seconds: 20),
+            ),
+          );
+        }
+
+        // Web: process bytes directly
+        final croppedBytes = await ImageCropService.applyCropToBytes(_tempImageBytes!, _cropOffset);
+
+        // Phase 2: Compression
+        if (mounted) {
+          messenger.clearSnackBars();
+          messenger.showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  SizedBox(width: 16),
+                  Text('📦 Compressing image...'),
+                ],
+              ),
+              duration: Duration(seconds: 15),
+            ),
+          );
+        }
+
+        final compressedBytes = await ImageCompressionService.compressImageData(croppedBytes);
+
+        // Phase 3: Upload
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          if (mounted) {
+            messenger.clearSnackBars();
+            messenger.showSnackBar(
+              const SnackBar(
+                content: Row(
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 16),
+                    Text('☁️ Uploading to cloud...'),
+                  ],
+                ),
+                duration: Duration(seconds: 10),
+              ),
+            );
+          }
+
+          processedImagePath = await FirebaseStorageService.uploadPlayerImageFromBytes(
+            compressedBytes,
+            playerId,
+          );
+        }
+
+        if (processedImagePath == null) {
+          // Fallback: base64 data URL
+          final base64String = base64Encode(compressedBytes);
+          processedImagePath = 'data:image/jpeg;base64,$base64String';
+        }
+      } else if (!kIsWeb && _tempImagePath != null) {
+        // Phase 1: Cropping
+        if (mounted) {
+          messenger.showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  SizedBox(width: 16),
+                  Text('🔲 Cropping image...'),
+                ],
+              ),
+              duration: Duration(seconds: 20),
+            ),
+          );
+        }
+
+        // Mobile: process file
+        final imageFile = File(_tempImagePath!);
+        final croppedFile = await ImageCropService.applyCropToFile(imageFile, _cropOffset);
+
+        // Phase 2: Compression
+        if (mounted) {
+          messenger.clearSnackBars();
+          messenger.showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  SizedBox(width: 16),
+                  Text('📦 Compressing image...'),
+                ],
+              ),
+              duration: Duration(seconds: 15),
+            ),
+          );
+        }
+
+        final compressedFile = await ImageCompressionService.compressImageFile(croppedFile);
+
+        // Phase 3: Upload
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          if (mounted) {
+            messenger.clearSnackBars();
+            messenger.showSnackBar(
+              const SnackBar(
+                content: Row(
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 16),
+                    Text('☁️ Uploading to cloud...'),
+                  ],
+                ),
+                duration: Duration(seconds: 10),
+              ),
+            );
+          }
+
+          processedImagePath = await FirebaseStorageService.uploadPlayerImage(
+            compressedFile,
+            playerId,
+          );
+        }
+
+        processedImagePath ??= compressedFile.path;
+      }
+
       // Clear any loading indicators
       if (mounted) {
         messenger.clearSnackBars();
       }
-      
+
       if (processedImagePath != null) {
-        setState(() {
-          _photoPath = processedImagePath;
-        });
-        
         if (mounted) {
+          setState(() {
+            _photoPath = processedImagePath;
+            _tempImagePath = null;
+            _tempImageBytes = null;
+          });
+
           final bool isFirebaseUrl = processedImagePath.startsWith('http');
           messenger.showSnackBar(
             SnackBar(
-              content: Text(isFirebaseUrl 
-                  ? 'Photo compressed and uploaded to cloud successfully!' 
-                  : 'Photo compressed and saved locally!'),
+              content: Text(isFirebaseUrl
+                  ? 'Photo cropped, compressed and uploaded successfully!'
+                  : 'Photo cropped, compressed and saved locally!'),
               backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
             ),
           );
         }
-        
+
         if (kDebugMode) {
           print('🖼️ PlayerForm: ✅ Image processing completed: $processedImagePath');
+          print('🖼️ PlayerForm: Photo path set to: $_photoPath');
         }
       } else {
         if (mounted) {
           messenger.showSnackBar(
             const SnackBar(
-              content: Text('Image selection cancelled or failed'),
+              content: Text('Image processing failed'),
               backgroundColor: Colors.orange,
             ),
           );
         }
-        
+
         if (kDebugMode) {
-          print('🖼️ PlayerForm: ❌ Image processing failed or cancelled');
+          print('🖼️ PlayerForm: ❌ Image processing failed');
         }
       }
     } catch (e) {
-      // Clear any loading indicators
       if (mounted) {
         messenger.clearSnackBars();
-      }
-      
-      if (mounted) {
         messenger.showSnackBar(
           SnackBar(
-            content: Text('Error processing photo: $e'),
+            content: Text('Error processing image: $e'),
             backgroundColor: Colors.red,
           ),
         );
       }
-      
+
       if (kDebugMode) {
         print('🖼️ PlayerForm: ❌ Error in image processing: $e');
       }
     }
   }
 
+
   Future<void> _savePlayer() async {
+    if (kDebugMode) {
+      print('🖼️ PlayerForm: _savePlayer called');
+      print('🖼️ PlayerForm: Form validation: ${_formKey.currentState!.validate()}');
+      print('🖼️ PlayerForm: Photo path: $_photoPath');
+    }
+
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      
+
+      if (kDebugMode) {
+        print('🖼️ PlayerForm: Form saved, player data: $_firstName $_lastName, position: $_position, photo: $_photoPath');
+      }
+
       // Store context-dependent objects before async operations
       final navigator = Navigator.of(context);
       final messenger = ScaffoldMessenger.of(context);
-      
+
       final playerRepository = ref.read(playerRepositoryProvider);
-      
-      if (widget.player == null) {
-        // Add new player
-        final newPlayer = Player.create(
-          teamId: widget.teamId,
-          firstName: _firstName,
-          lastName: _lastName,
-          position: _position,
-          preferredFoot: _preferredFoot,
-          birthDate: _birthDate,
-          photoPath: _photoPath,
-        );
-        await playerRepository.addPlayer(newPlayer);
-      } else {
-        // Update existing player
-        final updatedPlayer = Player(
-          id: widget.player!.id,
-          teamId: widget.player!.teamId,
-          firstName: _firstName,
-          lastName: _lastName,
-          position: _position,
-          preferredFoot: _preferredFoot,
-          birthDate: _birthDate,
-          photoPath: _photoPath,
-          medicalInfo: widget.player!.medicalInfo,
-          emergencyContact: widget.player!.emergencyContact,
-          goals: widget.player!.goals,
-          assists: widget.player!.assists,
-          yellowCards: widget.player!.yellowCards,
-          redCards: widget.player!.redCards,
-          totalMinutes: widget.player!.totalMinutes,
-          avgRating: widget.player!.avgRating,
-          absences: widget.player!.absences,
-        );
-        await playerRepository.updatePlayer(updatedPlayer);
-        
-        // Clear image cache if photo was updated
-        if (_photoPath != null && _photoPath != widget.player!.photoPath) {
-          ImageCacheUtils.clearImageCacheForUpdate(widget.player!.photoPath, _photoPath);
-          // Notify other screens to rebuild
-          ref.read(playerImageUpdateProvider.notifier).notifyImageUpdate();
+
+      try {
+        if (widget.player == null) {
+          // Add new player
+          final newPlayer = Player.create(
+            teamId: widget.teamId,
+            firstName: _firstName,
+            lastName: _lastName,
+            position: _position,
+            preferredFoot: _preferredFoot,
+            birthDate: _birthDate,
+            photoPath: _photoPath,
+          );
+
+          if (kDebugMode) {
+            print('🖼️ PlayerForm: Creating new player: ${newPlayer.firstName} ${newPlayer.lastName}');
+            print('🖼️ PlayerForm: New player photo path: ${newPlayer.photoPath}');
+          }
+
+          await playerRepository.addPlayer(newPlayer);
+
+          if (kDebugMode) {
+            print('🖼️ PlayerForm: ✅ New player added successfully');
+          }
+        } else {
+          // Update existing player
+          final updatedPlayer = Player(
+            id: widget.player!.id,
+            teamId: widget.player!.teamId,
+            firstName: _firstName,
+            lastName: _lastName,
+            position: _position,
+            preferredFoot: _preferredFoot,
+            birthDate: _birthDate,
+            photoPath: _photoPath,
+            medicalInfo: widget.player!.medicalInfo,
+            emergencyContact: widget.player!.emergencyContact,
+            goals: widget.player!.goals,
+            assists: widget.player!.assists,
+            yellowCards: widget.player!.yellowCards,
+            redCards: widget.player!.redCards,
+            totalMinutes: widget.player!.totalMinutes,
+            avgRating: widget.player!.avgRating,
+            absences: widget.player!.absences,
+          );
+
+          if (kDebugMode) {
+            print('🖼️ PlayerForm: Updating existing player: ${updatedPlayer.firstName} ${updatedPlayer.lastName}');
+            print('🖼️ PlayerForm: Updated player photo path: ${updatedPlayer.photoPath}');
+          }
+
+          await playerRepository.updatePlayer(updatedPlayer);
+
+          // Clear image cache if photo was updated
+          if (_photoPath != null && _photoPath != widget.player!.photoPath) {
+            ImageCacheUtils.clearImageCacheForUpdate(widget.player!.photoPath, _photoPath);
+            // Notify other screens to rebuild
+            ref.read(playerImageUpdateProvider.notifier).notifyImageUpdate();
+          }
+
+          if (kDebugMode) {
+            print('🖼️ PlayerForm: ✅ Player updated successfully');
+          }
+        }
+
+        widget.onSaved?.call();
+
+        if (mounted) {
+          navigator.pop();
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(widget.player == null ? 'Player added successfully!' : 'Player updated successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('🖼️ PlayerForm: ❌ Error saving player: $e');
+        }
+
+        if (mounted) {
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text('Error saving player: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       }
-      
-      widget.onSaved?.call();
-      
-      if (mounted) {
-        navigator.pop();
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(widget.player == null ? 'Player added successfully!' : 'Player updated successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+    } else {
+      if (kDebugMode) {
+        print('🖼️ PlayerForm: ❌ Form validation failed');
       }
     }
   }
@@ -316,14 +589,14 @@ class _PlayerFormBottomSheetState extends ConsumerState<PlayerFormBottomSheet> {
                         ),
                         const SizedBox(height: 16),
                       ],
-                      
+
                       // Photo Selection Button
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton.icon(
                           onPressed: _selectPhoto,
                           icon: const Icon(Icons.photo),
-                          label: Text(_photoPath != null && _photoPath!.isNotEmpty 
+                          label: Text(_photoPath != null && _photoPath!.isNotEmpty
                               ? (localizations?.changePhoto ?? 'Change Photo')
                               : (localizations?.selectPhoto ?? 'Select Photo')),
                         ),

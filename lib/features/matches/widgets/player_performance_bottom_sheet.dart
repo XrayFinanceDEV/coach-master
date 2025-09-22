@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:coachmaster/core/image_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:coachmaster/models/player.dart';
@@ -79,17 +79,11 @@ class _PlayerPerformanceBottomSheetState extends ConsumerState<PlayerPerformance
             // Header with player info
             Row(
               children: [
-                CircleAvatar(
+                ImageUtils.buildPlayerAvatar(
+                  firstName: widget.player.firstName,
+                  lastName: widget.player.lastName,
+                  photoPath: widget.player.photoPath,
                   radius: 24,
-                  backgroundImage: widget.player.photoPath != null 
-                    ? FileImage(File(widget.player.photoPath!))
-                    : null,
-                  child: widget.player.photoPath == null 
-                    ? Text(
-                        '${widget.player.firstName[0]}${widget.player.lastName[0]}'.toUpperCase(),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      )
-                    : null,
                 ),
                 const SizedBox(width: 12),
                 Expanded(

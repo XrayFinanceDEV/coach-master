@@ -53,8 +53,14 @@ class LeaderboardsSection extends ConsumerWidget {
 
       debugPrint('Creating leaderboard cards...');
       debugPrint('Top scorers: ${topScorers.length} players');
-      debugPrint('Top assistors: ${topAssistors.length} players'); 
+      debugPrint('Top assistors: ${topAssistors.length} players');
       debugPrint('Top rated: ${topRated.length} players');
+      debugPrint('Most absences: ${mostAbsences.length} players');
+
+      // Debug absences data
+      for (final player in mostAbsences) {
+        debugPrint('Player ${player.firstName} ${player.lastName}: ${player.absences} absences');
+      }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

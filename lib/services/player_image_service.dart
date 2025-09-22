@@ -4,8 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 import 'package:coachmaster/services/image_compression_service.dart';
 import 'package:coachmaster/services/firebase_storage_service.dart';
+import 'package:coachmaster/services/image_crop_service.dart';
 import 'package:coachmaster/models/player.dart';
 
 class PlayerImageService {
@@ -124,6 +127,159 @@ class PlayerImageService {
     } catch (e) {
       if (kDebugMode) {
         print('🖼️ PlayerImage: ❌ Error in image workflow: $e');
+      }
+      return null;
+    }
+  }
+
+  /// Complete workflow with crop positioning: Pick -> Show crop preview -> Crop -> Compress -> Upload -> Return URL
+  /// This method includes crop positioning for square display in player cards
+  static Future<String?> pickAndProcessPlayerImageWithCrop(
+    String playerId, {
+    Offset? cropOffset,
+    bool autoOptimizeCrop = true,
+  }) async {
+    try {
+      if (kDebugMode) {
+        print('🖼️ PlayerImage: Starting crop-enabled image workflow for player $playerId');
+      }
+
+      // Step 1: Pick image from gallery or camera
+      final pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1080, // Initial max width to reduce picker load
+        maxHeight: 1920, // Initial max height for 9:16 ratio
+        imageQuality: 90, // High quality for initial pick
+      );
+
+      if (pickedFile == null) {
+        if (kDebugMode) {
+          print('🖼️ PlayerImage: User cancelled image selection');
+        }
+        return null;
+      }
+
+      if (kDebugMode) {
+        print('🖼️ PlayerImage: Image picked: ${pickedFile.path}');
+      }
+
+      // Step 2: Process the image with crop positioning
+      if (kIsWeb) {
+        // On web, work with bytes directly
+        final imageBytes = await pickedFile.readAsBytes();
+
+        // Apply crop positioning if specified
+        Uint8List croppedBytes = imageBytes;
+        if (cropOffset != null && ImageCropService.isValidCropOffset(cropOffset)) {
+          croppedBytes = await ImageCropService.applyCropToBytes(imageBytes, cropOffset);
+        } else if (autoOptimizeCrop) {
+          // Apply smart crop with optimal positioning
+          croppedBytes = await ImageCropService.applySmartCrop(imageBytes);
+        }
+
+        // Compress the cropped image
+        final processedBytes = await ImageCompressionService.compressImageData(croppedBytes);
+
+        // Step 3: Upload to Firebase Storage directly (if user is authenticated)
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          if (kDebugMode) {
+            print('🖼️ PlayerImage: Uploading cropped image to Firebase Storage...');
+          }
+
+          final downloadUrl = await FirebaseStorageService.uploadPlayerImageFromBytes(
+            processedBytes,
+            playerId,
+          );
+
+          if (downloadUrl != null) {
+            if (kDebugMode) {
+              print('🖼️ PlayerImage: ✅ Crop-enabled workflow finished successfully');
+              print('🖼️ PlayerImage: Download URL: $downloadUrl');
+            }
+
+            return downloadUrl;
+          } else {
+            if (kDebugMode) {
+              print('🖼️ PlayerImage: ❌ Upload failed, using base64 fallback');
+            }
+            // Fallback: return base64 data URL for web
+            final base64String = base64Encode(processedBytes);
+            return 'data:image/jpeg;base64,$base64String';
+          }
+        } else {
+          if (kDebugMode) {
+            print('🖼️ PlayerImage: No authenticated user, using base64 data URL');
+          }
+          // No authentication: return base64 data URL
+          final base64String = base64Encode(processedBytes);
+          return 'data:image/jpeg;base64,$base64String';
+        }
+      } else {
+        // Mobile: use file-based processing
+        final imageFile = File(pickedFile.path);
+
+        // Apply crop positioning if specified
+        File croppedFile = imageFile;
+        if (cropOffset != null && ImageCropService.isValidCropOffset(cropOffset)) {
+          croppedFile = await ImageCropService.applyCropToFile(imageFile, cropOffset);
+        } else if (autoOptimizeCrop) {
+          // Apply smart crop with optimal positioning
+          final imageBytes = await imageFile.readAsBytes();
+          final croppedBytes = await ImageCropService.applySmartCrop(imageBytes);
+
+          // Save cropped bytes to temporary file
+          final tempDir = await getTemporaryDirectory();
+          final fileName = path.basenameWithoutExtension(imageFile.path);
+          final croppedPath = path.join(tempDir.path, '${fileName}_smart_crop.jpg');
+
+          croppedFile = File(croppedPath);
+          await croppedFile.writeAsBytes(croppedBytes);
+        }
+
+        // Compress the cropped image
+        final processedFile = await ImageCompressionService.compressImageFile(croppedFile);
+
+        // Step 3: Upload to Firebase Storage (if user is authenticated)
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          if (kDebugMode) {
+            print('🖼️ PlayerImage: Uploading cropped image to Firebase Storage...');
+          }
+
+          final downloadUrl = await FirebaseStorageService.uploadPlayerImage(
+            processedFile,
+            playerId,
+          );
+
+          if (downloadUrl != null) {
+            // Clean up temporary files
+            await _cleanupTempFiles([processedFile, if (croppedFile != imageFile) croppedFile]);
+
+            if (kDebugMode) {
+              print('🖼️ PlayerImage: ✅ Crop-enabled workflow finished successfully');
+              print('🖼️ PlayerImage: Download URL: $downloadUrl');
+            }
+
+            return downloadUrl;
+          } else {
+            if (kDebugMode) {
+              print('🖼️ PlayerImage: ❌ Upload failed, falling back to local file');
+            }
+            // Fallback: return local file path if upload fails
+            return processedFile.path;
+          }
+        } else {
+          if (kDebugMode) {
+            print('🖼️ PlayerImage: No authenticated user, using local storage');
+          }
+          // No authentication: return local file path
+          return processedFile.path;
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('🖼️ PlayerImage: ❌ Error in crop-enabled image workflow: $e');
       }
       return null;
     }

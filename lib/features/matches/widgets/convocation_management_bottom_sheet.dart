@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +5,7 @@ import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/match_convocation.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
+import 'package:coachmaster/core/image_utils.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 
 class ConvocationManagementBottomSheet extends ConsumerStatefulWidget {
@@ -220,25 +220,13 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
         child: Row(
           children: [
             // Player Avatar
-            CircleAvatar(
-              key: ValueKey('${player.id}-${player.photoPath}'), // Force rebuild when photo changes
+            ImageUtils.buildPlayerAvatar(
+              firstName: player.firstName,
+              lastName: player.lastName,
+              photoPath: player.photoPath,
               radius: 24,
               backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-              backgroundImage: player.photoPath != null && player.photoPath!.isNotEmpty
-                  ? (kIsWeb && (player.photoPath!.startsWith('data:') || player.photoPath!.startsWith('blob:') || player.photoPath!.startsWith('http'))
-                      ? NetworkImage(player.photoPath!) as ImageProvider
-                      : (!kIsWeb ? FileImage(File(player.photoPath!)) as ImageProvider : null))
-                  : null,
-              child: player.photoPath == null || player.photoPath!.isEmpty ||
-                  (kIsWeb && !player.photoPath!.startsWith('data:') && !player.photoPath!.startsWith('blob:') && !player.photoPath!.startsWith('http'))
-                  ? Text(
-                      '${player.firstName[0]}${player.lastName[0]}'.toUpperCase(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    )
-                  : null,
+              textColor: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(width: 12),
             

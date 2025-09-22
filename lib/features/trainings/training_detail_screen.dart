@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +7,7 @@ import 'package:coachmaster/models/training_attendance.dart';
 import 'package:coachmaster/models/note.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
-import 'dart:io';
+import 'package:coachmaster/core/image_utils.dart';
 
 class TrainingDetailScreen extends ConsumerStatefulWidget {
   final String trainingId;
@@ -383,7 +382,10 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
             final playerRepository = ref.read(playerRepositoryProvider);
             final allAttendances = attendanceRepository.getAttendancesForPlayer(player.id);
             await playerRepository.updatePlayerAbsences(player.id, allAttendances);
-            
+
+            // Increment refresh counter to trigger dashboard updates
+            ref.read(refreshCounterProvider.notifier).state++;
+
             ref.invalidate(trainingAttendanceRepositoryProvider);
             ref.invalidate(playerRepositoryProvider);
             setState(() {});
@@ -393,25 +395,13 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
             child: Row(
               children: [
                 // Player Avatar
-                CircleAvatar(
-                  key: ValueKey('${player.id}-${player.photoPath}'),
+                ImageUtils.buildPlayerAvatar(
+                  firstName: player.firstName,
+                  lastName: player.lastName,
+                  photoPath: player.photoPath,
                   radius: 24,
                   backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                  backgroundImage: player.photoPath != null && player.photoPath!.isNotEmpty
-                      ? (kIsWeb && (player.photoPath!.startsWith('data:') || player.photoPath!.startsWith('blob:') || player.photoPath!.startsWith('http'))
-                          ? NetworkImage(player.photoPath!) as ImageProvider
-                          : (!kIsWeb ? FileImage(File(player.photoPath!)) as ImageProvider : null))
-                      : null,
-                  child: player.photoPath == null || player.photoPath!.isEmpty ||
-                      (kIsWeb && !player.photoPath!.startsWith('data:') && !player.photoPath!.startsWith('blob:') && !player.photoPath!.startsWith('http'))
-                      ? Text(
-                          '${player.firstName[0]}${player.lastName[0]}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        )
-                      : null,
+                  textColor: Theme.of(context).colorScheme.primary,
                 ),
                 
                 const SizedBox(width: 16),
@@ -499,7 +489,10 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
                     final playerRepository = ref.read(playerRepositoryProvider);
                     final allAttendances = attendanceRepository.getAttendancesForPlayer(player.id);
                     await playerRepository.updatePlayerAbsences(player.id, allAttendances);
-                    
+
+                    // Increment refresh counter to trigger dashboard updates
+                    ref.read(refreshCounterProvider.notifier).state++;
+
                     ref.invalidate(trainingAttendanceRepositoryProvider);
                     ref.invalidate(playerRepositoryProvider);
                     setState(() {});

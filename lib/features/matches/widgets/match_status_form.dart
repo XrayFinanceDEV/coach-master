@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +6,7 @@ import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/match_statistic.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
+import 'package:coachmaster/core/image_utils.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 
 class MatchStatusForm extends ConsumerStatefulWidget {
@@ -452,22 +452,14 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       child: Row(
         children: [
           // Player avatar
-          CircleAvatar(
-            key: ValueKey('${player.id}-${player.photoPath}'),
+          ImageUtils.buildPlayerAvatar(
+            firstName: player.firstName,
+            lastName: player.lastName,
+            photoPath: player.photoPath,
             radius: 20,
             backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-            backgroundImage: _getSafeImageProvider(player.photoPath),
-            child: player.photoPath == null || player.photoPath!.isEmpty ||
-                (kIsWeb && !player.photoPath!.startsWith('data:') && !player.photoPath!.startsWith('blob:') && !player.photoPath!.startsWith('http'))
-                ? Text(
-                    '${player.firstName[0]}${player.lastName[0]}'.toUpperCase(),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  )
-                : null,
+            textColor: Theme.of(context).colorScheme.primary,
+            fontSize: 12,
           ),
           const SizedBox(width: 12),
           
@@ -702,26 +694,14 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                key: ValueKey('${player.id}-${player.photoPath}'),
+              ImageUtils.buildPlayerAvatar(
+                firstName: player.firstName,
+                lastName: player.lastName,
+                photoPath: player.photoPath,
                 radius: 16,
                 backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                backgroundImage: player.photoPath != null && player.photoPath!.isNotEmpty
-                    ? (kIsWeb && (player.photoPath!.startsWith('data:') || player.photoPath!.startsWith('blob:') || player.photoPath!.startsWith('http'))
-                        ? NetworkImage(player.photoPath!) as ImageProvider
-                        : (!kIsWeb ? FileImage(File(player.photoPath!)) as ImageProvider : null))
-                    : null,
-                child: player.photoPath == null || player.photoPath!.isEmpty ||
-                    (kIsWeb && !player.photoPath!.startsWith('data:') && !player.photoPath!.startsWith('blob:') && !player.photoPath!.startsWith('http'))
-                    ? Text(
-                        '${player.firstName[0]}${player.lastName[0]}'.toUpperCase(),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      )
-                    : null,
+                textColor: Theme.of(context).colorScheme.primary,
+                fontSize: 10,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -812,26 +792,14 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                key: ValueKey('${player.id}-${player.photoPath}'),
+              ImageUtils.buildPlayerAvatar(
+                firstName: player.firstName,
+                lastName: player.lastName,
+                photoPath: player.photoPath,
                 radius: 16,
                 backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                backgroundImage: player.photoPath != null && player.photoPath!.isNotEmpty
-                    ? (kIsWeb && (player.photoPath!.startsWith('data:') || player.photoPath!.startsWith('blob:') || player.photoPath!.startsWith('http'))
-                        ? NetworkImage(player.photoPath!) as ImageProvider
-                        : (!kIsWeb ? FileImage(File(player.photoPath!)) as ImageProvider : null))
-                    : null,
-                child: player.photoPath == null || player.photoPath!.isEmpty ||
-                    (kIsWeb && !player.photoPath!.startsWith('data:') && !player.photoPath!.startsWith('blob:') && !player.photoPath!.startsWith('http'))
-                    ? Text(
-                        '${player.firstName[0]}${player.lastName[0]}'.toUpperCase(),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      )
-                    : null,
+                textColor: Theme.of(context).colorScheme.primary,
+                fontSize: 10,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1093,21 +1061,14 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       child: Row(
         children: [
           // Player avatar
-          CircleAvatar(
-            key: ValueKey('${player.id}-${player.photoPath}'),
+          ImageUtils.buildPlayerAvatar(
+            firstName: player.firstName,
+            lastName: player.lastName,
+            photoPath: player.photoPath,
             radius: 16,
             backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-            backgroundImage: _getSafeImageProvider(player.photoPath),
-            child: _getSafeImageProvider(player.photoPath) == null
-                ? Text(
-                    '${player.firstName[0]}${player.lastName[0]}'.toUpperCase(),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  )
-                : null,
+            textColor: Theme.of(context).colorScheme.primary,
+            fontSize: 10,
           ),
           const SizedBox(width: 12),
           
@@ -1340,32 +1301,6 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
     }
   }
 
-  // Safe image provider to avoid crashes on Android
-  ImageProvider? _getSafeImageProvider(String? photoPath) {
-    try {
-      if (photoPath == null || photoPath.isEmpty) return null;
-      
-      if (kIsWeb) {
-        if (photoPath.startsWith('data:') || photoPath.startsWith('blob:') || photoPath.startsWith('http')) {
-          return NetworkImage(photoPath);
-        }
-        return null;
-      } else {
-        // For Android/iOS, safely check file existence
-        final file = File(photoPath);
-        if (file.existsSync()) {
-          return FileImage(file);
-        }
-        return null;
-      }
-    } catch (e) {
-      // Return null if any error occurs
-      if (kDebugMode) {
-        print('🔴 Error loading image: $e');
-      }
-      return null;
-    }
-  }
 
   // Position name localization
   String _getLocalizedPositionName(BuildContext context, String positionKey) {

@@ -168,6 +168,40 @@ PageView.builder(
 );
 ```
 
+**Sliding Statistics Carousel Pattern:**
+For 2x2 grid statistics with multiple pages:
+```dart
+SizedBox(
+  height: 280, // Fixed height for 2x2 layout
+  child: PageView(
+    controller: _pageController,
+    onPageChanged: (page) => setState(() => _currentPage = page),
+    children: [
+      _buildStatsPage([stat1, stat2, stat3, stat4]),
+      _buildStatsPage([stat5, stat6, stat7, stat8]),
+    ],
+  ),
+),
+
+// Dot pagination indicators
+Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    for (int i = 0; i < pageCount; i++)
+      Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        width: 8, height: 8,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: _currentPage == i
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+        ),
+      ),
+  ],
+),
+```
+
 #### Consistent Headers
 All screens should use orange icon + screen name pattern:
 ```dart
@@ -356,6 +390,16 @@ if (context.mounted) {
 
 ## Current Features & Recent Improvements
 
+### App Icon System & Google Play Store Optimization (Latest)
+- **Custom App Icon Implementation**: Fixed Flutter default logo issue with proper launcher icon generation
+  - **flutter_launcher_icons 0.14.4**: Automated icon generation for all platforms and densities
+  - **CoachMaster Branding**: Professional orange shield logo with coach figure across all icon sizes
+  - **Android Adaptive Icons**: Black background (#000000) with proper foreground scaling
+  - **Cross-Platform Support**: Icons for Android (mipmap densities), iOS, web, Windows, macOS
+  - **Play Store Ready**: Eliminates default Flutter blue logo appearing after app installation
+  - **Configuration Fixed**: Changed from `android: "launcher_icon"` to `android: true` for proper generation
+  - **Asset Management**: Uses `docs/logo_coach_master.png` as source with automatic density scaling
+
 ### Production Ready & Google Play Store (Latest)
 - **Android API 35 Compliance**: Updated target SDK for Google Play Store requirements
   - Compile SDK: API 36 (latest Android SDK for plugin compatibility)
@@ -511,10 +555,18 @@ if (context.mounted) {
   - Success/error notifications
   - UI component labels
 
-### Dashboard Enhancements
+### Dashboard Enhancements & Sliding Statistics (Latest)
 - **Speed Dial FAB**: Expandable floating action button with 3 sub-actions (Add Player, Add Training, Add Match)
-- **Enhanced Team Statistics**: 2-row, 4-column layout with comprehensive match and team data
+- **Sliding Team Statistics Carousel**: Revolutionary swipeable statistics display similar to player cards
+  - **2 Pages of Stats**: Page 1 (Matches, Win Rate, Wins, Losses) + Page 2 (Goals For/Against, Goal Difference, Draws)
+  - **2x2 Mini Cards Layout**: Clean grid with 4 prominent statistics cards per page
+  - **Dot Pagination Indicators**: Orange dots showing current page with smooth transitions
+  - **Enhanced Visual Design**: Individual elevated cards with gradients and color coding
+  - **280px Container Height**: Optimized for perfect 2-row display with compact spacing
+  - **Responsive Card Sizing**: 28px icons, 20px values, 12px labels for mobile optimization
+  - **Full Localization**: Complete Italian/English support for all statistical terms
 - **Player Carousel**: Swipeable player cards showing 2 cards per view with dot pagination
+- **Clean Header Design**: Removed sync status widget clutter from dashboard AppBar
 - **Mobile Responsive**: Fixed overflow errors and optimized for mobile screens
 
 ### Enhanced Player Management (Latest Update)
@@ -621,6 +673,9 @@ String _getLocalizedFilterLabel(BuildContext context, String filterKey) {
 - Position action buttons at bottom of lists (like Add Training/Add Match) for consistent UX
 - Use `Icons.gps_fixed` (target icon) for all assist-related displays for consistency
 - Always show all position categories in match forms regardless of player distribution
+- **Sliding Carousels**: Use PageView with 280px height for 2x2 statistics grids, dot indicators, and proper spacing
+- **Clean Headers**: Remove unnecessary action widgets (like sync status) to maintain clean AppBar design
+- **App Icon Standards**: Use flutter_launcher_icons with proper configuration and custom branding assets
 
 ### Localization Best Practices
 - **Always use AppLocalizations**: Never hardcode user-facing strings - use `AppLocalizations.of(context)!.keyName`

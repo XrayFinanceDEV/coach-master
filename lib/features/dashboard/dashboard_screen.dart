@@ -14,6 +14,7 @@ import 'package:coachmaster/features/dashboard/widgets/leaderboards_section.dart
 import 'package:coachmaster/features/players/widgets/player_form_bottom_sheet.dart';
 import 'package:coachmaster/features/trainings/training_detail_screen.dart';
 import 'package:coachmaster/features/matches/widgets/match_form_bottom_sheet.dart';
+import 'package:coachmaster/services/sync_manager.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -26,6 +27,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   String? selectedSeasonId;
   String? selectedTeamId;
   bool _isSpeedDialOpen = false;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
@@ -60,6 +62,44 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       if (teams.isNotEmpty && selectedTeamId == null) {
         selectedTeamId = teams.first.id;
         setState(() {});
+      }
+    }
+  }
+
+  Future<void> _forceRefreshData() async {
+    setState(() => _isRefreshing = true);
+
+    try {
+      final authState = ref.read(firebaseAuthProvider);
+
+      if (authState.isUsingFirebaseAuth && SyncManager.instance.isInitialized) {
+        // Force download all data from Firestore
+        await SyncManager.instance.forceDownloadAll();
+
+        // Increment refresh counter to trigger UI rebuild
+        ref.read(refreshCounterProvider.notifier).increment();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.dataSyncedSuccessfully),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${AppLocalizations.of(context)!.errorSyncingData}: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isRefreshing = false);
       }
     }
   }
@@ -176,6 +216,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ],
           ],
         ),
+        actions: [
+          // Sync/Refresh button for Firebase users
+          if (ref.watch(firebaseAuthProvider).isUsingFirebaseAuth)
+            IconButton(
+              icon: _isRefreshing
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.sync),
+              onPressed: _isRefreshing ? null : _forceRefreshData,
+              tooltip: AppLocalizations.of(context)!.syncData,
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 80), // Added bottom padding for FAB

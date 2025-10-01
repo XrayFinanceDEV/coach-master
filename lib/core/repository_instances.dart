@@ -280,7 +280,14 @@ final trainingRepositoryProvider = Provider<dynamic>((ref) {
 });
 
 final trainingAttendanceRepositoryProvider = Provider<dynamic>((ref) {
+  final authState = ref.watch(firebaseAuthProvider);
   final initialized = ref.watch(repositoriesInitializedProvider);
+
+  if (authState.isUsingFirebaseAuth &&
+      !authState.isInitializing &&
+      SyncManager.instance.isInitialized) {
+    return SyncManager.instance.trainingAttendanceRepository;
+  }
 
   if (!initialized || _trainingAttendanceRepository == null) {
     return MockRepository('TrainingAttendance', []);

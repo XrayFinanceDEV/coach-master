@@ -296,5 +296,8 @@
   "player": "player",
   "players": "players",
   "giocatore": "player",
-  "giocatori": "players"
+  "giocatori": "players",
+  "syncData": "Sync Data",
+  "dataSyncedSuccessfully": "Data synced successfully!",
+  "errorSyncingData": "Error syncing data"
 }

@@ -719,4 +719,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get giocatori => 'players';
+
+  @override
+  String get syncData => 'Sync Data';
+
+  @override
+  String get dataSyncedSuccessfully => 'Data synced successfully!';
+
+  @override
+  String get errorSyncingData => 'Error syncing data';
 }

@@ -726,4 +726,13 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get giocatori => 'giocatori';
+
+  @override
+  String get syncData => 'Sincronizza Dati';
+
+  @override
+  String get dataSyncedSuccessfully => 'Dati sincronizzati con successo!';
+
+  @override
+  String get errorSyncingData => 'Errore durante la sincronizzazione';
 }

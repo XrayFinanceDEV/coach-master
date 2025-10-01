@@ -10,6 +10,7 @@ import 'package:coachmaster/services/match_sync_repository.dart';
 import 'package:coachmaster/services/match_convocation_sync_repository.dart';
 import 'package:coachmaster/services/match_statistic_sync_repository.dart';
 import 'package:coachmaster/services/note_sync_repository.dart';
+import 'package:coachmaster/services/training_attendance_sync_repository.dart';
 import 'package:coachmaster/models/sync_status.dart';
 
 class SyncManager {
@@ -26,6 +27,7 @@ class SyncManager {
   TeamSyncRepository? _teamRepository;
   PlayerSyncRepository? _playerRepository;
   TrainingSyncRepository? _trainingRepository;
+  TrainingAttendanceSyncRepository? _trainingAttendanceRepository;
   MatchSyncRepository? _matchRepository;
   MatchConvocationSyncRepository? _matchConvocationRepository;
   MatchStatisticSyncRepository? _matchStatisticRepository;
@@ -64,6 +66,9 @@ class SyncManager {
     _trainingRepository = TrainingSyncRepository(syncService: _syncService);
     await _trainingRepository!.initForUser(firebaseUser.uid);
 
+    _trainingAttendanceRepository = TrainingAttendanceSyncRepository(syncService: _syncService);
+    await _trainingAttendanceRepository!.initForUser(firebaseUser.uid);
+
     _matchRepository = MatchSyncRepository(syncService: _syncService);
     await _matchRepository!.initForUser(firebaseUser.uid);
 
@@ -100,6 +105,7 @@ class SyncManager {
     await _teamRepository?.close();
     await _playerRepository?.close();
     await _trainingRepository?.close();
+    await _trainingAttendanceRepository?.close();
     await _matchRepository?.close();
     await _matchConvocationRepository?.close();
     await _matchStatisticRepository?.close();
@@ -110,6 +116,7 @@ class SyncManager {
     _teamRepository = null;
     _playerRepository = null;
     _trainingRepository = null;
+    _trainingAttendanceRepository = null;
     _matchRepository = null;
     _matchConvocationRepository = null;
     _matchStatisticRepository = null;
@@ -151,6 +158,13 @@ class SyncManager {
       throw Exception('SyncManager not initialized. Call initializeForUser() first.');
     }
     return _trainingRepository!;
+  }
+
+  TrainingAttendanceSyncRepository get trainingAttendanceRepository {
+    if (_trainingAttendanceRepository == null || !_isInitialized) {
+      throw Exception('SyncManager not initialized. Call initializeForUser() first.');
+    }
+    return _trainingAttendanceRepository!;
   }
 
   MatchSyncRepository get matchRepository {
@@ -215,6 +229,7 @@ class SyncManager {
       await _teamRepository?.forceDownloadFromFirestore();
       await _playerRepository?.forceDownloadFromFirestore();
       await _trainingRepository?.forceDownloadFromFirestore();
+      await _trainingAttendanceRepository?.forceDownloadFromFirestore();
       await _matchRepository?.forceDownloadFromFirestore();
       await _matchConvocationRepository?.forceDownloadFromFirestore();
       await _matchStatisticRepository?.forceDownloadFromFirestore();
@@ -245,6 +260,7 @@ class SyncManager {
     await _teamRepository?.syncAllToFirestore();
     await _playerRepository?.syncAllToFirestore();
     await _trainingRepository?.syncAllToFirestore();
+    await _trainingAttendanceRepository?.syncAllToFirestore();
     await _matchRepository?.syncAllToFirestore();
     await _matchConvocationRepository?.syncAllToFirestore();
     await _matchStatisticRepository?.syncAllToFirestore();

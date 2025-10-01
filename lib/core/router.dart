@@ -23,6 +23,7 @@ import 'package:coachmaster/models/auth_state.dart';
 import 'package:coachmaster/models/season.dart';
 import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/models/training.dart';
+import 'package:coachmaster/models/training_attendance.dart';
 import 'package:coachmaster/services/analytics_service.dart';
 
 // GoRouter refresh stream to listen to auth state changes
@@ -373,17 +374,54 @@ class _TrainingsScreenState extends ConsumerState<TrainingsScreen> {
                                     location: 'Training Location', // Default location
                                     objectives: objectives,
                                   );
-                                  
+
+                                  if (kDebugMode) {
+                                    print('🟡 Router: Creating training ${newTraining.id}');
+                                  }
+
                                   await trainingRepository.addTraining(newTraining);
+
+                                  if (kDebugMode) {
+                                    print('🟡 Router: Training created, now adding attendance...');
+                                  }
+
+                                  // Auto-create attendance records for all team players with "present" status
+                                  final playerRepository = ref.read(playerRepositoryProvider);
+                                  final attendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
+                                  final teamPlayers = playerRepository.getPlayersForTeam(selectedTeamId);
+
+                                  if (kDebugMode) {
+                                    print('🟡 Router: Found ${teamPlayers.length} players for team $selectedTeamId');
+                                  }
+
+                                  for (final player in teamPlayers) {
+                                    final attendance = TrainingAttendance.create(
+                                      trainingId: newTraining.id,
+                                      playerId: player.id,
+                                      status: TrainingAttendanceStatus.present, // All players marked as present by default
+                                    );
+                                    await attendanceRepository.addAttendance(attendance);
+
+                                    if (kDebugMode) {
+                                      print('🟡 Router: Added attendance for ${player.firstName} ${player.lastName}');
+                                    }
+                                  }
+
+                                  if (kDebugMode) {
+                                    print('🟡 Router: Finished creating ${teamPlayers.length} attendance records');
+                                  }
+
                                   ref.invalidate(trainingRepositoryProvider);
-                                  
+                                  ref.invalidate(trainingAttendanceRepositoryProvider);
+                                  ref.read(refreshCounterProvider.notifier).state++;
+
                                   // Force rebuild of screen
                                   if (mounted) {
                                     setState(() {});
                                   }
-                                  
+
                                   navigator.pop();
-                                  
+
                                   messenger.showSnackBar(
                                     SnackBar(content: Text('${localizations.trainingSession} aggiunta con successo!')),
                                   );

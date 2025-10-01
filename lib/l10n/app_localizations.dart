@@ -1471,6 +1471,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'players'**
   String get giocatori;
+
+  /// No description provided for @syncData.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Data'**
+  String get syncData;
+
+  /// No description provided for @dataSyncedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Data synced successfully!'**
+  String get dataSyncedSuccessfully;
+
+  /// No description provided for @errorSyncingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Error syncing data'**
+  String get errorSyncingData;
 }
 
 class _AppLocalizationsDelegate

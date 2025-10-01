@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -21,6 +22,10 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
+
+    // Watch refresh counter to rebuild when data changes
+    ref.watch(refreshCounterProvider);
+
     final trainingRepository = ref.watch(trainingRepositoryProvider);
     final playerRepository = ref.watch(playerRepositoryProvider);
     final attendanceRepository = ref.watch(trainingAttendanceRepositoryProvider);
@@ -35,6 +40,14 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
 
     final players = playerRepository.getPlayersForTeam(training.teamId);
     final attendances = attendanceRepository.getAttendancesForTraining(widget.trainingId);
+
+    if (kDebugMode) {
+      print('🔵 Training Detail: trainingId=${widget.trainingId}');
+      print('   Found ${attendances.length} attendance records');
+      for (final att in attendances) {
+        print('   - Player ${att.playerId}: ${att.status}');
+      }
+    }
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -1096,9 +1109,9 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
   Future<void> _saveTraining() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      
+
       final trainingRepository = ref.read(trainingRepositoryProvider);
-      
+
       if (isEditMode) {
         // Update existing training (preserve coachNotes and time/location fields)
         final updatedTraining = Training(
@@ -1122,20 +1135,69 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
           location: 'Training Ground', // Default location
           objectives: _objectives,
         );
-        trainingRepository.addTraining(newTraining);
-        
-        // Call the onTrainingCreated callback if provided to navigate to training detail
-        if (widget.onTrainingCreated != null) {
-          widget.onTrainingCreated!(newTraining.id);
+        if (kDebugMode) {
+          print('🟢 Step 1: Creating training...');
+        }
+
+        await trainingRepository.addTraining(newTraining);
+
+        if (kDebugMode) {
+          print('🟢 Step 2: Training created: ${newTraining.id}, now creating attendance records...');
+        }
+
+        // Auto-create attendance records for all team players with "present" status
+        final playerRepository = ref.read(playerRepositoryProvider);
+        final attendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
+        final teamPlayers = playerRepository.getPlayersForTeam(widget.teamId);
+
+        if (kDebugMode) {
+          print('🟢 Step 3: Found ${teamPlayers.length} players in team ${widget.teamId}');
+        }
+
+        for (final player in teamPlayers) {
+          final attendance = TrainingAttendance.create(
+            trainingId: newTraining.id,
+            playerId: player.id,
+            status: TrainingAttendanceStatus.present, // All players marked as present by default
+          );
+          await attendanceRepository.addAttendance(attendance);
+
+          if (kDebugMode) {
+            print('   ✅ Added attendance for ${player.firstName} ${player.lastName} - Status: ${attendance.status}');
+          }
+        }
+
+        if (kDebugMode) {
+          print('🟢 Step 4: All ${teamPlayers.length} attendance records created');
+        }
+
+        // Increment refresh counter to trigger UI updates
+        ref.read(refreshCounterProvider.notifier).state++;
+
+        if (kDebugMode) {
+          print('🟢 Step 5: Refresh counter incremented');
         }
       }
-      
+
       ref.invalidate(trainingRepositoryProvider);
-      
+      ref.invalidate(trainingAttendanceRepositoryProvider);
+
       if (mounted) {
         Navigator.of(context).pop();
         if (widget.onSaved != null) {
           widget.onSaved!();
+        }
+
+        // Call the onTrainingCreated callback AFTER closing the bottom sheet
+        if (!isEditMode && widget.onTrainingCreated != null) {
+          // Get the training ID from the repository since we just created it
+          final trainings = ref.read(trainingRepositoryProvider).getTrainingsForTeam(widget.teamId);
+          if (trainings.isNotEmpty) {
+            final latestTraining = trainings.reduce((a, b) =>
+              DateTime.parse(a.id).isAfter(DateTime.parse(b.id)) ? a : b
+            );
+            widget.onTrainingCreated!(latestTraining.id);
+          }
         }
       }
     }

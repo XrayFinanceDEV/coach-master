@@ -240,5 +240,8 @@
   "player": "giocatore",
   "players": "giocatori",
   "giocatore": "giocatore",
-  "giocatori": "giocatori"
+  "giocatori": "giocatori",
+  "syncData": "Sincronizza Dati",
+  "dataSyncedSuccessfully": "Dati sincronizzati con successo!",
+  "errorSyncingData": "Errore durante la sincronizzazione"
 }

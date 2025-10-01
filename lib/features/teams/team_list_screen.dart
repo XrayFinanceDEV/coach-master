@@ -10,28 +10,40 @@ class TeamListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final teamRepository = ref.watch(teamRepositoryProvider);
-    final teams = teamRepository.getTeamsForSeason(seasonId);
+    final teamsAsync = ref.watch(teamsForSeasonStreamProvider(seasonId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Teams'),
+    return teamsAsync.when(
+      data: (teams) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Teams'),
+        ),
+        body: teams.isEmpty
+            ? const Center(child: Text('No teams found. Add one to get started!'))
+            : ListView.builder(
+                itemCount: teams.length,
+                itemBuilder: (context, index) {
+                  final team = teams[index];
+                  return ListTile(
+                    title: Text(team.name),
+                    subtitle: team.description != null ? Text(team.description!) : null,
+                    onTap: () => context.go('/teams/${team.id}'),
+                  );
+                },
+              ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            _showAddTeamDialog(context, ref, seasonId);
+          },
+          child: const Icon(Icons.add),
+        ),
       ),
-      body: ListView.builder(
-        itemCount: teams.length,
-        itemBuilder: (context, index) {
-          final team = teams[index];
-          return ListTile(
-            title: Text(team.name),
-            onTap: () => context.go('/teams/${team.id}'),
-          );
-        },
+      loading: () => Scaffold(
+        appBar: AppBar(title: const Text('Teams')),
+        body: const Center(child: CircularProgressIndicator()),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddTeamDialog(context, ref, seasonId);
-        },
-        child: const Icon(Icons.add),
+      error: (error, stack) => Scaffold(
+        appBar: AppBar(title: const Text('Teams')),
+        body: Center(child: Text('Error loading teams: $error')),
       ),
     );
   }
@@ -79,7 +91,7 @@ class TeamListScreen extends ConsumerWidget {
               child: const Text('Cancel'),
             ),
             FilledButton(
-              onPressed: () {
+              onPressed: () async {
                 if (formKey.currentState!.validate()) {
                   formKey.currentState!.save();
                   final newTeam = Team.create(
@@ -87,13 +99,13 @@ class TeamListScreen extends ConsumerWidget {
                     seasonId: seasonId,
                     description: description,
                   );
-                  teamRepository.addTeam(newTeam);
-                  
-                  // Increment refresh counter to trigger UI rebuilds across the app
-                  ref.read(refreshCounterProvider.notifier).increment();
-                  
-                  ref.invalidate(teamRepositoryProvider);
-                  context.pop();
+                  await teamRepository.addTeam(newTeam);
+
+                  // Stream will auto-update, no manual refresh needed
+
+                  if (context.mounted) {
+                    context.pop();
+                  }
                 }
               },
               child: const Text('Add'),

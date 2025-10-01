@@ -1,54 +1,28 @@
-import 'package:hive/hive.dart';
-
-part 'match.g.dart';
-
-@HiveType(typeId: 11)
 enum MatchStatus {
-  @HiveField(0)
   scheduled,
-  @HiveField(1)
   live,
-  @HiveField(2)
   completed,
 }
 
-@HiveType(typeId: 12)
 enum MatchResult {
-  @HiveField(0)
   win,
-  @HiveField(1)
   loss,
-  @HiveField(2)
   draw,
-  @HiveField(3)
   none, // For scheduled or live matches
 }
 
-@HiveType(typeId: 6)
 class Match {
-  @HiveField(0)
   final String id;
-  @HiveField(1)
   final String teamId;
-  @HiveField(2)
   final String seasonId;
-  @HiveField(3)
   final String opponent;
-  @HiveField(4)
   final DateTime date;
-  @HiveField(5)
   final String location;
-  @HiveField(6)
   final bool isHome;
-  @HiveField(7)
   final int? goalsFor;
-  @HiveField(8)
   final int? goalsAgainst;
-  @HiveField(9)
   final MatchResult result;
-  @HiveField(10)
   final MatchStatus status;
-  @HiveField(11)
   final Map<String, dynamic>? tactics; // Storing as dynamic map for now
 
   Match({
@@ -92,6 +66,41 @@ class Match {
       result: result,
       status: status,
       tactics: tactics,
+    );
+  }
+
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'teamId': teamId,
+      'seasonId': seasonId,
+      'opponent': opponent,
+      'date': date.toIso8601String(),
+      'location': location,
+      'isHome': isHome,
+      'goalsFor': goalsFor,
+      'goalsAgainst': goalsAgainst,
+      'result': result.name,
+      'status': status.name,
+      'tactics': tactics,
+    };
+  }
+
+  factory Match.fromJson(Map<String, dynamic> json) {
+    return Match(
+      id: json['id'] as String,
+      teamId: json['teamId'] as String,
+      seasonId: json['seasonId'] as String,
+      opponent: json['opponent'] as String,
+      date: DateTime.parse(json['date'] as String),
+      location: json['location'] as String,
+      isHome: json['isHome'] as bool,
+      goalsFor: (json['goalsFor'] as num?)?.toInt(),
+      goalsAgainst: (json['goalsAgainst'] as num?)?.toInt(),
+      result: MatchResult.values.firstWhere((e) => e.name == json['result'], orElse: () => MatchResult.none),
+      status: MatchStatus.values.firstWhere((e) => e.name == json['status'], orElse: () => MatchStatus.scheduled),
+      tactics: json['tactics'] as Map<String, dynamic>?,
     );
   }
 }

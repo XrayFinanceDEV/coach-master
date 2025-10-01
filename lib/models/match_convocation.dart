@@ -1,28 +1,14 @@
-import 'package:hive/hive.dart';
-
-part 'match_convocation.g.dart';
-
-@HiveType(typeId: 13)
 enum PlayerMatchStatus {
-  @HiveField(0)
   convoked,
-  @HiveField(1)
   playing,
-  @HiveField(2)
   substitute,
-  @HiveField(3)
   notPlaying,
 }
 
-@HiveType(typeId: 7)
 class MatchConvocation {
-  @HiveField(0)
   final String id;
-  @HiveField(1)
   final String matchId;
-  @HiveField(2)
   final String playerId;
-  @HiveField(3)
   final PlayerMatchStatus status;
 
   MatchConvocation({
@@ -42,6 +28,25 @@ class MatchConvocation {
       matchId: matchId,
       playerId: playerId,
       status: status,
+    );
+  }
+
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'matchId': matchId,
+      'playerId': playerId,
+      'status': status.name,
+    };
+  }
+
+  factory MatchConvocation.fromJson(Map<String, dynamic> json) {
+    return MatchConvocation(
+      id: json['id'] as String,
+      matchId: json['matchId'] as String,
+      playerId: json['playerId'] as String,
+      status: PlayerMatchStatus.values.firstWhere((e) => e.name == json['status']),
     );
   }
 }

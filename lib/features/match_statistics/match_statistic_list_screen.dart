@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/models/match_statistic.dart';
 import 'package:coachmaster/models/player.dart';
-import 'package:coachmaster/core/repository_instances.dart';
+import 'package:coachmaster/core/firestore_repository_providers.dart';
 
 class MatchStatisticListScreen extends ConsumerWidget {
   final String matchId;
@@ -13,27 +13,44 @@ class MatchStatisticListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final matchStatisticRepository = ref.watch(matchStatisticRepositoryProvider);
-    final statistics = matchStatisticRepository.getStatisticsForMatch(matchId);
-    final playerRepository = ref.watch(playerRepositoryProvider);
-    final players = playerRepository.getPlayersForTeam(teamId);
+    final statisticsAsync = ref.watch(statisticsForMatchStreamProvider(matchId));
+    final playersAsync = ref.watch(playersForTeamStreamProvider(teamId));
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Match Statistics'),
       ),
-      body: ListView.builder(
-        itemCount: statistics.length,
-        itemBuilder: (context, index) {
-          final stat = statistics[index];
-          final player = players.firstWhere((p) => p.id == stat.playerId, orElse: () => Player(id: '', teamId: '', firstName: 'Unknown', lastName: 'Player', position: '', preferredFoot: '', birthDate: DateTime.now()));
+      body: statisticsAsync.when(
+        data: (statistics) => playersAsync.when(
+          data: (players) => ListView.builder(
+            itemCount: statistics.length,
+            itemBuilder: (context, index) {
+              final stat = statistics[index];
+              final player = players.firstWhere(
+                (p) => p.id == stat.playerId,
+                orElse: () => Player(
+                  id: '',
+                  teamId: '',
+                  firstName: 'Unknown',
+                  lastName: 'Player',
+                  position: '',
+                  preferredFoot: '',
+                  birthDate: DateTime.now()
+                )
+              );
 
-          return ListTile(
-            title: Text('${player.firstName} ${player.lastName}'),
-            subtitle: Text('Goals: ${stat.goals}, Assists: ${stat.assists}, Rating: ${stat.rating}'),
-            onTap: () => context.go('/matches/$matchId/statistics/${stat.id}'),
-          );
-        },
+              return ListTile(
+                title: Text('${player.firstName} ${player.lastName}'),
+                subtitle: Text('Goals: ${stat.goals}, Assists: ${stat.assists}, Rating: ${stat.rating}'),
+                onTap: () => context.go('/matches/$matchId/statistics/${stat.id}'),
+              );
+            },
+          ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(child: Text('Error loading players: $error')),
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text('Error loading statistics: $error')),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -44,11 +61,13 @@ class MatchStatisticListScreen extends ConsumerWidget {
     );
   }
 
-  void _showAddMatchStatisticDialog(BuildContext context, WidgetRef ref, String matchId, String teamId) {
+  void _showAddMatchStatisticDialog(BuildContext context, WidgetRef ref, String matchId, String teamId) async {
     final matchStatisticRepository = ref.read(matchStatisticRepositoryProvider);
     final playerRepository = ref.read(playerRepositoryProvider);
-    final players = playerRepository.getPlayersForTeam(teamId);
+    final players = await playerRepository.getPlayersForTeam(teamId);
     final formKey = GlobalKey<FormState>();
+
+    if (!context.mounted) return;
 
     String? selectedPlayerId;
     int goals = 0;
@@ -57,8 +76,6 @@ class MatchStatisticListScreen extends ConsumerWidget {
     int redCards = 0;
     int minutesPlayed = 0;
     double? rating = 6.0;
-    String? position;
-    String? notes;
 
     showDialog(
       context: context,
@@ -108,14 +125,6 @@ class MatchStatisticListScreen extends ConsumerWidget {
                     keyboardType: TextInputType.number,
                     onSaved: (value) => rating = double.tryParse(value!) ?? 6.0,
                   ),
-                  TextFormField(
-                    decoration: const InputDecoration(labelText: 'Position'),
-                    onSaved: (value) => position = value,
-                  ),
-                  TextFormField(
-                    decoration: const InputDecoration(labelText: 'Notes'),
-                    onSaved: (value) => notes = value,
-                  ),
                 ],
               ),
             ),
@@ -126,7 +135,7 @@ class MatchStatisticListScreen extends ConsumerWidget {
               child: const Text('Cancel'),
             ),
             FilledButton(
-              onPressed: () {
+              onPressed: () async {
                 if (formKey.currentState!.validate()) {
                   formKey.currentState!.save();
                   if (selectedPlayerId != null) {
@@ -139,12 +148,11 @@ class MatchStatisticListScreen extends ConsumerWidget {
                       redCards: redCards,
                       minutesPlayed: minutesPlayed,
                       rating: rating,
-                      position: position,
-                      notes: notes,
                     );
-                    matchStatisticRepository.addStatistic(newStat);
-                    ref.invalidate(matchStatisticRepositoryProvider);
-                    context.pop();
+                    await matchStatisticRepository.addStatistic(newStat);
+                    if (context.mounted) {
+                      context.pop();
+                    }
                   }
                 }
               },

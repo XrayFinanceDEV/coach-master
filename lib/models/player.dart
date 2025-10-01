@@ -1,43 +1,21 @@
-import 'package:hive/hive.dart';
-
-part 'player.g.dart';
-
-@HiveType(typeId: 2)
 class Player {
-  @HiveField(0)
   final String id;
-  @HiveField(1)
   final String teamId;
-  @HiveField(2)
   final String firstName;
-  @HiveField(3)
   final String lastName;
-  @HiveField(4)
   final String position;
-  @HiveField(5)
   final String preferredFoot;
-  @HiveField(6)
   final DateTime birthDate;
-  @HiveField(7)
   final String? photoPath; // Local path to player photo
-  @HiveField(8)
   final Map<String, dynamic>? medicalInfo;
-  @HiveField(9)
   final Map<String, dynamic>? emergencyContact;
   // Statistical fields
-  @HiveField(10)
   final int goals;
-  @HiveField(11)
   final int assists;
-  @HiveField(12)
   final int yellowCards;
-  @HiveField(13)
   final int redCards;
-  @HiveField(14)
   final int totalMinutes;
-  @HiveField(15)
   final double? avgRating;
-  @HiveField(16)
   final int absences;
 
   Player({
@@ -127,6 +105,51 @@ class Player {
       totalMinutes: totalMinutes ?? this.totalMinutes,
       avgRating: avgRating ?? this.avgRating,
       absences: absences ?? this.absences,
+    );
+  }
+
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'teamId': teamId,
+      'firstName': firstName,
+      'lastName': lastName,
+      'position': position,
+      'preferredFoot': preferredFoot,
+      'birthDate': birthDate.toIso8601String(),
+      'photoPath': photoPath,
+      'medicalInfo': medicalInfo,
+      'emergencyContact': emergencyContact,
+      'goals': goals,
+      'assists': assists,
+      'yellowCards': yellowCards,
+      'redCards': redCards,
+      'totalMinutes': totalMinutes,
+      'avgRating': avgRating,
+      'absences': absences,
+    };
+  }
+
+  factory Player.fromJson(Map<String, dynamic> json) {
+    return Player(
+      id: json['id'] as String,
+      teamId: json['teamId'] as String,
+      firstName: json['firstName'] as String,
+      lastName: json['lastName'] as String,
+      position: json['position'] as String,
+      preferredFoot: json['preferredFoot'] as String,
+      birthDate: DateTime.parse(json['birthDate'] as String),
+      photoPath: json['photoPath'] as String?,
+      medicalInfo: json['medicalInfo'] as Map<String, dynamic>?,
+      emergencyContact: json['emergencyContact'] as Map<String, dynamic>?,
+      goals: (json['goals'] as num?)?.toInt() ?? 0,
+      assists: (json['assists'] as num?)?.toInt() ?? 0,
+      yellowCards: (json['yellowCards'] as num?)?.toInt() ?? 0,
+      redCards: (json['redCards'] as num?)?.toInt() ?? 0,
+      totalMinutes: (json['totalMinutes'] as num?)?.toInt() ?? 0,
+      avgRating: (json['avgRating'] as num?)?.toDouble(),
+      absences: (json['absences'] as num?)?.toInt() ?? 0,
     );
   }
 }

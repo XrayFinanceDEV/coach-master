@@ -3,10 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:coachmaster/services/firebase_auth_service.dart';
-import 'package:coachmaster/services/sync_manager.dart';
+// Legacy sync_manager removed - using Firestore-only architecture now
 import 'package:coachmaster/models/auth_state.dart';
-import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/app_initialization.dart';
+import 'package:coachmaster/core/selected_team_provider.dart';
 
 class FirebaseAuthNotifier extends Notifier<AuthState> {
   FirebaseAuthService? _authService;
@@ -71,11 +71,23 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
     if (kDebugMode) {
       print('🔥 FirebaseAuthNotifier: User signed out');
     }
-    
+
     // 1. Clean up user-specific data
     await _cleanupUserData();
-    
-    // 2. Set unauthenticated state
+
+    // 2. Clear selected team/season to prevent data leakage between accounts
+    try {
+      await ref.read(selectedTeamIdProvider.notifier).clearTeam();
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: Cleared selected team');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: Error clearing selected team - $e');
+      }
+    }
+
+    // 3. Set unauthenticated state
     state = const AuthState.unauthenticated();
   }
   
@@ -85,19 +97,10 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
     }
 
     try {
-      // First, reinitialize local repositories with user-specific boxes
-      // This will skip if already initialized
-      try {
-        await ref.read(repositoryReInitProvider(userId).future);
-
-        if (kDebugMode) {
-          print('🔥 FirebaseAuthNotifier: Repositories initialization completed');
-        }
-      } catch (repoError) {
-        if (kDebugMode) {
-          print('🔥 FirebaseAuthNotifier: Repository initialization error: $repoError');
-        }
-        // Continue without throwing - may just be duplicate initialization
+      // Firebase/Firestore repositories are already initialized globally
+      // No need for user-specific initialization anymore
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: Repositories are ready (Firestore-based)');
       }
 
       // Get Firebase user from auth service
@@ -109,36 +112,24 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
         return; // Continue without sync
       }
 
-      // Initialize SyncManager for the authenticated user
-      await SyncManager.instance.initializeForUser(firebaseUser);
+      // SyncManager removed - Firestore handles sync automatically with offline persistence
+      // No manual sync initialization needed
 
       if (kDebugMode) {
-        print('🔥 FirebaseAuthNotifier: SyncManager initialized for user $userId');
+        print('🔥 FirebaseAuthNotifier: Firestore auto-sync enabled for user $userId');
       }
 
       // Invalidate onboarding status provider to force router to check teams
       ref.invalidate(onboardingStatusProvider);
 
       if (kDebugMode) {
-        print('🔥 FirebaseAuthNotifier: Team data synced, onboarding status refreshed');
+        print('🔥 FirebaseAuthNotifier: Team data available, onboarding status refreshed');
       }
 
-      // Perform initial sync to get user data from Firestore
-      // Force download ensures cross-device data sync works properly
-      try {
-        await SyncManager.instance.forceDownloadAll();
-
-        // Also perform bidirectional sync to upload any local changes
-        await SyncManager.instance.performFullSync();
-
-        if (kDebugMode) {
-          print('🔥 FirebaseAuthNotifier: Initial sync completed for user $userId');
-        }
-      } catch (syncError) {
-        if (kDebugMode) {
-          print('🔥 FirebaseAuthNotifier: Sync failed, continuing with local-only: $syncError');
-        }
-        // Continue without throwing - local mode works fine
+      // Firestore handles initial data sync automatically
+      // Offline persistence ensures data is available even without network
+      if (kDebugMode) {
+        print('🔥 FirebaseAuthNotifier: Firestore managing data sync automatically for user $userId');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -155,14 +146,11 @@ class FirebaseAuthNotifier extends Notifier<AuthState> {
     }
     
     try {
-      // Clean up SyncManager when user signs out
-      await SyncManager.instance.cleanup();
-      
-      // Close user-specific repositories
-      await closeRepositories();
-      
+      // SyncManager removed - Firestore handles cleanup automatically
+      // No manual cleanup needed - streams and listeners are disposed automatically
+
       if (kDebugMode) {
-        print('🔥 FirebaseAuthNotifier: SyncManager cleaned up');
+        print('🔥 FirebaseAuthNotifier: Firestore streams cleaned up automatically');
       }
     } catch (e) {
       if (kDebugMode) {

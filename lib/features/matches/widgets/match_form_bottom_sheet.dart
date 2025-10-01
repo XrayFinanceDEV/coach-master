@@ -354,8 +354,8 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
     try {
       final matchRepository = ref.read(matchRepositoryProvider);
       final teamRepository = ref.read(teamRepositoryProvider);
-      final team = teamRepository.getTeam(widget.teamId);
-      
+      final team = await teamRepository.getTeam(widget.teamId);
+
       if (team == null) {
         throw Exception('Team not found');
       }

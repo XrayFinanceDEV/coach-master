@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/models/match_statistic.dart';
-import 'package:coachmaster/core/repository_instances.dart';
+import 'package:coachmaster/core/firestore_repository_providers.dart';
 
 class MatchStatisticDetailScreen extends ConsumerWidget {
   final String statisticId;
@@ -10,16 +10,30 @@ class MatchStatisticDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final matchStatisticRepository = ref.watch(matchStatisticRepositoryProvider);
-    final statistic = matchStatisticRepository.getStatistic(statisticId);
+    final statisticAsync = ref.watch(statisticStreamProvider(statisticId));
 
-    if (statistic == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Statistic Not Found')),
-        body: const Center(child: Text('Statistic with given ID not found.')),
-      );
-    }
+    return statisticAsync.when(
+      data: (statistic) {
+        if (statistic == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Statistic Not Found')),
+            body: const Center(child: Text('Statistic with given ID not found.')),
+          );
+        }
+        return _buildStatisticDetail(context, ref, statistic);
+      },
+      loading: () => Scaffold(
+        appBar: AppBar(title: const Text('Match Statistic')),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        appBar: AppBar(title: const Text('Error')),
+        body: Center(child: Text('Error: $error')),
+      ),
+    );
+  }
 
+  Widget _buildStatisticDetail(BuildContext context, WidgetRef ref, MatchStatistic statistic) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Match Statistic'),
@@ -44,11 +58,13 @@ class MatchStatisticDetailScreen extends ConsumerWidget {
                       child: const Text('Cancel'),
                     ),
                     FilledButton(
-                      onPressed: () {
-                        matchStatisticRepository.deleteStatistic(statistic.id);
-                        ref.invalidate(matchStatisticRepositoryProvider);
-                        context.pop();
-                        context.go('/matches/${statistic.matchId}');
+                      onPressed: () async {
+                        final matchStatisticRepository = ref.read(matchStatisticRepositoryProvider);
+                        await matchStatisticRepository.deleteStatistic(statistic.id);
+                        if (context.mounted) {
+                          context.pop();
+                          context.go('/matches/${statistic.matchId}');
+                        }
                       },
                       child: const Text('Delete'),
                     ),
@@ -70,8 +86,6 @@ class MatchStatisticDetailScreen extends ConsumerWidget {
             Text('Red Cards: ${statistic.redCards}', style: Theme.of(context).textTheme.titleMedium),
             Text('Minutes Played: ${statistic.minutesPlayed}', style: Theme.of(context).textTheme.titleMedium),
             Text('Rating: ${statistic.rating}', style: Theme.of(context).textTheme.titleMedium),
-            Text('Position: ${statistic.position ?? 'N/A'}', style: Theme.of(context).textTheme.titleMedium),
-            Text('Notes: ${statistic.notes ?? 'N/A'}', style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
       ),
@@ -88,8 +102,6 @@ class MatchStatisticDetailScreen extends ConsumerWidget {
     int redCards = statistic.redCards;
     int minutesPlayed = statistic.minutesPlayed;
     double? rating = statistic.rating;
-    String? position = statistic.position;
-    String? notes = statistic.notes;
 
     showDialog(
       context: context,
@@ -138,16 +150,6 @@ class MatchStatisticDetailScreen extends ConsumerWidget {
                     keyboardType: TextInputType.number,
                     onSaved: (value) => rating = double.tryParse(value!) ?? 6.0,
                   ),
-                  TextFormField(
-                    initialValue: position,
-                    decoration: const InputDecoration(labelText: 'Position'),
-                    onSaved: (value) => position = value,
-                  ),
-                  TextFormField(
-                    initialValue: notes,
-                    decoration: const InputDecoration(labelText: 'Notes'),
-                    onSaved: (value) => notes = value,
-                  ),
                 ],
               ),
             ),
@@ -158,7 +160,7 @@ class MatchStatisticDetailScreen extends ConsumerWidget {
               child: const Text('Cancel'),
             ),
             FilledButton(
-              onPressed: () {
+              onPressed: () async {
                 if (formKey.currentState!.validate()) {
                   formKey.currentState!.save();
                   final updatedStatistic = MatchStatistic(
@@ -171,12 +173,11 @@ class MatchStatisticDetailScreen extends ConsumerWidget {
                     redCards: redCards,
                     minutesPlayed: minutesPlayed,
                     rating: rating,
-                    position: position,
-                    notes: notes,
                   );
-                  matchStatisticRepository.updateStatistic(updatedStatistic);
-                  ref.invalidate(matchStatisticRepositoryProvider);
-                  context.pop();
+                  await matchStatisticRepository.updateStatistic(updatedStatistic);
+                  if (context.mounted) {
+                    context.pop();
+                  }
                 }
               },
               child: const Text('Save'),

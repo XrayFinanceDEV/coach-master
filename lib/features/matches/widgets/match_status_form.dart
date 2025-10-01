@@ -62,17 +62,17 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
     });
   }
 
-  void _loadConvocatedPlayers() {
+  Future<void> _loadConvocatedPlayers() async {
     try {
       // Use read instead of watch to avoid triggering rebuilds during data loading
       final playerRepository = ref.read(playerRepositoryProvider);
       final convocationRepository = ref.read(matchConvocationRepositoryProvider);
       final statisticRepository = ref.read(matchStatisticRepositoryProvider);
-      
-      final players = playerRepository.getPlayersForTeam(widget.match.teamId);
-      final convocations = convocationRepository.getConvocationsForMatch(widget.match.id);
-      final existingStats = statisticRepository.getStatisticsForMatch(widget.match.id);
-      
+
+      final players = await playerRepository.getPlayersForTeam(widget.match.teamId);
+      final convocations = await convocationRepository.getConvocationsForMatch(widget.match.id);
+      final existingStats = await statisticRepository.getStatisticsForMatch(widget.match.id);
+
       final newConvocatedPlayers = players.where((player) =>
           convocations.any((conv) => conv.playerId == player.id) == true).toList();
       
@@ -1240,7 +1240,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       await matchRepository.updateMatch(updatedMatch);
       
       // Delete existing statistics first to avoid duplicates
-      final existingStats = statisticRepository.getStatisticsForMatch(widget.match.id);
+      final existingStats = await statisticRepository.getStatisticsForMatch(widget.match.id);
       for (final stat in existingStats) {
         await statisticRepository.deleteStatistic(stat.id);
       }
@@ -1263,10 +1263,10 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       
       // Update player aggregate statistics from all their match stats
       final playerRepository = ref.read(playerRepositoryProvider);
-      final allMatchStats = statisticRepository.getStatistics();
-      
+      final allMatchStats = await statisticRepository.getStatistics();
+
       // Update stats for all team players (not just convocated ones) to ensure consistency
-      final teamPlayers = playerRepository.getPlayersForTeam(widget.match.teamId);
+      final teamPlayers = await playerRepository.getPlayersForTeam(widget.match.teamId);
       for (final player in teamPlayers) {
         await playerRepository.updatePlayerStatisticsFromMatchStats(player.id, allMatchStats);
       }

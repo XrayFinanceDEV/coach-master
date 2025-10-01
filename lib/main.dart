@@ -1,28 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 
 import 'package:coachmaster/core/router.dart';
 import 'package:coachmaster/core/theme.dart';
 import 'package:coachmaster/core/locale_provider.dart';
-import 'package:coachmaster/models/season.dart';
-import 'package:coachmaster/models/team.dart';
-import 'package:coachmaster/models/player.dart';
-import 'package:coachmaster/models/training.dart';
-import 'package:coachmaster/models/training_attendance.dart';
-import 'package:coachmaster/models/match.dart';
-import 'package:coachmaster/models/match_convocation.dart';
-import 'package:coachmaster/models/match_statistic.dart';
-import 'package:coachmaster/models/onboarding_settings.dart';
-import 'package:coachmaster/models/user.dart';
-import 'package:coachmaster/models/note.dart';
-import 'package:coachmaster/models/sync_status.dart';
-import 'package:coachmaster/models/sync_metadata.dart';
 import 'package:coachmaster/core/app_initialization.dart';
 
 void main() async {
@@ -32,53 +19,19 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
-  // Initialize Hive with proper persistent storage directory
-  if (kIsWeb) {
-    await Hive.initFlutter('coachmaster_db');
-  } else {
-    // Use initFlutter for mobile to ensure proper app-specific storage
-    await Hive.initFlutter('coachmaster_db');
-  }
-  
+
+  // Configure Firestore offline persistence (single source of truth)
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true, // Enable offline caching
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED, // No cache size limit
+  );
+
   if (kDebugMode) {
-    print('=== HIVE INITIALIZATION DEBUG ===');
-    print('Platform: ${kIsWeb ? "Web" : "Native"}');
-    print('Hive initialized with subdir: coachmaster_db');
+    print('🔥 Firebase initialized with offline persistence');
+    print('✅ Firestore is the single source of truth');
   }
-  
-  // Register all Hive adapters - check if already registered to prevent conflicts
-  _registerAdapterSafely(() => Hive.registerAdapter(SeasonAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(TeamAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(PlayerAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(TrainingAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(TimeOfDayAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(TrainingAttendanceAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(TrainingAttendanceStatusAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(MatchAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(MatchStatusAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(MatchResultAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(MatchConvocationAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(PlayerMatchStatusAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(MatchStatisticAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(OnboardingSettingsAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(UserAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(NoteTypeAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(NoteAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(SyncStatusAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(SyncMetadataAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(SyncOperationAdapter()));
-  _registerAdapterSafely(() => Hive.registerAdapter(PendingSyncOperationAdapter()));
 
   runApp(const ProviderScope(child: CoachMasterApp()));
-}
-
-void _registerAdapterSafely(Function registerFunction) {
-  try {
-    registerFunction();
-  } catch (e) {
-    // Adapter already registered, ignore
-  }
 }
 
 class CoachMasterApp extends ConsumerWidget {

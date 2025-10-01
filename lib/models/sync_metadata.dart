@@ -1,34 +1,12 @@
-import 'package:hive/hive.dart';
-
-part 'sync_metadata.g.dart';
-
-@HiveType(typeId: 20)
 class SyncMetadata {
-  @HiveField(0)
   final String id;
-  
-  @HiveField(1)
   final String entityType; // 'season', 'team', 'player', etc.
-  
-  @HiveField(2)
   final String entityId;
-  
-  @HiveField(3)
   final DateTime lastModified;
-  
-  @HiveField(4)
   final DateTime? lastSynced;
-  
-  @HiveField(5)
   final bool needsSync;
-  
-  @HiveField(6)
   final bool isDeleted;
-  
-  @HiveField(7)
   final String? userId; // Firebase user ID
-  
-  @HiveField(8)
   final Map<String, dynamic>? conflictData; // For conflict resolution
 
   const SyncMetadata({
@@ -129,42 +107,51 @@ class SyncMetadata {
   int get hashCode {
     return id.hashCode ^ entityType.hashCode ^ entityId.hashCode;
   }
+
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'entityType': entityType,
+      'entityId': entityId,
+      'lastModified': lastModified.toIso8601String(),
+      'lastSynced': lastSynced?.toIso8601String(),
+      'needsSync': needsSync,
+      'isDeleted': isDeleted,
+      'userId': userId,
+      'conflictData': conflictData,
+    };
+  }
+
+  factory SyncMetadata.fromJson(Map<String, dynamic> json) {
+    return SyncMetadata(
+      id: json['id'] as String,
+      entityType: json['entityType'] as String,
+      entityId: json['entityId'] as String,
+      lastModified: DateTime.parse(json['lastModified'] as String),
+      lastSynced: json['lastSynced'] != null ? DateTime.parse(json['lastSynced'] as String) : null,
+      needsSync: json['needsSync'] as bool,
+      isDeleted: json['isDeleted'] as bool,
+      userId: json['userId'] as String?,
+      conflictData: json['conflictData'] as Map<String, dynamic>?,
+    );
+  }
 }
 
-@HiveType(typeId: 22)
 enum SyncOperation {
-  @HiveField(0)
   create,
-  @HiveField(1)
   update,
-  @HiveField(2)
   delete,
 }
 
-@HiveType(typeId: 21)
 class PendingSyncOperation {
-  @HiveField(0)
   final String id;
-  
-  @HiveField(1)
   final String entityType;
-  
-  @HiveField(2)
   final String entityId;
-  
-  @HiveField(3)
   final SyncOperation operation;
-  
-  @HiveField(4)
   final DateTime timestamp;
-  
-  @HiveField(5)
   final Map<String, dynamic>? entityData; // Serialized entity
-  
-  @HiveField(6)
   final String userId;
-  
-  @HiveField(7)
   final int retryCount;
 
   const PendingSyncOperation({
@@ -212,5 +199,32 @@ class PendingSyncOperation {
   @override
   String toString() {
     return 'PendingSyncOperation(id: $id, entityType: $entityType, operation: ${operation.name}, retryCount: $retryCount)';
+  }
+
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'entityType': entityType,
+      'entityId': entityId,
+      'operation': operation.name,
+      'timestamp': timestamp.toIso8601String(),
+      'entityData': entityData,
+      'userId': userId,
+      'retryCount': retryCount,
+    };
+  }
+
+  factory PendingSyncOperation.fromJson(Map<String, dynamic> json) {
+    return PendingSyncOperation(
+      id: json['id'] as String,
+      entityType: json['entityType'] as String,
+      entityId: json['entityId'] as String,
+      operation: SyncOperation.values.firstWhere((e) => e.name == json['operation']),
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      entityData: json['entityData'] as Map<String, dynamic>?,
+      userId: json['userId'] as String,
+      retryCount: (json['retryCount'] as num?)?.toInt() ?? 0,
+    );
   }
 }

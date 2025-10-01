@@ -1,16 +1,7 @@
-import 'package:hive/hive.dart';
-
-part 'season.g.dart';
-
-@HiveType(typeId: 0)
 class Season {
-  @HiveField(0)
   final String id;
-  @HiveField(1)
   final String name;
-  @HiveField(2)
   final DateTime startDate;
-  @HiveField(3)
   final DateTime endDate;
 
   Season({
@@ -32,6 +23,25 @@ class Season {
       name: name,
       startDate: startDate ?? DateTime(now.year, 7, 1), // July 1st default
       endDate: endDate ?? DateTime(now.year + 1, 6, 30), // June 30th next year default
+    );
+  }
+
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+    };
+  }
+
+  factory Season.fromJson(Map<String, dynamic> json) {
+    return Season(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      startDate: DateTime.parse(json['startDate'] as String),
+      endDate: DateTime.parse(json['endDate'] as String),
     );
   }
 }

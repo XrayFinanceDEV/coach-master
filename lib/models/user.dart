@@ -1,31 +1,11 @@
-import 'package:hive/hive.dart';
-
-part 'user.g.dart';
-
-@HiveType(typeId: 14)
-class User extends HiveObject {
-  @HiveField(0)
+class User {
   final String id;
-  
-  @HiveField(1)
   final String name;
-  
-  @HiveField(2)
   final String email;
-  
-  @HiveField(3)
   final String passwordHash;
-  
-  @HiveField(4)
   final String? currentSeasonId;
-  
-  @HiveField(5)
   final String? currentTeamId;
-  
-  @HiveField(6)
   final DateTime createdAt;
-  
-  @HiveField(7)
   final bool isOnboardingCompleted;
 
   User({
@@ -79,6 +59,33 @@ class User extends HiveObject {
       currentTeamId: currentTeamId ?? this.currentTeamId,
       createdAt: createdAt ?? this.createdAt,
       isOnboardingCompleted: isOnboardingCompleted ?? this.isOnboardingCompleted,
+    );
+  }
+
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'passwordHash': passwordHash,
+      'currentSeasonId': currentSeasonId,
+      'currentTeamId': currentTeamId,
+      'createdAt': createdAt.toIso8601String(),
+      'isOnboardingCompleted': isOnboardingCompleted,
+    };
+  }
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      email: json['email'] as String,
+      passwordHash: json['passwordHash'] as String,
+      currentSeasonId: json['currentSeasonId'] as String?,
+      currentTeamId: json['currentTeamId'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      isOnboardingCompleted: json['isOnboardingCompleted'] as bool,
     );
   }
 }

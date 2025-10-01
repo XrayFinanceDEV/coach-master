@@ -6,6 +6,7 @@ import 'package:coachmaster/models/season.dart';
 import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/app_initialization.dart';
+import 'package:coachmaster/core/selected_team_provider.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -70,11 +71,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         print('🚀 Onboarding: Team saved to repository');
 
         // Verify the team was actually saved
-        final allTeams = teamRepo.getTeams();
+        final allTeams = await teamRepo.getTeams();
         print('🚀 Onboarding: Total teams after creation: ${allTeams.length}');
         for (final t in allTeams) {
           print('🚀 Onboarding: Team found: ${t.name} (ID: ${t.id})');
         }
+      }
+
+      // Select the newly created team and season globally
+      final teamNotifier = ref.read(selectedTeamIdProvider.notifier);
+      await teamNotifier.selectTeam(team.id);
+      await teamNotifier.setSelectedSeasonId(season.id);
+
+      if (kDebugMode) {
+        print('🚀 Onboarding: Selected team ${team.id} and season ${season.id} globally');
       }
 
       // Increment refresh counter to trigger UI rebuilds across the app
@@ -92,7 +102,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         print('🚀 Onboarding: onboardingStatusProvider says hasTeams: $hasTeams');
 
         // Double-check by reading teams directly
-        final directCheck = teamRepo.getTeams();
+        final directCheck = await teamRepo.getTeams();
         print('🚀 Onboarding: Direct team check shows ${directCheck.length} teams');
 
         print('🚀 Onboarding: Redirecting to main app');

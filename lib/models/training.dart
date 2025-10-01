@@ -1,25 +1,13 @@
-import 'package:hive/hive.dart';
-import 'package:flutter/material.dart'; // Added import for TimeOfDay
+import 'package:flutter/material.dart';
 
-part 'training.g.dart';
-
-@HiveType(typeId: 3)
 class Training {
-  @HiveField(0)
   final String id;
-  @HiveField(1)
   final String teamId;
-  @HiveField(2)
   final DateTime date;
-  @HiveField(3)
   final TimeOfDay startTime;
-  @HiveField(4)
   final TimeOfDay endTime;
-  @HiveField(5)
   final String location;
-  @HiveField(6)
   final List<String> objectives;
-  @HiveField(7)
   final String? coachNotes;
 
   Training({
@@ -53,23 +41,40 @@ class Training {
       coachNotes: coachNotes,
     );
   }
-}
 
-// Custom TypeAdapter for TimeOfDay
-class TimeOfDayAdapter extends TypeAdapter<TimeOfDay> {
-  @override
-  final typeId = 4;
-
-  @override
-  TimeOfDay read(BinaryReader reader) {
-    final hour = reader.readInt();
-    final minute = reader.readInt();
-    return TimeOfDay(hour: hour, minute: minute);
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'teamId': teamId,
+      'date': date.toIso8601String(),
+      'startTime': '${startTime.hour}:${startTime.minute}',
+      'endTime': '${endTime.hour}:${endTime.minute}',
+      'location': location,
+      'objectives': objectives,
+      'coachNotes': coachNotes,
+    };
   }
 
-  @override
-  void write(BinaryWriter writer, TimeOfDay obj) {
-    writer.writeInt(obj.hour);
-    writer.writeInt(obj.minute);
+  factory Training.fromJson(Map<String, dynamic> json) {
+    final startTimeParts = (json['startTime'] as String).split(':');
+    final endTimeParts = (json['endTime'] as String).split(':');
+
+    return Training(
+      id: json['id'] as String,
+      teamId: json['teamId'] as String,
+      date: DateTime.parse(json['date'] as String),
+      startTime: TimeOfDay(
+        hour: int.parse(startTimeParts[0]),
+        minute: int.parse(startTimeParts[1]),
+      ),
+      endTime: TimeOfDay(
+        hour: int.parse(endTimeParts[0]),
+        minute: int.parse(endTimeParts[1]),
+      ),
+      location: json['location'] as String,
+      objectives: List<String>.from(json['objectives'] as List),
+      coachNotes: json['coachNotes'] as String?,
+    );
   }
 }

@@ -1,36 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-const String _localeBoxName = 'locale_settings';
 const String _localeKey = 'selected_locale';
 
-// Change StateNotifier to Notifier
 class LocaleNotifier extends Notifier<Locale> {
-
-  // The build method replaces the constructor for initial state and setup
   @override
   Locale build() {
     _loadLocale(); // Load the locale asynchronously
-    return const Locale('en'); // Initial default state
+    return const Locale('it'); // Italian by default for new users
   }
 
   Future<void> _loadLocale() async {
     try {
-      final box = await Hive.openBox(_localeBoxName);
-      final localeCode = box.get(_localeKey, defaultValue: 'en') as String;
-      // Use state = newValue to update the state
+      final prefs = await SharedPreferences.getInstance();
+      final localeCode = prefs.getString(_localeKey) ?? 'it';
       state = Locale(localeCode);
     } catch (e) {
-      // If there's an error, fallback to English
-      state = const Locale('en');
+      // If there's an error, fallback to Italian
+      state = const Locale('it');
     }
   }
 
   Future<void> setLocale(Locale locale) async {
     try {
-      final box = await Hive.openBox(_localeBoxName);
-      await box.put(_localeKey, locale.languageCode);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_localeKey, locale.languageCode);
       state = locale;
     } catch (e) {
       // Handle error silently, keep current locale

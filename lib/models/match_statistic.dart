@@ -1,30 +1,14 @@
-import 'package:hive/hive.dart';
-
-part 'match_statistic.g.dart';
-
-@HiveType(typeId: 8)
 class MatchStatistic {
-  @HiveField(0)
   final String id;
-  @HiveField(1)
   final String matchId;
-  @HiveField(2)
   final String playerId;
-  @HiveField(3)
   final int goals;
-  @HiveField(4)
   final int assists;
-  @HiveField(5)
   final int yellowCards;
-  @HiveField(6)
   final int redCards;
-  @HiveField(7)
   final int minutesPlayed;
-  @HiveField(8)
   final double? rating;
-  @HiveField(9)
   final String? position;
-  @HiveField(10)
   final String? notes;
 
   MatchStatistic({
@@ -65,6 +49,39 @@ class MatchStatistic {
       rating: rating,
       position: position,
       notes: notes,
+    );
+  }
+
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'matchId': matchId,
+      'playerId': playerId,
+      'goals': goals,
+      'assists': assists,
+      'yellowCards': yellowCards,
+      'redCards': redCards,
+      'minutesPlayed': minutesPlayed,
+      'rating': rating,
+      'position': position,
+      'notes': notes,
+    };
+  }
+
+  factory MatchStatistic.fromJson(Map<String, dynamic> json) {
+    return MatchStatistic(
+      id: json['id'] as String,
+      matchId: json['matchId'] as String,
+      playerId: json['playerId'] as String,
+      goals: (json['goals'] as num?)?.toInt() ?? 0,
+      assists: (json['assists'] as num?)?.toInt() ?? 0,
+      yellowCards: (json['yellowCards'] as num?)?.toInt() ?? 0,
+      redCards: (json['redCards'] as num?)?.toInt() ?? 0,
+      minutesPlayed: (json['minutesPlayed'] as num?)?.toInt() ?? 0,
+      rating: (json['rating'] as num?)?.toDouble(),
+      position: json['position'] as String?,
+      notes: json['notes'] as String?,
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/models/season.dart';
-import 'package:coachmaster/core/repository_instances.dart';
+import 'package:coachmaster/core/firestore_repository_providers.dart';
 import 'package:coachmaster/features/teams/team_list_screen.dart';
 
 class SeasonDetailScreen extends ConsumerWidget {
@@ -11,16 +11,30 @@ class SeasonDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonRepository = ref.watch(seasonRepositoryProvider);
-    final season = seasonRepository.getSeason(seasonId);
+    final seasonAsync = ref.watch(seasonStreamProvider(seasonId));
 
-    if (season == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Season Not Found')),
-        body: const Center(child: Text('Season with given ID not found.')),
-      );
-    }
+    return seasonAsync.when(
+      data: (season) {
+        if (season == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Season Not Found')),
+            body: const Center(child: Text('Season with given ID not found.')),
+          );
+        }
+        return _buildSeasonDetail(context, ref, season);
+      },
+      loading: () => Scaffold(
+        appBar: AppBar(title: const Text('Loading...')),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        appBar: AppBar(title: const Text('Error')),
+        body: Center(child: Text('Error loading season: $error')),
+      ),
+    );
+  }
 
+  Widget _buildSeasonDetail(BuildContext context, WidgetRef ref, Season season) {
     return Scaffold(
       appBar: AppBar(
         title: Text(season.name),
@@ -45,11 +59,13 @@ class SeasonDetailScreen extends ConsumerWidget {
                       child: const Text('Cancel'),
                     ),
                     FilledButton(
-                      onPressed: () {
-                        seasonRepository.deleteSeason(season.id);
-                        ref.invalidate(seasonRepositoryProvider);
-                        context.pop(); // Close dialog
-                        context.go('/seasons'); // Go back to season list
+                      onPressed: () async {
+                        final seasonRepository = ref.read(seasonRepositoryProvider);
+                        await seasonRepository.deleteSeason(season.id);
+                        if (context.mounted) {
+                          context.pop(); // Close dialog
+                          context.go('/seasons'); // Go back to season list
+                        }
                       },
                       child: const Text('Delete'),
                     ),
@@ -146,7 +162,7 @@ class SeasonDetailScreen extends ConsumerWidget {
               child: const Text('Cancel'),
             ),
             FilledButton(
-              onPressed: () {
+              onPressed: () async {
                 if (formKey.currentState!.validate()) {
                   formKey.currentState!.save();
                   final updatedSeason = Season(
@@ -155,9 +171,10 @@ class SeasonDetailScreen extends ConsumerWidget {
                     startDate: startDate,
                     endDate: endDate,
                   );
-                  seasonRepository.updateSeason(updatedSeason);
-                  ref.invalidate(seasonRepositoryProvider);
-                  context.pop();
+                  await seasonRepository.updateSeason(updatedSeason);
+                  if (context.mounted) {
+                    context.pop();
+                  }
                 }
               },
               child: const Text('Save'),

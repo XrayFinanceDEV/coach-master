@@ -330,9 +330,9 @@ class _ConvocationManagementBottomSheetState extends ConsumerState<ConvocationMa
 
     try {
       final convocationRepository = ref.read(matchConvocationRepositoryProvider);
-      
+
       // First, delete all existing convocations for this match
-      final existingConvocations = convocationRepository.getConvocationsForMatch(widget.matchId);
+      final existingConvocations = await convocationRepository.getConvocationsForMatch(widget.matchId);
       for (final convocation in existingConvocations) {
         await convocationRepository.deleteConvocation(convocation.id);
       }

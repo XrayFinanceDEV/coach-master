@@ -108,9 +108,9 @@ class LeaderboardsSectionOptimized extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             if (filteredPlayers.isEmpty)
-              _buildEmptyLeaderboard()
+              _buildEmptyLeaderboard(context)
             else
               Column(
                 children: filteredPlayers.asMap().entries.map((entry) {
@@ -130,7 +130,7 @@ class LeaderboardsSectionOptimized extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyLeaderboard() {
+  Widget _buildEmptyLeaderboard(BuildContext context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -143,7 +143,7 @@ class LeaderboardsSectionOptimized extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'No data yet',
+              AppLocalizations.of(context)!.noDataYetShort,
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 16,
@@ -151,7 +151,7 @@ class LeaderboardsSectionOptimized extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Stats will appear after matches',
+              AppLocalizations.of(context)!.statsWillAppearAfterMatches,
               style: TextStyle(
                 color: Colors.grey[500],
                 fontSize: 12,
@@ -180,7 +180,7 @@ class OptimizedPlayerRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final imageProvider = ref.watch(playerImageProvider(player.id));
+    final imageProviderAsync = ref.watch(playerImageProvider(player.id));
 
     return InkWell(
       onTap: () => context.go('/players/${player.id}'),
@@ -213,21 +213,47 @@ class OptimizedPlayerRow extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 12),
-            
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-              backgroundImage: imageProvider,
-              child: imageProvider == null
-                  ? Text(
-                      '${player.firstName[0]}${player.lastName[0]}'.toUpperCase(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    )
-                  : null,
+
+            imageProviderAsync.when(
+              data: (imageProvider) => CircleAvatar(
+                radius: 16,
+                backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                backgroundImage: imageProvider,
+                child: imageProvider == null
+                    ? Text(
+                        '${player.firstName[0]}${player.lastName[0]}'.toUpperCase(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      )
+                    : null,
+              ),
+              loading: () => CircleAvatar(
+                radius: 16,
+                backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                child: Text(
+                  '${player.firstName[0]}${player.lastName[0]}'.toUpperCase(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+              error: (_, __) => CircleAvatar(
+                radius: 16,
+                backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                child: Text(
+                  '${player.firstName[0]}${player.lastName[0]}'.toUpperCase(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: 12),
             

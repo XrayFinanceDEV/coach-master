@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 import 'package:coachmaster/models/player.dart';
-import 'package:coachmaster/core/repository_instances.dart';
+import 'package:coachmaster/core/firestore_repository_providers.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
 import 'package:coachmaster/core/image_utils.dart';
 
@@ -34,13 +34,48 @@ class _PlayerCardsGridState extends ConsumerState<PlayerCardsGrid> {
 
   @override
   Widget build(BuildContext context) {
-    // Get fresh player data directly from repository
-    final playerRepository = ref.watch(playerRepositoryProvider);
+    // Watch stream provider for real-time player data
+    final playersAsync = ref.watch(playersForTeamStreamProvider(widget.teamId));
     // Watch for image updates to force rebuilds
     ref.watch(playerImageUpdateProvider);
-    // Watch refresh counter for Firebase sync updates
-    ref.watch(refreshCounterProvider);
-    final players = playerRepository.getPlayersForTeam(widget.teamId) as List<Player>;
+
+    return playersAsync.when(
+      data: (players) => _buildContent(players),
+      loading: () => Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.people, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${AppLocalizations.of(context)!.players} - ${widget.teamName}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Center(child: CircularProgressIndicator()),
+            ],
+          ),
+        ),
+      ),
+      error: (error, stack) => Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Center(child: Text('${AppLocalizations.of(context)!.error}: $error')),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(List<Player> players) {
     final sortedPlayers = _sortPlayers(players);
 
     return Card(

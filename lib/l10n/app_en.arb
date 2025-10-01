@@ -299,5 +299,64 @@
   "giocatori": "players",
   "syncData": "Sync Data",
   "dataSyncedSuccessfully": "Data synced successfully!",
-  "errorSyncingData": "Error syncing data"
+  "errorSyncingData": "Error syncing data",
+  "errorLoadingPlayers": "Error loading players: {error}",
+  "@errorLoadingPlayers": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingPlayer": "Error loading player: {error}",
+  "@errorLoadingPlayer": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingNotes": "Error loading notes: {error}",
+  "@errorLoadingNotes": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingTeam": "Error loading team: {error}",
+  "@errorLoadingTeam": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingMatches": "Error loading matches: {error}",
+  "@errorLoadingMatches": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingAttendances": "Error loading attendances: {error}",
+  "@errorLoadingAttendances": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingConvocatedPlayers": "Error loading convocated players",
+  "errorOccurred": "An error occurred",
+  "tryAgain": "Try again",
+  "teamNotFound": "Team not found",
+  "noTrainingsScheduled": "No trainings scheduled",
+  "createFirstTrainingToStart": "Create your first training to start tracking attendance",
+  "error": "Error",
+  "noDataYetShort": "No data yet",
+  "statsWillAppearAfterMatches": "Stats will appear after matches",
+  "mostAbsences": "Most Absences",
+  "errorLoadingLeaderboards": "Error loading leaderboards. Please try again."
 }

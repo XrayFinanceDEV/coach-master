@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 import 'package:coachmaster/models/player.dart';
-import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/image_utils.dart';
 
 class LeaderboardsSection extends ConsumerWidget {
@@ -18,8 +17,6 @@ class LeaderboardsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final playerRepo = ref.watch(playerRepositoryProvider);
-    
     // Add null check for teamId
     if (teamId.isEmpty) {
       return Column(
@@ -42,25 +39,25 @@ class LeaderboardsSection extends ConsumerWidget {
         ],
       );
     }
-    
+
     try {
-      debugPrint('LeaderboardsSection building for teamId: $teamId');
-      // Get top 5 lists
-      final topScorers = playerRepo.getTopScorers(teamId, limit: 5);
-      final topAssistors = playerRepo.getTopAssistors(teamId, limit: 5);
-      final topRated = playerRepo.getTopRated(teamId, limit: 5);
-      final mostAbsences = playerRepo.getMostAbsences(teamId, limit: 5);
+      debugPrint('LeaderboardsSection building for teamId: $teamId with ${players.length} players');
+
+      // Sort players by different stats (instead of calling async repository methods)
+      final topScorers = [...players]
+        ..sort((a, b) => b.goals.compareTo(a.goals));
+      final topAssistors = [...players]
+        ..sort((a, b) => b.assists.compareTo(a.assists));
+      final topRated = [...players]
+        ..sort((a, b) => (b.avgRating ?? 0).compareTo(a.avgRating ?? 0));
+      final mostAbsences = [...players]
+        ..sort((a, b) => b.absences.compareTo(a.absences));
 
       debugPrint('Creating leaderboard cards...');
       debugPrint('Top scorers: ${topScorers.length} players');
       debugPrint('Top assistors: ${topAssistors.length} players');
       debugPrint('Top rated: ${topRated.length} players');
       debugPrint('Most absences: ${mostAbsences.length} players');
-
-      // Debug absences data
-      for (final player in mostAbsences) {
-        debugPrint('Player ${player.firstName} ${player.lastName}: ${player.absences} absences');
-      }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +69,7 @@ class LeaderboardsSection extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Top Scorers Card
         _buildLeaderboardCard(
           context,
@@ -83,9 +80,9 @@ class LeaderboardsSection extends ConsumerWidget {
           getStatValue: (player) => player.goals.toString(),
           statLabel: 'goals',
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Top Assistors Card
         _buildLeaderboardCard(
           context,
@@ -96,9 +93,9 @@ class LeaderboardsSection extends ConsumerWidget {
           getStatValue: (player) => player.assists.toString(),
           statLabel: 'assists',
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Highest Rated Card
         _buildLeaderboardCard(
           context,
@@ -109,13 +106,13 @@ class LeaderboardsSection extends ConsumerWidget {
           getStatValue: (player) => player.avgRating?.toStringAsFixed(1) ?? '0.0',
           statLabel: 'rating',
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Most Absences Card
         _buildLeaderboardCard(
           context,
-          title: 'Most Absences',
+          title: AppLocalizations.of(context)!.mostAbsences,
           icon: Icons.cancel,
           color: Colors.red,
           players: mostAbsences,
@@ -141,7 +138,7 @@ class LeaderboardsSection extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'Error loading leaderboards. Please try again.',
+                AppLocalizations.of(context)!.errorLoadingLeaderboards,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
@@ -161,7 +158,7 @@ class LeaderboardsSection extends ConsumerWidget {
     required String statLabel,
   }) {
     debugPrint('Building leaderboard card: $title with ${players.length} players');
-    
+
     // Filter players with stats > 0
     final filteredPlayers = players.where((player) {
       if (statLabel == 'goals') return player.goals > 0;
@@ -170,7 +167,7 @@ class LeaderboardsSection extends ConsumerWidget {
       if (statLabel == 'absences') return player.absences > 0;
       return true;
     }).take(5).toList();
-    
+
     return Card(
       elevation: 4,
       child: Padding(
@@ -193,7 +190,7 @@ class LeaderboardsSection extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Players List
             if (filteredPlayers.isEmpty)
               Center(
@@ -208,7 +205,7 @@ class LeaderboardsSection extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'No data yet',
+                        AppLocalizations.of(context)!.noDataYetShort,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 16,
@@ -216,7 +213,7 @@ class LeaderboardsSection extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Stats will appear after matches',
+                        AppLocalizations.of(context)!.statsWillAppearAfterMatches,
                         style: TextStyle(
                           color: Colors.grey[500],
                           fontSize: 12,
@@ -279,7 +276,7 @@ class LeaderboardsSection extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 12),
-            
+
             // Player avatar (using safe image utility)
             ImageUtils.buildPlayerAvatar(
               firstName: player.firstName,
@@ -291,7 +288,7 @@ class LeaderboardsSection extends ConsumerWidget {
               fontSize: 10,
             ),
             const SizedBox(width: 12),
-            
+
             // Player name
             Expanded(
               child: Text(
@@ -299,7 +296,7 @@ class LeaderboardsSection extends ConsumerWidget {
                 style: Theme.of(context).textTheme.titleSmall,
               ),
             ),
-            
+
             // Stat value
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

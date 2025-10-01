@@ -1,18 +1,8 @@
-import 'package:hive/hive.dart';
-
-part 'team.g.dart';
-
-@HiveType(typeId: 1)
 class Team {
-  @HiveField(0)
   final String id;
-  @HiveField(1)
   final String seasonId;
-  @HiveField(2)
   final String name;
-  @HiveField(3)
   final String? description;
-  @HiveField(4)
   final String? logoPath; // Local path to the logo file
 
   Team({
@@ -35,6 +25,27 @@ class Team {
       name: name,
       description: description,
       logoPath: logoPath,
+    );
+  }
+
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'seasonId': seasonId,
+      'name': name,
+      'description': description,
+      'logoPath': logoPath,
+    };
+  }
+
+  factory Team.fromJson(Map<String, dynamic> json) {
+    return Team(
+      id: json['id'] as String,
+      seasonId: json['seasonId'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String?,
+      logoPath: json['logoPath'] as String?,
     );
   }
 }

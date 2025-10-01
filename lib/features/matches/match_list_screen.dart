@@ -3,9 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/models/match.dart';
 import 'package:coachmaster/models/player.dart';
-import 'package:coachmaster/core/repository_instances.dart';
-import 'package:coachmaster/services/base_match_convocation_repository.dart';
-import 'package:coachmaster/services/base_match_statistic_repository.dart';
+import 'package:coachmaster/core/firestore_repository_providers.dart';
 import 'package:coachmaster/features/matches/widgets/match_form_bottom_sheet.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 
@@ -20,16 +18,9 @@ class MatchListScreen extends ConsumerStatefulWidget {
 class _MatchListScreenState extends ConsumerState<MatchListScreen> {
   @override
   Widget build(BuildContext context) {
-    final matchRepository = ref.watch(matchRepositoryProvider);
-    final teamRepository = ref.watch(teamRepositoryProvider);
-    final playerRepository = ref.watch(playerRepositoryProvider);
-    final convocationRepository = ref.watch(matchConvocationRepositoryProvider);
-    final statisticRepository = ref.watch(matchStatisticRepositoryProvider);
-    
-    final matches = (matchRepository.getMatchesForTeam(widget.teamId) as List<Match>)
-      ..sort((a, b) => b.date.compareTo(a.date)); // Sort by date, newest first
-    final team = teamRepository.getTeam(widget.teamId);
-    final players = playerRepository.getPlayersForTeam(widget.teamId);
+    final matchesAsync = ref.watch(matchesForTeamStreamProvider(widget.teamId));
+    final teamAsync = ref.watch(teamStreamProvider(widget.teamId));
+    final playersAsync = ref.watch(playersForTeamStreamProvider(widget.teamId));
 
     return Scaffold(
       appBar: AppBar(
@@ -48,39 +39,68 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
           ),
         ],
       ),
-      body: matches.isEmpty 
-        ? _buildEmptyState()
-        : Column(
-            children: [
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: matches.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final match = matches[index];
-                    return _buildMatchCard(match, team, players, convocationRepository, statisticRepository);
-                  },
-                ),
-              ),
-              
-              // Add Match button at bottom
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.tonalIcon(
-                    onPressed: _showAddMatchBottomSheet,
-                    icon: const Icon(Icons.add),
-                    label: Text(AppLocalizations.of(context)!.addMatch),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.all(16),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+      body: matchesAsync.when(
+        data: (matches) {
+          final sortedMatches = List<Match>.from(matches)
+            ..sort((a, b) => b.date.compareTo(a.date)); // Sort by date, newest first
+
+          if (sortedMatches.isEmpty) {
+            return _buildEmptyState();
+          }
+
+          return teamAsync.when(
+            data: (team) {
+              if (team == null) {
+                return Center(child: Text(AppLocalizations.of(context)!.teamNotFound));
+              }
+
+              return playersAsync.when(
+                data: (players) => _buildMatchList(sortedMatches, team, players),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(child: Text(AppLocalizations.of(context)!.errorLoadingPlayers(error.toString()))),
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) => Center(child: Text(AppLocalizations.of(context)!.errorLoadingTeam(error.toString()))),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text(AppLocalizations.of(context)!.errorLoadingMatches(error.toString()))),
+      ),
+    );
+  }
+
+  Widget _buildMatchList(List<Match> matches, team, List<Player> players) {
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: matches.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final match = matches[index];
+              return _buildMatchCard(match, team, players);
+            },
           ),
+        ),
+
+        // Add Match button at bottom
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton.tonalIcon(
+              onPressed: _showAddMatchBottomSheet,
+              icon: const Icon(Icons.add),
+              label: Text(AppLocalizations.of(context)!.addMatch),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.all(16),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -121,17 +141,60 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
   }
 
 
-  Widget _buildMatchCard(Match match, team, List<Player> players, 
-      BaseMatchConvocationRepository convocationRepository, 
-      BaseMatchStatisticRepository statisticRepository) {
-    // Get convocation data for this match
-    final convocationsData = convocationRepository.getConvocationsForMatch(match.id);
-    final convocationCount = convocationsData.length;
-    
-    // Check if match has been completed (has statistics)
-    final hasStatistics = statisticRepository.getStatisticsForMatch(match.id).isNotEmpty;
+  Widget _buildMatchCard(Match match, team, List<Player> players) {
     final isCompleted = match.status == MatchStatus.completed;
+    final convocationsAsync = ref.watch(convocationsForMatchStreamProvider(match.id));
+    final statisticsAsync = ref.watch(statisticsForMatchStreamProvider(match.id));
 
+    return convocationsAsync.when(
+      data: (convocations) => statisticsAsync.when(
+        data: (statistics) => _buildMatchCardContent(
+          match,
+          team,
+          players,
+          convocations.length,
+          statistics.isNotEmpty,
+          isCompleted,
+        ),
+        loading: () => _buildMatchCardLoading(match, team, isCompleted),
+        error: (_, __) => _buildMatchCardContent(match, team, players, 0, false, isCompleted),
+      ),
+      loading: () => _buildMatchCardLoading(match, team, isCompleted),
+      error: (_, __) => statisticsAsync.when(
+        data: (statistics) => _buildMatchCardContent(match, team, players, 0, statistics.isNotEmpty, isCompleted),
+        loading: () => _buildMatchCardLoading(match, team, isCompleted),
+        error: (_, __) => _buildMatchCardContent(match, team, players, 0, false, isCompleted),
+      ),
+    );
+  }
+
+  Widget _buildMatchCardLoading(Match match, team, bool isCompleted) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(match.isHome ? Icons.home : Icons.flight_takeoff,
+                color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                match.isHome
+                  ? 'vs ${match.opponent}'
+                  : '@ ${match.opponent}',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            const SizedBox(width: 8, height: 8, child: CircularProgressIndicator(strokeWidth: 2)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMatchCardContent(Match match, team, List<Player> players, int convocationCount, bool hasStatistics, bool isCompleted) {
     return InkWell(
       onTap: () => _showMatchDetail(match),
       borderRadius: BorderRadius.circular(12),

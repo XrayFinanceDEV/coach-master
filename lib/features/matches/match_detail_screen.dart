@@ -6,6 +6,7 @@ import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/models/match_statistic.dart';
 import 'package:coachmaster/models/note.dart';
 import 'package:coachmaster/core/repository_instances.dart';
+import 'package:coachmaster/core/firestore_repository_providers.dart';
 import 'package:coachmaster/features/matches/widgets/convocation_management_bottom_sheet.dart';
 import 'package:coachmaster/features/matches/widgets/match_status_form.dart';
 import 'package:coachmaster/features/matches/widgets/match_form_bottom_sheet.dart';
@@ -24,50 +25,59 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Watch refresh counter to trigger rebuilds when data changes
-    ref.watch(refreshCounterProvider);
-    
-    final matchRepository = ref.watch(matchRepositoryProvider);
-    final playerRepository = ref.watch(playerRepositoryProvider);
-    final convocationRepository = ref.watch(matchConvocationRepositoryProvider);
-    final statisticRepository = ref.watch(matchStatisticRepositoryProvider);
-    final teamRepository = ref.watch(teamRepositoryProvider);
-    
-    final match = matchRepository.getMatch(widget.matchId);
+    final localizations = AppLocalizations.of(context)!;
 
-    if (match == null) {
-      return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.matchNotFound)),
-        body: Center(child: Text(AppLocalizations.of(context)!.matchNotFoundMessage)),
-      );
-    }
+    // Use stream provider for real-time updates
+    final matchAsync = ref.watch(matchStreamProvider(widget.matchId));
 
-    final players = playerRepository.getPlayersForTeam(match.teamId);
-    final convocations = convocationRepository.getConvocationsForMatch(widget.matchId);
-    final statistics = statisticRepository.getStatisticsForMatch(widget.matchId);
-    final team = teamRepository.getTeam(match.teamId);
-    final convocatedPlayers = players.where((player) =>
-        convocations.any((conv) => conv.playerId == player.id) == true).toList();
+    return matchAsync.when(
+      data: (match) {
+        if (match == null) {
+          return Scaffold(
+            appBar: AppBar(title: Text(localizations.matchNotFound)),
+            body: Center(child: Text(localizations.matchNotFoundMessage)),
+          );
+        }
+        return _buildMatchDetail(context, match);
+      },
+      loading: () => Scaffold(
+        appBar: AppBar(title: const Text('Match')),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        appBar: AppBar(title: const Text('Match')),
+        body: Center(child: Text('Error: $error')),
+      ),
+    );
+  }
 
-    // Auto-open convocation management if no players are convocated and we haven't shown it yet
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_hasShownConvocationSheet && convocations.isEmpty && mounted) {
-        _hasShownConvocationSheet = true;
-        // Show a brief message before opening convocations
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Select players for this match'),
-            duration: const Duration(milliseconds: 1500),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        // Delay slightly to let the snackbar show
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            _showConvocationDialog();
-          }
-        });
-      }
+  Widget _buildMatchDetail(BuildContext context, Match match) {
+    final localizations = AppLocalizations.of(context)!;
+
+    // Watch streams for related data
+    final teamAsync = ref.watch(teamStreamProvider(match.teamId));
+    final statisticsAsync = ref.watch(statisticsForMatchStreamProvider(widget.matchId));
+    final convocationsAsync = ref.watch(convocationsForMatchStreamProvider(widget.matchId));
+
+    // Check if we should auto-open convocation sheet
+    convocationsAsync.whenData((convocations) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_hasShownConvocationSheet && convocations.isEmpty && mounted) {
+          _hasShownConvocationSheet = true;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Select players for this match'),
+              duration: const Duration(milliseconds: 1500),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (mounted) {
+              _showConvocationDialog(match);
+            }
+          });
+        }
+      });
     });
 
     return Scaffold(
@@ -77,7 +87,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
           children: [
             Icon(Icons.sports_soccer, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 8),
-            Expanded(child: Text('${AppLocalizations.of(context)!.matchVs} ${match.opponent}')),
+            Expanded(child: Text('${localizations.matchVs} ${match.opponent}')),
           ],
         ),
         actions: [
@@ -95,23 +105,44 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         child: Column(
           children: [
-            // 1. Match Stats Card (auto-generated from statistics)
-            _buildMatchStatsCard(match, team, statistics),
-            
+            // 1. Match Stats Card
+            teamAsync.when(
+              data: (team) => statisticsAsync.when(
+                data: (statistics) => _buildMatchStatsCard(match, team, statistics),
+                loading: () => const Card(child: Center(child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(),
+                ))),
+                error: (e, s) => Card(child: Padding(padding: const EdgeInsets.all(16), child: Text('Error: $e'))),
+              ),
+              loading: () => const Card(child: Center(child: Padding(
+                padding: EdgeInsets.all(24.0),
+                child: CircularProgressIndicator(),
+              ))),
+              error: (e, s) => Card(child: Padding(padding: const EdgeInsets.all(16), child: Text('Error: $e'))),
+            ),
+
             const SizedBox(height: 12),
-            
-            // 2. Match Status Card 
+
+            // 2. Match Status Card
             _buildMatchStatusCard(match),
-            
+
             const SizedBox(height: 12),
-            
+
             // 3. Edit Convocated Players Button
-            _buildConvocationEditCard(convocatedPlayers.length),
-            
+            convocationsAsync.when(
+              data: (convocations) => _buildConvocationEditCard(match, convocations.length),
+              loading: () => const Card(child: Center(child: Padding(
+                padding: EdgeInsets.all(24.0),
+                child: CircularProgressIndicator(),
+              ))),
+              error: (e, s) => Card(child: Padding(padding: const EdgeInsets.all(16), child: Text('Error: $e'))),
+            ),
+
             const SizedBox(height: 12),
-            
+
             // 4. Notes Section
-            _buildNotesSection(context, ref, match),
+            _buildNotesSection(context, match),
           ],
         ),
       ),
@@ -381,7 +412,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     );
   }
 
-  Widget _buildConvocationEditCard(int convocatedCount) {
+  Widget _buildConvocationEditCard(Match match, int convocatedCount) {
     return Card(
       child: Container(
         width: double.infinity,
@@ -455,7 +486,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
             SizedBox(
               width: double.infinity,
               child: FilledButton.tonalIcon(
-                onPressed: () => _showConvocationDialog(),
+                onPressed: () => _showConvocationDialog(match),
                 icon: const Icon(Icons.edit),
                 label: Text(AppLocalizations.of(context)!.editConvocatedPlayers),
                 style: FilledButton.styleFrom(
@@ -520,12 +551,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
         teamId: match.teamId,
         match: match,
         onSaved: () {
-          ref.read(refreshCounterProvider.notifier).increment();
-          
-          ref.invalidate(matchRepositoryProvider);
-          if (mounted) {
-            setState(() {});
-          }
+          // Streams auto-update UI, no need for manual invalidation
         },
       ),
     );
@@ -558,13 +584,9 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               
               // Delete the match
               await matchRepository.deleteMatch(match.id);
-              
-              // Invalidate providers to refresh UI
-              ref.invalidate(matchRepositoryProvider);
-              ref.invalidate(matchConvocationRepositoryProvider);
-              ref.invalidate(matchStatisticRepositoryProvider);
-              ref.invalidate(noteRepositoryProvider);
-              
+
+              // Streams auto-update UI, no need for manual invalidation
+
               if (context.mounted) {
                 context.pop();
                 context.go('/matches');
@@ -583,21 +605,22 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
         builder: (context) => MatchStatusForm(
           match: match,
           onCompleted: () {
-            ref.invalidate(matchRepositoryProvider);
-            ref.invalidate(matchStatisticRepositoryProvider);
-            if (mounted) {
-              setState(() {});
-            }
+            // Streams auto-update UI, no need for manual invalidation
           },
         ),
       ),
     );
   }
 
-  void _showConvocationDialog() {
-    final players = ref.read(playerRepositoryProvider).getPlayersForTeam(ref.read(matchRepositoryProvider).getMatch(widget.matchId)!.teamId);
-    final convocations = ref.read(matchConvocationRepositoryProvider).getConvocationsForMatch(widget.matchId);
-    
+  void _showConvocationDialog(Match match) async {
+    final playerRepository = ref.read(playerRepositoryProvider);
+    final convocationRepository = ref.read(matchConvocationRepositoryProvider);
+
+    final players = await playerRepository.getPlayersForTeam(match.teamId);
+    final convocations = await convocationRepository.getConvocationsForMatch(widget.matchId);
+
+    if (!mounted) return;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -609,87 +632,99 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
         players: players,
         convocations: convocations,
         onSaved: () {
-          ref.invalidate(matchConvocationRepositoryProvider);
-          ref.read(refreshCounterProvider.notifier).increment();
-          if (mounted) {
-            setState(() {});
-          }
+          // Streams auto-update UI, no need for manual invalidation
         },
       ),
     );
   }
 
-  Widget _buildNotesSection(BuildContext context, WidgetRef ref, Match match) {
-    final noteRepository = ref.watch(noteRepositoryProvider);
-    final notes = noteRepository.getNotesForMatch(match.id);
-    
-    return Card(
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.note_add, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(context)!.notes,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+  Widget _buildNotesSection(BuildContext context, Match match) {
+    final localizations = AppLocalizations.of(context)!;
+    final notesAsync = ref.watch(notesForMatchStreamProvider(match.id));
+
+    return notesAsync.when(
+      data: (notes) => Card(
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.note_add, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    localizations.notes,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () => _showAddNoteDialog(context, ref, match),
-                  icon: Icon(
-                    Icons.add_circle_outline,
-                    color: Theme.of(context).colorScheme.primary,
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => _showAddNoteDialog(context, match),
+                    icon: Icon(
+                      Icons.add_circle_outline,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (notes.isEmpty)
-              Center(
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.note_outlined,
-                      size: 48,
-                      color: Colors.grey[400],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      AppLocalizations.of(context)!.noNotesYet,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Tap + to add a note',
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            else
-              Column(
-                children: notes.map<Widget>((note) => _buildNoteItem(context, ref, note, match)).toList(),
+                ],
               ),
-          ],
+              const SizedBox(height: 12),
+              if (notes.isEmpty)
+                Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.note_outlined,
+                        size: 48,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        localizations.noNotesYet,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Tap + to add a note',
+                        style: TextStyle(
+                          color: Colors.grey[500],
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Column(
+                  children: notes.map<Widget>((note) => _buildNoteItem(context, note, match)).toList(),
+                ),
+            ],
+          ),
+        ),
+      ),
+      loading: () => const Card(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.0),
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      ),
+      error: (error, stack) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(AppLocalizations.of(context)!.errorLoadingNotes(error.toString())),
         ),
       ),
     );
   }
 
-  Widget _buildNoteItem(BuildContext context, WidgetRef ref, Note note, Match match) {
+  Widget _buildNoteItem(BuildContext context, Note note, Match match) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -714,9 +749,9 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               PopupMenuButton<String>(
                 onSelected: (value) {
                   if (value == 'edit') {
-                    _showEditNoteDialog(context, ref, note, match);
+                    _showEditNoteDialog(context, note, match);
                   } else if (value == 'delete') {
-                    _deleteNote(context, ref, note);
+                    _deleteNote(context, note);
                   }
                 },
                 itemBuilder: (context) => [
@@ -756,7 +791,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     );
   }
 
-  void _showAddNoteDialog(BuildContext context, WidgetRef ref, Match match) {
+  void _showAddNoteDialog(BuildContext context, Match match) {
     final controller = TextEditingController();
     
     showModalBottomSheet(
@@ -840,9 +875,8 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                     child: FilledButton(
                       onPressed: () async {
                         if (controller.text.trim().isNotEmpty) {
-                          // Store context before async operation
                           final navigator = Navigator.of(context);
-                          
+
                           final noteRepository = ref.read(noteRepositoryProvider);
                           await noteRepository.createQuickNote(
                             content: controller.text.trim(),
@@ -850,10 +884,10 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                             linkedId: match.id,
                             linkedType: 'match',
                           );
-                          
+
                           if (mounted) {
                             navigator.pop();
-                            setState(() {}); // Refresh to show new note
+                            // Streams auto-update UI, no need for setState
                           }
                         }
                       },
@@ -869,7 +903,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     );
   }
 
-  void _showEditNoteDialog(BuildContext context, WidgetRef ref, Note note, Match match) {
+  void _showEditNoteDialog(BuildContext context, Note note, Match match) {
     final controller = TextEditingController(text: note.content);
     
     showModalBottomSheet(
@@ -953,9 +987,8 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                     child: FilledButton(
                       onPressed: () async {
                         if (controller.text.trim().isNotEmpty) {
-                          // Store context before async operation
                           final navigator = Navigator.of(context);
-                          
+
                           final noteRepository = ref.read(noteRepositoryProvider);
                           final updatedNote = Note(
                             id: note.id,
@@ -967,10 +1000,10 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                             linkedType: note.linkedType,
                           );
                           await noteRepository.updateNote(updatedNote);
-                          
+
                           if (mounted) {
                             navigator.pop();
-                            setState(() {}); // Refresh to show updated note
+                            // Streams auto-update UI, no need for setState
                           }
                         }
                       },
@@ -986,7 +1019,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     );
   }
 
-  void _deleteNote(BuildContext context, WidgetRef ref, Note note) {
+  void _deleteNote(BuildContext context, Note note) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -999,15 +1032,14 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
           ),
           FilledButton(
             onPressed: () async {
-              // Store context before async operation
               final navigator = Navigator.of(context);
-              
+
               final noteRepository = ref.read(noteRepositoryProvider);
               await noteRepository.deleteNote(note.id);
-              
+
               if (mounted) {
                 navigator.pop();
-                setState(() {}); // Refresh to remove deleted note
+                // Streams auto-update UI, no need for setState
               }
             },
             child: Text(AppLocalizations.of(context)!.delete),

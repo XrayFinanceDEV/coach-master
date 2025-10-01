@@ -1,30 +1,15 @@
-import 'package:hive/hive.dart';
-
-part 'training_attendance.g.dart';
-
-@HiveType(typeId: 10)
 enum TrainingAttendanceStatus {
-  @HiveField(0)
   present,
-  @HiveField(1)
   absent,
-  @HiveField(2)
   late,
 }
 
-@HiveType(typeId: 5)
 class TrainingAttendance {
-  @HiveField(0)
   final String id;
-  @HiveField(1)
   final String trainingId;
-  @HiveField(2)
   final String playerId;
-  @HiveField(3)
   final TrainingAttendanceStatus status;
-  @HiveField(4)
   final String? reason;
-  @HiveField(5)
   final DateTime? arrivalTime;
 
   TrainingAttendance({
@@ -50,6 +35,29 @@ class TrainingAttendance {
       status: status,
       reason: reason,
       arrivalTime: arrivalTime,
+    );
+  }
+
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'trainingId': trainingId,
+      'playerId': playerId,
+      'status': status.name,
+      'reason': reason,
+      'arrivalTime': arrivalTime?.toIso8601String(),
+    };
+  }
+
+  factory TrainingAttendance.fromJson(Map<String, dynamic> json) {
+    return TrainingAttendance(
+      id: json['id'] as String,
+      trainingId: json['trainingId'] as String,
+      playerId: json['playerId'] as String,
+      status: TrainingAttendanceStatus.values.firstWhere((e) => e.name == json['status']),
+      reason: json['reason'] as String?,
+      arrivalTime: json['arrivalTime'] != null ? DateTime.parse(json['arrivalTime'] as String) : null,
     );
   }
 }

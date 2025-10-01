@@ -9,6 +9,7 @@ import 'package:coachmaster/features/seasons/season_detail_screen.dart';
 import 'package:coachmaster/features/teams/team_detail_screen.dart';
 import 'package:coachmaster/features/players/player_detail_screen.dart';
 import 'package:coachmaster/features/players/player_list_screen.dart';
+import 'package:coachmaster/features/trainings/training_list_screen.dart';
 import 'package:coachmaster/features/trainings/training_detail_screen.dart';
 import 'package:coachmaster/features/matches/match_list_screen.dart';
 import 'package:coachmaster/features/matches/match_detail_screen.dart';
@@ -19,6 +20,7 @@ import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/locale_provider.dart';
 import 'package:coachmaster/core/firebase_auth_providers.dart';
 import 'package:coachmaster/core/app_initialization.dart';
+import 'package:coachmaster/core/selected_team_provider.dart';
 import 'package:coachmaster/models/auth_state.dart';
 import 'package:coachmaster/models/season.dart';
 import 'package:coachmaster/models/team.dart';
@@ -62,51 +64,14 @@ class _PlayersScreenState extends ConsumerState<PlayersScreen> {
   Widget build(BuildContext context) {
     // Watch refresh counter to rebuild when teams are created/updated
     ref.watch(refreshCounterProvider);
-    
-    // Get the current team to display players
-    final teamRepo = ref.watch(teamRepositoryProvider);
-    final seasonRepo = ref.watch(seasonRepositoryProvider);
-    
-    final seasons = seasonRepo.getSeasons();
-    if (seasons.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Row(
-            children: [
-              Icon(Icons.people, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 8),
-              Text(AppLocalizations.of(context)!.players),
-            ],
-          ),
-        ),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.warning, size: 64, color: Colors.orange),
-              SizedBox(height: 16),
-              Text('No seasons found. Please create a season first.'),
-            ],
-          ),
-        ),
-      );
-    }
 
-    // Find the season that has teams (prioritize seasons with teams)
-    Season? currentSeason;
-    for (var season in seasons) {
-      final teamsInSeason = teamRepo.getTeamsForSeason(season.id);
-      if (teamsInSeason.isNotEmpty) {
-        currentSeason = season;
-        break;
-      }
-    }
+    // Trigger auto-select if needed
+    ref.watch(autoSelectTeamProvider);
 
-    // If no season with teams found, use the first season
-    currentSeason ??= seasons.first;
-    final teams = teamRepo.getTeamsForSeason(currentSeason!.id);
+    // Use the globally selected team
+    final selectedTeam = ref.watch(selectedTeamProvider);
 
-    if (teams.isEmpty) {
+    if (selectedTeam == null) {
       return Scaffold(
         appBar: AppBar(
           title: Row(
@@ -123,17 +88,16 @@ class _PlayersScreenState extends ConsumerState<PlayersScreen> {
             children: [
               Icon(Icons.group_add, size: 64, color: Colors.orange),
               SizedBox(height: 16),
-              Text('No teams found. Please create a team first.'),
+              Text('No team selected. Please create or select a team.'),
             ],
           ),
         ),
       );
     }
-    
-    // Use the first team (in a real app, this would be user-selected)
-    final currentTeam = teams.first;
-    
-    return PlayerListScreen(teamId: currentTeam.id);
+
+    // Use team ID directly without waiting for team object
+    final selectedTeamId = ref.watch(selectedTeamIdProvider);
+    return PlayerListScreen(teamId: selectedTeamId ?? '');
   }
 }
 
@@ -146,301 +110,39 @@ class TrainingsScreen extends ConsumerStatefulWidget {
 class _TrainingsScreenState extends ConsumerState<TrainingsScreen> {
   @override
   Widget build(BuildContext context) {
-    ref.watch(refreshCounterProvider);
-    
-    final trainingRepo = ref.watch(trainingRepositoryProvider);
-    final teamRepo = ref.watch(teamRepositoryProvider);
-    
-    // Get all trainings and group by team
-    final allTrainings = trainingRepo.getTrainings();
-    final allTeams = teamRepo.getTeams();
-    
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Icon(Icons.fitness_center, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 8),
-            Text(AppLocalizations.of(context)!.trainingSessions),
-          ],
+    // Trigger auto-select if needed
+    ref.watch(autoSelectTeamProvider);
+
+    // Use the globally selected team
+    final selectedTeam = ref.watch(selectedTeamProvider);
+
+    if (selectedTeam == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Row(
+            children: [
+              Icon(Icons.fitness_center, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(AppLocalizations.of(context)!.trainingSessions),
+            ],
+          ),
         ),
-      ),
-      body: allTrainings.isEmpty
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.fitness_center, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text(
-                    'No training sessions yet',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Add training sessions to get started',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: allTrainings.length,
-              itemBuilder: (context, index) {
-                final training = allTrainings[index];
-                final team = allTeams.cast<Team?>().firstWhere(
-                  (t) => t?.id == training.teamId,
-                  orElse: () => null,
-                );
-                
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      child: const Icon(Icons.fitness_center, color: Colors.white),
-                    ),
-                    title: Text(team?.name ?? 'Unknown Team'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(_formatDate(training.date)),
-                        if (training.objectives.isNotEmpty)
-                          Text('🎯 ${training.objectives.join(', ')}'),
-                      ],
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () => context.go('/trainings/${training.id}'),
-                  ),
-                );
-              },
-            ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddTrainingBottomSheet(context, ref, allTeams),
-        icon: const Icon(Icons.add),
-        label: Text(AppLocalizations.of(context)!.addTraining),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
-  }
-
-  void _showAddTrainingBottomSheet(BuildContext context, WidgetRef ref, List<Team> teams) {
-    if (teams.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please create a team first')),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.group_add, size: 64, color: Colors.orange),
+              SizedBox(height: 16),
+              Text('No team selected. Please create or select a team.'),
+            ],
+          ),
+        ),
       );
-      return;
     }
 
-    final trainingRepository = ref.read(trainingRepositoryProvider);
-    final formKey = GlobalKey<FormState>();
-    String selectedTeamId = teams.first.id;
-    DateTime selectedDate = DateTime.now();
-    List<String> objectives = [];
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return DraggableScrollableSheet(
-              initialChildSize: 0.9,
-              maxChildSize: 0.95,
-              minChildSize: 0.5,
-              expand: false,
-              builder: (context, scrollController) {
-                return Container(
-                  padding: EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    top: 16,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-                  ),
-                  child: Column(
-                    children: [
-                      // Handle bar
-                      Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      
-                      // Title
-                      Text(
-                        AppLocalizations.of(context)!.trainingSession,
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      
-                      // Form content
-                      Expanded(
-                        child: Form(
-                          key: formKey,
-                          child: SingleChildScrollView(
-                            controller: scrollController,
-                            child: Column(
-                              children: [
-
-                                // Date Selection
-                                InkWell(
-                                  onTap: () async {
-                                    final picked = await showDatePicker(
-                                      context: context,
-                                      initialDate: selectedDate,
-                                      firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                                      lastDate: DateTime.now().add(const Duration(days: 365)),
-                                    );
-                                    if (picked != null && context.mounted) {
-                                      setDialogState(() {
-                                        selectedDate = picked;
-                                      });
-                                    }
-                                  },
-                                  child: Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey[400]!),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.calendar_today),
-                                        const SizedBox(width: 12),
-                                        Text('${AppLocalizations.of(context)!.date}: ${_formatDate(selectedDate)}'),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-
-                                // Objectives
-                                TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: AppLocalizations.of(context)!.objectives,
-                                    border: const OutlineInputBorder(),
-                                  ),
-                                  onSaved: (value) {
-                                    objectives = value!.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
-                                  },
-                                ),
-                                const SizedBox(height: 24),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      
-                      // Bottom buttons
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: Text(AppLocalizations.of(context)!.cancel),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: FilledButton(
-                              onPressed: () async {
-                                if (formKey.currentState!.validate()) {
-                                  formKey.currentState!.save();
-                                  
-                                  // Store context and localization before async operation
-                                  final navigator = Navigator.of(context);
-                                  final messenger = ScaffoldMessenger.of(context);
-                                  final localizations = AppLocalizations.of(context)!;
-                                  
-                                  final newTraining = Training.create(
-                                    teamId: selectedTeamId,
-                                    date: selectedDate,
-                                    startTime: const TimeOfDay(hour: 18, minute: 0), // Default time
-                                    endTime: const TimeOfDay(hour: 19, minute: 30), // Default time
-                                    location: 'Training Location', // Default location
-                                    objectives: objectives,
-                                  );
-
-                                  if (kDebugMode) {
-                                    print('🟡 Router: Creating training ${newTraining.id}');
-                                  }
-
-                                  await trainingRepository.addTraining(newTraining);
-
-                                  if (kDebugMode) {
-                                    print('🟡 Router: Training created, now adding attendance...');
-                                  }
-
-                                  // Auto-create attendance records for all team players with "present" status
-                                  final playerRepository = ref.read(playerRepositoryProvider);
-                                  final attendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
-                                  final teamPlayers = playerRepository.getPlayersForTeam(selectedTeamId);
-
-                                  if (kDebugMode) {
-                                    print('🟡 Router: Found ${teamPlayers.length} players for team $selectedTeamId');
-                                  }
-
-                                  for (final player in teamPlayers) {
-                                    final attendance = TrainingAttendance.create(
-                                      trainingId: newTraining.id,
-                                      playerId: player.id,
-                                      status: TrainingAttendanceStatus.present, // All players marked as present by default
-                                    );
-                                    await attendanceRepository.addAttendance(attendance);
-
-                                    if (kDebugMode) {
-                                      print('🟡 Router: Added attendance for ${player.firstName} ${player.lastName}');
-                                    }
-                                  }
-
-                                  if (kDebugMode) {
-                                    print('🟡 Router: Finished creating ${teamPlayers.length} attendance records');
-                                  }
-
-                                  ref.invalidate(trainingRepositoryProvider);
-                                  ref.invalidate(trainingAttendanceRepositoryProvider);
-                                  ref.read(refreshCounterProvider.notifier).state++;
-
-                                  // Force rebuild of screen
-                                  if (mounted) {
-                                    setState(() {});
-                                  }
-
-                                  navigator.pop();
-
-                                  messenger.showSnackBar(
-                                    SnackBar(content: Text('${localizations.trainingSession} aggiunta con successo!')),
-                                  );
-                                }
-                              },
-                              child: Text(AppLocalizations.of(context)!.addTraining),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
-    );
+    // Use team ID directly without waiting for team object
+    final selectedTeamId = ref.watch(selectedTeamIdProvider);
+    return TrainingListScreen(teamId: selectedTeamId ?? '');
   }
 }
 
@@ -454,50 +156,13 @@ class MatchesScreen extends ConsumerStatefulWidget {
 class _MatchesScreenState extends ConsumerState<MatchesScreen> {
   @override
   Widget build(BuildContext context) {
-    final teamRepo = ref.watch(teamRepositoryProvider);
-    final seasonRepo = ref.watch(seasonRepositoryProvider);
-    
-    // Get the current season and team
-    final seasons = seasonRepo.getSeasons();
-    if (seasons.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Row(
-            children: [
-              Icon(Icons.sports_soccer, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 8),
-              const Text('Matches'),
-            ],
-          ),
-        ),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.warning, size: 64, color: Colors.orange),
-              SizedBox(height: 16),
-              Text('No seasons found. Please create a season first.'),
-            ],
-          ),
-        ),
-      );
-    }
+    // Trigger auto-select if needed
+    ref.watch(autoSelectTeamProvider);
 
-    // Find the season that has teams (prioritize seasons with teams)
-    Season? currentSeason;
-    for (var season in seasons) {
-      final teamsInSeason = teamRepo.getTeamsForSeason(season.id);
-      if (teamsInSeason.isNotEmpty) {
-        currentSeason = season;
-        break;
-      }
-    }
+    // Use the globally selected team
+    final selectedTeam = ref.watch(selectedTeamProvider);
 
-    // If no season with teams found, use the first season
-    currentSeason ??= seasons.first;
-    final teams = teamRepo.getTeamsForSeason(currentSeason!.id);
-
-    if (teams.isEmpty) {
+    if (selectedTeam == null) {
       return Scaffold(
         appBar: AppBar(
           title: Row(
@@ -514,17 +179,16 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
             children: [
               Icon(Icons.group_add, size: 64, color: Colors.orange),
               SizedBox(height: 16),
-              Text('No teams found. Please create a team first.'),
+              Text('No team selected. Please create or select a team.'),
             ],
           ),
         ),
       );
     }
-    
-    // Use the first team (in a real app, this would be user-selected)
-    final currentTeam = teams.first;
-    
-    return MatchListScreen(teamId: currentTeam.id);
+
+    // Use team ID directly without waiting for team object
+    final selectedTeamId = ref.watch(selectedTeamIdProvider);
+    return MatchListScreen(teamId: selectedTeamId ?? '');
   }
 }
 
@@ -557,19 +221,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       print('🔧 Settings: Team repo type: ${teamRepo.runtimeType}');
     }
 
-    try {
-      // Clean up any duplicate teams first
-      await teamRepo.cleanupDuplicateTeams();
-    } catch (e) {
-      // If cleanup fails due to corrupted data, clear everything
-      if (kDebugMode) {
-        print('Settings: Cleanup failed, clearing corrupted data: $e');
-      }
-      await teamRepo.clearCorruptedData();
-    }
-
     // Look for 2025-26 season or create it if it doesn't exist
-    var seasons = seasonRepo.getSeasons();
+    var seasons = await seasonRepo.getSeasons();
     if (kDebugMode) {
       print('🔧 Settings: Found ${seasons.length} seasons');
       for (var season in seasons) {
@@ -580,7 +233,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     // Find the season that has teams (prioritize seasons with teams)
     Season? currentSeason;
     for (var season in seasons.where((s) => s.name == '2025-26')) {
-      final teamsInSeason = teamRepo.getTeamsForSeason(season.id);
+      final teamsInSeason = await teamRepo.getTeamsForSeason(season.id);
       if (kDebugMode) {
         print('🔧 Settings: Season ${season.id} has ${teamsInSeason.length} teams');
       }
@@ -621,7 +274,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       print('🔧 Settings: Set selectedSeasonId to: $selectedSeasonId');
     }
 
-    final teams = teamRepo.getTeamsForSeason(selectedSeasonId!);
+    final teams = await teamRepo.getTeamsForSeason(selectedSeasonId!);
     if (kDebugMode) {
       print('🔧 Settings: Found ${teams.length} teams for season');
       for (var team in teams) {
@@ -640,6 +293,62 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       setState(() {});
       if (kDebugMode) {
         print('🔧 Settings: UI updated - selectedSeasonId: $selectedSeasonId, selectedTeamId: $selectedTeamId');
+      }
+    }
+  }
+
+  Future<void> _confirmDeleteTeam(BuildContext context, Team team) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Team'),
+        content: Text('Are you sure you want to delete "${team.name}"? This will also delete all players, trainings, matches, and statistics for this team.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        final teamRepo = ref.read(teamRepositoryProvider);
+        await teamRepo.deleteTeam(team.id);
+
+        // TODO: Also delete related data (players, trainings, matches, etc.)
+        // This should be handled by the repository or a cleanup service
+
+        // Increment refresh counter to trigger UI rebuilds
+        ref.read(refreshCounterProvider.notifier).increment();
+
+        // If the deleted team was selected, clear the selection
+        if (selectedTeamId == team.id) {
+          setState(() {
+            selectedTeamId = null;
+          });
+        }
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Team "${team.name}" deleted successfully')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error deleting team: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
@@ -778,34 +487,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   
   @override
   Widget build(BuildContext context) {
-    final teamRepo = ref.watch(teamRepositoryProvider);
-
     if (kDebugMode) {
       print('🔧 Settings: Building UI');
       print('🔧 Settings: selectedSeasonId: $selectedSeasonId');
       print('🔧 Settings: selectedTeamId: $selectedTeamId');
     }
 
-    List<Team> teams = <Team>[];
-    try {
-      if (selectedSeasonId != null) {
-        teams = teamRepo.getTeamsForSeason(selectedSeasonId!);
+    // Show ALL teams regardless of season
+    final teamsAsync = ref.watch(teamsStreamProvider);
+
+    return teamsAsync.when(
+      data: (teams) => _buildSettingsScaffold(context, teams),
+      loading: () => Scaffold(
+        appBar: AppBar(title: const Text('Settings')),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) {
         if (kDebugMode) {
-          print('🔧 Settings: Retrieved ${teams.length} teams for season $selectedSeasonId');
+          print('Settings: Error loading teams: $error');
         }
-      } else {
-        if (kDebugMode) {
-          print('🔧 Settings: selectedSeasonId is null, not loading teams');
-        }
-        teams = <Team>[];
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Settings: Error getting teams, returning empty list: $e');
-      }
-      teams = <Team>[];
-    }
-    
+        return _buildSettingsScaffold(context, <Team>[]);
+      },
+    );
+  }
+
+  Widget _buildSettingsScaffold(BuildContext context, List<Team> teams) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -902,59 +608,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                   ),
                   
-                  if (selectedSeasonId != null) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outlineVariant,
-                        ),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String?>(
-                          value: selectedTeamId,
-                          isExpanded: true,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          hint: Text(AppLocalizations.of(context)!.selectTeam),
-                          onChanged: (teamId) {
-                            if (teamId == 'CREATE_NEW') {
-                              _showCreateTeamDialog(selectedSeasonId!);
-                            } else {
-                              setState(() {
-                                selectedTeamId = teamId;
-                              });
-                            }
-                          },
-                          items: [
-                            // Filter out duplicate team IDs to prevent dropdown assertion error
-                            ...teams.fold<Map<String, Team>>({}, (map, team) {
-                              map[team.id] = team; // This will keep only unique IDs
-                              return map;
-                            }).values.map((team) => DropdownMenuItem<String>(
-                              value: team.id,
-                              child: Text(team.name),
-                            )),
-                            const DropdownMenuItem<String>(
-                              value: 'CREATE_NEW',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.add_circle_outline, size: 18),
-                                  SizedBox(width: 8),
-                                  Text('Create New Team', style: TextStyle(fontWeight: FontWeight.w500)),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                  
-                  if (selectedSeasonId != null && teams.isEmpty) ...[
-                    const SizedBox(height: 12),
+                  const SizedBox(height: 16),
+
+                  // Teams List with select and delete options
+                  if (teams.isEmpty) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -968,7 +625,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'No teams in this season. Create your first team!',
+                              'No teams yet. Create your first team!',
                               style: TextStyle(
                                 color: Colors.orange[800],
                                 fontSize: 12,
@@ -978,7 +635,88 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ],
                       ),
                     ),
+                  ] else ...[
+                    Text(
+                      'Your Teams (tap to select)',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...teams.map((team) {
+                      // Check if this team is currently selected
+                      final isSelected = ref.watch(selectedTeamIdProvider) == team.id;
+
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primaryContainer
+                            : null,
+                        child: ListTile(
+                          leading: Icon(
+                            isSelected ? Icons.check_circle : Icons.groups,
+                            color: isSelected
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.primary,
+                          ),
+                          title: Text(
+                            team.name,
+                            style: TextStyle(
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            isSelected ? 'Active Team' : 'Tap to select',
+                            style: TextStyle(
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.grey[600],
+                            ),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _confirmDeleteTeam(context, team),
+                          ),
+                          onTap: () async {
+                            // Select this team globally
+                            await ref.read(selectedTeamIdProvider.notifier).selectTeam(team.id);
+
+                            // Update local state for UI refresh
+                            setState(() {
+                              selectedTeamId = team.id;
+                            });
+
+                            // Show confirmation
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Switched to team "${team.name}"'),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      );
+                    }),
                   ],
+
+                  const SizedBox(height: 12),
+
+                  // Create New Team Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        if (selectedSeasonId != null) {
+                          _showCreateTeamDialog(selectedSeasonId!);
+                        }
+                      },
+                      icon: const Icon(Icons.add_circle_outline),
+                      label: const Text('Create New Team'),
+                    ),
+                  ),
                   
                 ],
               ),
@@ -1312,7 +1050,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     }
   }
 
-  void onboardingListener(bool? previous, bool next) {
+  void onboardingListener(AsyncValue<bool>? previous, AsyncValue<bool> next) {
     if (!streamController.isClosed) {
       streamController.add('onboarding_change_${DateTime.now().millisecondsSinceEpoch}');
     }
@@ -1320,7 +1058,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   streamController = StreamController<String>();
   ref.listen<AuthState>(firebaseAuthProvider, authListener, fireImmediately: true);
-  ref.listen<bool>(onboardingStatusProvider, onboardingListener, fireImmediately: true);
+  ref.listen<AsyncValue<bool>>(onboardingStatusProvider, onboardingListener, fireImmediately: true);
 
   ref.onDispose(() {
     if (!streamController.isClosed) {
@@ -1369,7 +1107,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
 
           // Check if user has teams (simple onboarding check)
-          final hasTeams = ref.read(onboardingStatusProvider);
+          final hasTeamsAsync = ref.read(onboardingStatusProvider);
+
+          // If still loading, stay on login screen
+          if (hasTeamsAsync.isLoading) {
+            if (kDebugMode) {
+              print('🚦 Router: Still checking for teams, staying on login');
+            }
+            return null; // Stay on login while checking
+          }
+
+          final hasTeams = hasTeamsAsync.when(
+            data: (value) => value,
+            loading: () => false, // Should never hit this due to check above
+            error: (_, __) => false,
+          );
+
           if (kDebugMode) {
             print('🚦 Router: User has teams: $hasTeams');
           }
@@ -1389,7 +1142,21 @@ final routerProvider = Provider<GoRouter>((ref) {
 
         // Check if authenticated user has teams (but not on onboarding page)
         if (currentPath != '/onboarding') {
-          final hasTeams = ref.read(onboardingStatusProvider);
+          final hasTeamsAsync = ref.read(onboardingStatusProvider);
+
+          // If still loading, don't redirect yet
+          if (hasTeamsAsync.isLoading) {
+            if (kDebugMode) {
+              print('🚦 Router: Still checking for teams, staying on $currentPath');
+            }
+            return null; // Stay on current path while checking
+          }
+
+          final hasTeams = hasTeamsAsync.when(
+            data: (value) => value,
+            loading: () => false, // Should never hit this due to check above
+            error: (_, __) => false,
+          );
 
           if (!hasTeams) {
             if (kDebugMode) {

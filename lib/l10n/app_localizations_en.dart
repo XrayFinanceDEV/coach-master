@@ -728,4 +728,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorSyncingData => 'Error syncing data';
+
+  @override
+  String errorLoadingPlayers(String error) {
+    return 'Error loading players: $error';
+  }
+
+  @override
+  String errorLoadingPlayer(String error) {
+    return 'Error loading player: $error';
+  }
+
+  @override
+  String errorLoadingNotes(String error) {
+    return 'Error loading notes: $error';
+  }
+
+  @override
+  String errorLoadingTeam(String error) {
+    return 'Error loading team: $error';
+  }
+
+  @override
+  String errorLoadingMatches(String error) {
+    return 'Error loading matches: $error';
+  }
+
+  @override
+  String errorLoadingAttendances(String error) {
+    return 'Error loading attendances: $error';
+  }
+
+  @override
+  String get errorLoadingConvocatedPlayers =>
+      'Error loading convocated players';
+
+  @override
+  String get errorOccurred => 'An error occurred';
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
+  String get teamNotFound => 'Team not found';
+
+  @override
+  String get noTrainingsScheduled => 'No trainings scheduled';
+
+  @override
+  String get createFirstTrainingToStart =>
+      'Create your first training to start tracking attendance';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get noDataYetShort => 'No data yet';
+
+  @override
+  String get statsWillAppearAfterMatches => 'Stats will appear after matches';
+
+  @override
+  String get mostAbsences => 'Most Absences';
+
+  @override
+  String get errorLoadingLeaderboards =>
+      'Error loading leaderboards. Please try again.';
 }

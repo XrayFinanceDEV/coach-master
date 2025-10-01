@@ -243,5 +243,22 @@
   "giocatori": "giocatori",
   "syncData": "Sincronizza Dati",
   "dataSyncedSuccessfully": "Dati sincronizzati con successo!",
-  "errorSyncingData": "Errore durante la sincronizzazione"
+  "errorSyncingData": "Errore durante la sincronizzazione",
+  "errorLoadingPlayers": "Errore caricamento giocatori: {error}",
+  "errorLoadingPlayer": "Errore caricamento giocatore: {error}",
+  "errorLoadingNotes": "Errore caricamento note: {error}",
+  "errorLoadingTeam": "Errore caricamento squadra: {error}",
+  "errorLoadingMatches": "Errore caricamento partite: {error}",
+  "errorLoadingAttendances": "Errore caricamento presenze: {error}",
+  "errorLoadingConvocatedPlayers": "Errore caricamento giocatori convocati",
+  "errorOccurred": "Si è verificato un errore",
+  "tryAgain": "Riprova",
+  "teamNotFound": "Squadra non trovata",
+  "noTrainingsScheduled": "Nessun allenamento programmato",
+  "createFirstTrainingToStart": "Crea il tuo primo allenamento per iniziare a tracciare le presenze",
+  "error": "Errore",
+  "noDataYetShort": "Nessun dato ancora",
+  "statsWillAppearAfterMatches": "Le statistiche appariranno dopo le partite",
+  "mostAbsences": "Più Assenze",
+  "errorLoadingLeaderboards": "Errore caricamento classifiche. Riprova."
 }

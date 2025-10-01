@@ -181,7 +181,7 @@ class OptimizedPlayerCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final imageProvider = ref.watch(playerImageProvider(player.id));
+    final imageProviderAsync = ref.watch(playerImageProvider(player.id));
 
     return InkWell(
       onTap: () => context.go('/players/${player.id}'),
@@ -204,12 +204,28 @@ class OptimizedPlayerCard extends ConsumerWidget {
                     topRight: Radius.circular(10),
                   ),
                 ),
-                child: Stack(
-                  children: [
-                    _buildPlayerImage(context, imageProvider),
-                    _buildStatsOverlay(),
-                    _buildGradientOverlay(),
-                  ],
+                child: imageProviderAsync.when(
+                  data: (imageProvider) => Stack(
+                    children: [
+                      _buildPlayerImage(context, imageProvider),
+                      _buildStatsOverlay(),
+                      _buildGradientOverlay(),
+                    ],
+                  ),
+                  loading: () => Stack(
+                    children: [
+                      _buildPlayerImage(context, null),
+                      _buildStatsOverlay(),
+                      _buildGradientOverlay(),
+                    ],
+                  ),
+                  error: (_, __) => Stack(
+                    children: [
+                      _buildPlayerImage(context, null),
+                      _buildStatsOverlay(),
+                      _buildGradientOverlay(),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -6,7 +6,7 @@ import 'package:coachmaster/models/training.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/training_attendance.dart';
 import 'package:coachmaster/models/note.dart';
-import 'package:coachmaster/core/repository_instances.dart';
+import 'package:coachmaster/core/firestore_repository_providers.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
 import 'package:coachmaster/core/image_utils.dart';
 
@@ -23,31 +23,36 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
 
-    // Watch refresh counter to rebuild when data changes
-    ref.watch(refreshCounterProvider);
+    // Use stream provider for real-time updates
+    final trainingAsync = ref.watch(trainingStreamProvider(widget.trainingId));
 
-    final trainingRepository = ref.watch(trainingRepositoryProvider);
-    final playerRepository = ref.watch(playerRepositoryProvider);
-    final attendanceRepository = ref.watch(trainingAttendanceRepositoryProvider);
-    final training = trainingRepository.getTraining(widget.trainingId);
+    return trainingAsync.when(
+      data: (training) {
+        if (training == null) {
+          return Scaffold(
+            appBar: AppBar(title: Text(localizations?.trainingNotFound ?? 'Training Not Found')),
+            body: Center(child: Text(localizations?.trainingNotFoundMessage ?? 'Training with given ID not found.')),
+          );
+        }
+        return _buildTrainingDetail(context, training);
+      },
+      loading: () => Scaffold(
+        appBar: AppBar(title: Text(localizations?.trainingSession ?? 'Training Session')),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        appBar: AppBar(title: Text(localizations?.trainingSession ?? 'Training Session')),
+        body: Center(child: Text('Error: $error')),
+      ),
+    );
+  }
 
-    if (training == null) {
-      return Scaffold(
-        appBar: AppBar(title: Text(localizations?.trainingNotFound ?? 'Training Not Found')),
-        body: Center(child: Text(localizations?.trainingNotFoundMessage ?? 'Training with given ID not found.')),
-      );
-    }
+  Widget _buildTrainingDetail(BuildContext context, Training training) {
+    final localizations = AppLocalizations.of(context);
 
-    final players = playerRepository.getPlayersForTeam(training.teamId);
-    final attendances = attendanceRepository.getAttendancesForTraining(widget.trainingId);
-
-    if (kDebugMode) {
-      print('🔵 Training Detail: trainingId=${widget.trainingId}');
-      print('   Found ${attendances.length} attendance records');
-      for (final att in attendances) {
-        print('   - Player ${att.playerId}: ${att.status}');
-      }
-    }
+    // Watch streams for players and attendances
+    final playersAsync = ref.watch(playersForTeamStreamProvider(training.teamId));
+    final attendancesAsync = ref.watch(attendancesForTrainingStreamProvider(widget.trainingId));
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -81,21 +86,18 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
                     ),
                     FilledButton(
                       onPressed: () async {
+                        final trainingRepository = ref.read(trainingRepositoryProvider);
                         final attendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
                         final noteRepository = ref.read(noteRepositoryProvider);
-                        
+
                         // Delete related data first
                         await attendanceRepository.deleteAttendancesForTraining(training.id);
                         await noteRepository.deleteNotesForLinkedItem(training.id, linkedType: 'training');
-                        
+
                         // Delete the training
                         await trainingRepository.deleteTraining(training.id);
-                        
-                        // Invalidate all related providers
-                        ref.invalidate(trainingRepositoryProvider);
-                        ref.invalidate(trainingAttendanceRepositoryProvider);
-                        ref.invalidate(noteRepositoryProvider);
-                        
+
+                        // Streams auto-update UI
                         if (context.mounted) {
                           context.pop(); // Close dialog
                           context.go('/trainings'); // Navigate back to training list
@@ -110,104 +112,115 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Header Section with Gradient
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary,
-                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Date and Location
-                      Row(
-                        children: [
-                          const Icon(Icons.calendar_today, color: Colors.white, size: 24),
-                          const SizedBox(width: 12),
-                          Text(
-                            _formatDate(training.date),
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          const Icon(Icons.access_time, color: Colors.white, size: 24),
-                          const SizedBox(width: 12),
-                          Text(
-                            '${training.startTime.format(context)} - ${training.endTime.format(context)}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on, color: Colors.white, size: 24),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              training.location,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      // Attendance Stats in Header
-                      Row(
-                        children: [
-                          const Icon(Icons.how_to_reg, color: Colors.white, size: 24),
-                          const SizedBox(width: 12),
-                          Text(
-                            '${localizations?.attendance ?? 'Attendance'}: ${_getAttendanceStats(players, attendances)}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+      body: playersAsync.when(
+        data: (players) => attendancesAsync.when(
+          data: (attendances) {
+            if (kDebugMode) {
+              print('🔵 Training Detail: trainingId=${widget.trainingId}');
+              print('   Found ${attendances.length} attendance records');
+              for (final att in attendances) {
+                print('   - Player ${att.playerId}: ${att.status}');
+              }
+            }
 
-            // Objectives Section
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerLowest,
-                borderRadius: BorderRadius.circular(12),
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Header Section with Gradient
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: SafeArea(
+                      bottom: false,
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Date and Location
+                            Row(
+                              children: [
+                                const Icon(Icons.calendar_today, color: Colors.white, size: 24),
+                                const SizedBox(width: 12),
+                                Text(
+                                  _formatDate(training.date),
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                const Icon(Icons.access_time, color: Colors.white, size: 24),
+                                const SizedBox(width: 12),
+                                Text(
+                                  '${training.startTime.format(context)} - ${training.endTime.format(context)}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                const Icon(Icons.location_on, color: Colors.white, size: 24),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    training.location,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            // Attendance Stats in Header
+                            Row(
+                              children: [
+                                const Icon(Icons.how_to_reg, color: Colors.white, size: 24),
+                                const SizedBox(width: 12),
+                                Text(
+                                  '${localizations?.attendance ?? 'Attendance'}: ${_getAttendanceStats(players, attendances)}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Objectives Section
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
               ),
               child: Column(
@@ -336,6 +349,13 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
               ),
           ],
         ),
+      );
+    },
+    loading: () => const Center(child: CircularProgressIndicator()),
+    error: (error, stack) => Center(child: Text('Error loading attendances: $error')),
+  ),
+  loading: () => const Center(child: CircularProgressIndicator()),
+  error: (error, stack) => Center(child: Text('Error loading players: $error')),
       ),
     );
   }
@@ -393,15 +413,10 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
             
             // Update player absence statistics
             final playerRepository = ref.read(playerRepositoryProvider);
-            final allAttendances = attendanceRepository.getAttendancesForPlayer(player.id);
+            final allAttendances = await attendanceRepository.getAttendancesForPlayer(player.id);
             await playerRepository.updatePlayerAbsences(player.id, allAttendances);
 
-            // Increment refresh counter to trigger dashboard updates
-            ref.read(refreshCounterProvider.notifier).state++;
-
-            ref.invalidate(trainingAttendanceRepositoryProvider);
-            ref.invalidate(playerRepositoryProvider);
-            setState(() {});
+            // Streams auto-update UI
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -500,15 +515,10 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
                     
                     // Update player absence statistics
                     final playerRepository = ref.read(playerRepositoryProvider);
-                    final allAttendances = attendanceRepository.getAttendancesForPlayer(player.id);
+                    final allAttendances = await attendanceRepository.getAttendancesForPlayer(player.id);
                     await playerRepository.updatePlayerAbsences(player.id, allAttendances);
 
-                    // Increment refresh counter to trigger dashboard updates
-                    ref.read(refreshCounterProvider.notifier).state++;
-
-                    ref.invalidate(trainingAttendanceRepositoryProvider);
-                    ref.invalidate(playerRepositoryProvider);
-                    setState(() {});
+                    // Streams auto-update UI
                   },
                 ),
               ],
@@ -520,9 +530,28 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
   }
 
   Widget _buildNotesSection(BuildContext context, WidgetRef ref, Training training) {
-    final noteRepository = ref.watch(noteRepositoryProvider);
-    final notes = noteRepository.getNotesForTraining(training.id);
-    
+    final notesAsync = ref.watch(notesForTrainingStreamProvider(training.id));
+
+    return notesAsync.when(
+      data: (notes) => _buildNotesCard(context, ref, training, notes),
+      loading: () => const Card(
+        margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      ),
+      error: (error, stack) => Card(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Center(child: Text('Error loading notes: $error')),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotesCard(BuildContext context, WidgetRef ref, Training training, List<Note> notes) {
     return Card(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       elevation: 4,
@@ -1111,6 +1140,7 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
       _formKey.currentState!.save();
 
       final trainingRepository = ref.read(trainingRepositoryProvider);
+      String? createdTrainingId;
 
       if (isEditMode) {
         // Update existing training (preserve coachNotes and time/location fields)
@@ -1124,7 +1154,7 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
           objectives: _objectives,
           coachNotes: widget.training!.coachNotes, // Preserve existing coach notes
         );
-        trainingRepository.updateTraining(updatedTraining);
+        await trainingRepository.updateTraining(updatedTraining);
       } else {
         // Create new training with default time and location
         final newTraining = Training.create(
@@ -1135,6 +1165,8 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
           location: 'Training Ground', // Default location
           objectives: _objectives,
         );
+        createdTrainingId = newTraining.id;
+
         if (kDebugMode) {
           print('🟢 Step 1: Creating training...');
         }
@@ -1148,7 +1180,7 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
         // Auto-create attendance records for all team players with "present" status
         final playerRepository = ref.read(playerRepositoryProvider);
         final attendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
-        final teamPlayers = playerRepository.getPlayersForTeam(widget.teamId);
+        final teamPlayers = await playerRepository.getPlayersForTeam(widget.teamId);
 
         if (kDebugMode) {
           print('🟢 Step 3: Found ${teamPlayers.length} players in team ${widget.teamId}');
@@ -1171,33 +1203,22 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
           print('🟢 Step 4: All ${teamPlayers.length} attendance records created');
         }
 
-        // Increment refresh counter to trigger UI updates
-        ref.read(refreshCounterProvider.notifier).state++;
-
         if (kDebugMode) {
-          print('🟢 Step 5: Refresh counter incremented');
+          print('🟢 Step 5: Training saved, streams will auto-update UI');
         }
       }
 
-      ref.invalidate(trainingRepositoryProvider);
-      ref.invalidate(trainingAttendanceRepositoryProvider);
-
+      // Close form and trigger callbacks
       if (mounted) {
         Navigator.of(context).pop();
+
+        // Trigger the appropriate callback
         if (widget.onSaved != null) {
           widget.onSaved!();
         }
 
-        // Call the onTrainingCreated callback AFTER closing the bottom sheet
-        if (!isEditMode && widget.onTrainingCreated != null) {
-          // Get the training ID from the repository since we just created it
-          final trainings = ref.read(trainingRepositoryProvider).getTrainingsForTeam(widget.teamId);
-          if (trainings.isNotEmpty) {
-            final latestTraining = trainings.reduce((a, b) =>
-              DateTime.parse(a.id).isAfter(DateTime.parse(b.id)) ? a : b
-            );
-            widget.onTrainingCreated!(latestTraining.id);
-          }
+        if (!isEditMode && widget.onTrainingCreated != null && createdTrainingId != null) {
+          widget.onTrainingCreated!(createdTrainingId);
         }
       }
     }

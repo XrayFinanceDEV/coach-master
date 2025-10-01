@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/models/team.dart';
-import 'package:coachmaster/core/repository_instances.dart';
+import 'package:coachmaster/core/firestore_repository_providers.dart';
 import 'package:coachmaster/features/players/player_list_screen.dart';
 import 'package:coachmaster/features/trainings/training_list_screen.dart';
 
@@ -12,16 +12,30 @@ class TeamDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final teamRepository = ref.watch(teamRepositoryProvider);
-    final team = teamRepository.getTeam(teamId);
+    final teamAsync = ref.watch(teamStreamProvider(teamId));
 
-    if (team == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Team Not Found')),
-        body: const Center(child: Text('Team with given ID not found.')),
-      );
-    }
+    return teamAsync.when(
+      data: (team) {
+        if (team == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Team Not Found')),
+            body: const Center(child: Text('Team with given ID not found.')),
+          );
+        }
+        return _buildTeamDetail(context, ref, team);
+      },
+      loading: () => Scaffold(
+        appBar: AppBar(title: const Text('Loading...')),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        appBar: AppBar(title: const Text('Error')),
+        body: Center(child: Text('Error loading team: $error')),
+      ),
+    );
+  }
 
+  Widget _buildTeamDetail(BuildContext context, WidgetRef ref, Team team) {
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -52,11 +66,13 @@ class TeamDetailScreen extends ConsumerWidget {
                       child: const Text('Cancel'),
                     ),
                     FilledButton(
-                      onPressed: () {
-                        teamRepository.deleteTeam(team.id);
-                        ref.invalidate(teamRepositoryProvider);
-                        context.pop();
-                        context.go('/seasons/${team.seasonId}');
+                      onPressed: () async {
+                        final teamRepository = ref.read(teamRepositoryProvider);
+                        await teamRepository.deleteTeam(team.id);
+                        if (context.mounted) {
+                          context.pop();
+                          context.go('/seasons/${team.seasonId}');
+                        }
                       },
                       child: const Text('Delete'),
                     ),
@@ -145,7 +161,7 @@ class TeamDetailScreen extends ConsumerWidget {
               child: const Text('Cancel'),
             ),
             FilledButton(
-              onPressed: () {
+              onPressed: () async {
                 if (formKey.currentState!.validate()) {
                   formKey.currentState!.save();
                   final updatedTeam = Team(
@@ -155,9 +171,10 @@ class TeamDetailScreen extends ConsumerWidget {
                     description: description,
                     logoPath: team.logoPath,
                   );
-                  teamRepository.updateTeam(updatedTeam);
-                  ref.invalidate(teamRepositoryProvider);
-                  context.pop();
+                  await teamRepository.updateTeam(updatedTeam);
+                  if (context.mounted) {
+                    context.pop();
+                  }
                 }
               },
               child: const Text('Save'),

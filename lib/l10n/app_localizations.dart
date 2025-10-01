@@ -1489,6 +1489,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error syncing data'**
   String get errorSyncingData;
+
+  /// No description provided for @errorLoadingPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading players: {error}'**
+  String errorLoadingPlayers(String error);
+
+  /// No description provided for @errorLoadingPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading player: {error}'**
+  String errorLoadingPlayer(String error);
+
+  /// No description provided for @errorLoadingNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading notes: {error}'**
+  String errorLoadingNotes(String error);
+
+  /// No description provided for @errorLoadingTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading team: {error}'**
+  String errorLoadingTeam(String error);
+
+  /// No description provided for @errorLoadingMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading matches: {error}'**
+  String errorLoadingMatches(String error);
+
+  /// No description provided for @errorLoadingAttendances.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading attendances: {error}'**
+  String errorLoadingAttendances(String error);
+
+  /// No description provided for @errorLoadingConvocatedPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading convocated players'**
+  String get errorLoadingConvocatedPlayers;
+
+  /// No description provided for @errorOccurred.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred'**
+  String get errorOccurred;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tryAgain;
+
+  /// No description provided for @teamNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Team not found'**
+  String get teamNotFound;
+
+  /// No description provided for @noTrainingsScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'No trainings scheduled'**
+  String get noTrainingsScheduled;
+
+  /// No description provided for @createFirstTrainingToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first training to start tracking attendance'**
+  String get createFirstTrainingToStart;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
+  /// No description provided for @noDataYetShort.
+  ///
+  /// In en, this message translates to:
+  /// **'No data yet'**
+  String get noDataYetShort;
+
+  /// No description provided for @statsWillAppearAfterMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Stats will appear after matches'**
+  String get statsWillAppearAfterMatches;
+
+  /// No description provided for @mostAbsences.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Absences'**
+  String get mostAbsences;
+
+  /// No description provided for @errorLoadingLeaderboards.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading leaderboards. Please try again.'**
+  String get errorLoadingLeaderboards;
 }
 
 class _AppLocalizationsDelegate

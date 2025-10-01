@@ -25,12 +25,45 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
     final localizations = AppLocalizations.of(context);
     // Watch for image updates to force rebuilds
     ref.watch(playerImageUpdateProvider);
-    final allPlayers = ref.watch(playersForTeamProvider(widget.teamId));
+    final allPlayersAsync = ref.watch(playersForTeamStreamProvider(widget.teamId));
 
-    // Filter and organize players by position
-    final filteredPlayers = _getFilteredPlayers(allPlayers);
-    final organizedPlayers = _organizePlayersByPosition(filteredPlayers);
+    return allPlayersAsync.when(
+      data: (allPlayers) {
+        // Filter and organize players by position
+        final filteredPlayers = _getFilteredPlayers(allPlayers);
+        final organizedPlayers = _organizePlayersByPosition(filteredPlayers);
 
+        return _buildPlayerScaffold(context, localizations, filteredPlayers, organizedPlayers);
+      },
+      loading: () => Scaffold(
+        appBar: AppBar(
+          title: Row(
+            children: [
+              Icon(Icons.people, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(localizations?.players ?? 'Players'),
+            ],
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        appBar: AppBar(
+          title: Row(
+            children: [
+              Icon(Icons.people, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(localizations?.players ?? 'Players'),
+            ],
+          ),
+        ),
+        body: Center(child: Text(localizations?.errorLoadingPlayers(error.toString()) ?? 'Error loading players')),
+      ),
+    );
+  }
+
+  Widget _buildPlayerScaffold(BuildContext context, AppLocalizations? localizations,
+      List<Player> filteredPlayers, Map<String, List<Player>> organizedPlayers) {
     return Scaffold(
       appBar: AppBar(
         title: Row(

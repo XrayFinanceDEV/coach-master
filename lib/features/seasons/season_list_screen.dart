@@ -9,8 +9,8 @@ class SeasonListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonRepository = ref.watch(seasonRepositoryProvider);
-    final seasons = seasonRepository.getSeasons();
+    // Use stream provider for real-time updates from Firestore
+    final seasonsAsync = ref.watch(seasonsStreamProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -22,16 +22,34 @@ class SeasonListScreen extends ConsumerWidget {
           ],
         ),
       ),
-      body: ListView.builder(
-        itemCount: seasons.length,
-        itemBuilder: (context, index) {
-          final season = seasons[index];
-          return ListTile(
-            title: Text(season.name),
-            subtitle: Text('${season.startDate.year} - ${season.endDate.year}'),
-            onTap: () => context.go('/seasons/${season.id}'),
-          );
-        },
+      body: seasonsAsync.when(
+        data: (seasons) => ListView.builder(
+          itemCount: seasons.length,
+          itemBuilder: (context, index) {
+            final season = seasons[index];
+            return ListTile(
+              title: Text(season.name),
+              subtitle: Text('${season.startDate.year} - ${season.endDate.year}'),
+              onTap: () => context.go('/seasons/${season.id}'),
+            );
+          },
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 16),
+              Text('Error loading seasons: $error'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.invalidate(seasonsStreamProvider),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -82,7 +100,6 @@ class SeasonListScreen extends ConsumerWidget {
                       lastDate: DateTime(2100),
                     );
                     if (pickedDate != null && context.mounted) {
-                      // Update state or rebuild dialog if necessary
                       startDate = pickedDate;
                     }
                   },
@@ -98,7 +115,6 @@ class SeasonListScreen extends ConsumerWidget {
                       lastDate: DateTime(2100),
                     );
                     if (pickedDate != null && context.mounted) {
-                      // Update state or rebuild dialog if necessary
                       endDate = pickedDate;
                     }
                   },
@@ -112,7 +128,7 @@ class SeasonListScreen extends ConsumerWidget {
               child: const Text('Cancel'),
             ),
             FilledButton(
-              onPressed: () {
+              onPressed: () async {
                 if (formKey.currentState!.validate()) {
                   formKey.currentState!.save();
                   final newSeason = Season.create(
@@ -120,9 +136,11 @@ class SeasonListScreen extends ConsumerWidget {
                     startDate: startDate,
                     endDate: endDate,
                   );
-                  seasonRepository.addSeason(newSeason);
-                  ref.invalidate(seasonRepositoryProvider);
-                  context.pop();
+                  await seasonRepository.addSeason(newSeason);
+                  // Stream will auto-update, no need to invalidate
+                  if (context.mounted) {
+                    context.pop();
+                  }
                 }
               },
               child: const Text('Add'),

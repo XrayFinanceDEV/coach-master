@@ -735,4 +735,71 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get errorSyncingData => 'Errore durante la sincronizzazione';
+
+  @override
+  String errorLoadingPlayers(String error) {
+    return 'Errore caricamento giocatori: $error';
+  }
+
+  @override
+  String errorLoadingPlayer(String error) {
+    return 'Errore caricamento giocatore: $error';
+  }
+
+  @override
+  String errorLoadingNotes(String error) {
+    return 'Errore caricamento note: $error';
+  }
+
+  @override
+  String errorLoadingTeam(String error) {
+    return 'Errore caricamento squadra: $error';
+  }
+
+  @override
+  String errorLoadingMatches(String error) {
+    return 'Errore caricamento partite: $error';
+  }
+
+  @override
+  String errorLoadingAttendances(String error) {
+    return 'Errore caricamento presenze: $error';
+  }
+
+  @override
+  String get errorLoadingConvocatedPlayers =>
+      'Errore caricamento giocatori convocati';
+
+  @override
+  String get errorOccurred => 'Si è verificato un errore';
+
+  @override
+  String get tryAgain => 'Riprova';
+
+  @override
+  String get teamNotFound => 'Squadra non trovata';
+
+  @override
+  String get noTrainingsScheduled => 'Nessun allenamento programmato';
+
+  @override
+  String get createFirstTrainingToStart =>
+      'Crea il tuo primo allenamento per iniziare a tracciare le presenze';
+
+  @override
+  String get error => 'Errore';
+
+  @override
+  String get noDataYetShort => 'Nessun dato ancora';
+
+  @override
+  String get statsWillAppearAfterMatches =>
+      'Le statistiche appariranno dopo le partite';
+
+  @override
+  String get mostAbsences => 'Più Assenze';
+
+  @override
+  String get errorLoadingLeaderboards =>
+      'Errore caricamento classifiche. Riprova.';
 }

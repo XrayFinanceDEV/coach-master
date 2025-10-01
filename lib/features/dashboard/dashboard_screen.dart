@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
-import 'package:coachmaster/models/season.dart';
 import 'package:coachmaster/models/team.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/match.dart';
 import 'package:coachmaster/core/repository_instances.dart';
 import 'package:coachmaster/core/firebase_auth_providers.dart';
+import 'package:coachmaster/core/selected_team_provider.dart';
+import 'package:coachmaster/core/firestore_repository_providers.dart';
 import 'package:coachmaster/features/dashboard/widgets/team_statistics_card.dart';
 import 'package:coachmaster/features/dashboard/widgets/player_cards_grid.dart';
 import 'package:coachmaster/features/dashboard/widgets/leaderboards_section.dart';
 import 'package:coachmaster/features/players/widgets/player_form_bottom_sheet.dart';
-import 'package:coachmaster/features/trainings/training_detail_screen.dart';
 import 'package:coachmaster/features/matches/widgets/match_form_bottom_sheet.dart';
-import 'package:coachmaster/services/sync_manager.dart';
+// Legacy sync_manager removed - using Firestore-only architecture now
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -24,47 +24,8 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  String? selectedSeasonId;
-  String? selectedTeamId;
   bool _isSpeedDialOpen = false;
   bool _isRefreshing = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Auto-select the first available season and team
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _autoSelectDefaults();
-    });
-  }
-
-  void _autoSelectDefaults() {
-    final seasonRepo = ref.read(seasonRepositoryProvider);
-    final teamRepo = ref.read(teamRepositoryProvider);
-
-    final seasons = seasonRepo.getSeasons() as List<Season>;
-    if (seasons.isNotEmpty && selectedSeasonId == null) {
-      // Find the season that has teams (prioritize seasons with teams)
-      Season? currentSeason;
-      for (var season in seasons) {
-        final teamsInSeason = teamRepo.getTeamsForSeason(season.id) as List<Team>;
-        if (teamsInSeason.isNotEmpty) {
-          currentSeason = season;
-          break;
-        }
-      }
-
-      // If no season with teams found, use the first season
-      currentSeason ??= seasons.first;
-      selectedSeasonId = currentSeason.id;
-
-      final teams = teamRepo.getTeamsForSeason(selectedSeasonId!) as List<Team>;
-      if (teams.isNotEmpty && selectedTeamId == null) {
-        selectedTeamId = teams.first.id;
-        setState(() {});
-      }
-    }
-  }
 
   Future<void> _forceRefreshData() async {
     setState(() => _isRefreshing = true);
@@ -72,12 +33,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     try {
       final authState = ref.read(firebaseAuthProvider);
 
-      if (authState.isUsingFirebaseAuth && SyncManager.instance.isInitialized) {
-        // Force download all data from Firestore
-        await SyncManager.instance.forceDownloadAll();
-
-        // Increment refresh counter to trigger UI rebuild
-        ref.read(refreshCounterProvider.notifier).increment();
+      if (authState.isUsingFirebaseAuth) {
+        // Firestore streams automatically sync data in real-time
+        // No manual download needed - just wait a moment for streams to update
+        await Future.delayed(const Duration(milliseconds: 500));
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -158,38 +117,61 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     // Watch refresh counter to rebuild when Firebase sync completes
     ref.watch(refreshCounterProvider);
 
-    // Now safe to access repositories
-    final seasonRepo = ref.watch(seasonRepositoryProvider);
-    final teamRepo = ref.watch(teamRepositoryProvider);
+    // Trigger auto-select if needed
+    ref.watch(autoSelectTeamProvider);
 
-    final seasons = seasonRepo.getSeasons() as List<Season>;
-    final teams = selectedSeasonId != null ? teamRepo.getTeamsForSeason(selectedSeasonId!) as List<Team> : <Team>[];
+    // Use the stream-based selected team provider
+    final selectedTeamAsync = ref.watch(selectedTeamStreamProvider);
 
-    final selectedSeason = selectedSeasonId != null ? seasonRepo.getSeason(selectedSeasonId!) : null;
-    final selectedTeam = selectedTeamId != null ? teamRepo.getTeam(selectedTeamId!) : null;
+    return selectedTeamAsync.when(
+      data: (selectedTeam) => _buildDashboardContent(selectedTeam),
+      loading: () => Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: Center(child: Text('${AppLocalizations.of(context)!.error}: $error')),
+      ),
+    );
+  }
 
-    // Auto-select defaults if they're not set but data is available
-    if (seasons.isNotEmpty && selectedSeasonId == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          selectedSeasonId = seasons.first.id;
-          // Get teams for the newly selected season
-          final seasonTeams = teamRepo.getTeamsForSeason(seasons.first.id) as List<Team>;
-          if (seasonTeams.isNotEmpty && selectedTeamId == null) {
-            selectedTeamId = seasonTeams.first.id;
-          }
-        });
-      });
-    }
+  Widget _buildDashboardContent(Team? selectedTeam) {
+    final selectedTeamId = selectedTeam?.id;
 
-    // Get team data for dashboard
-    final playerRepo = ref.watch(playerRepositoryProvider);
-    final matchRepo = ref.watch(matchRepositoryProvider);
-    final players = selectedTeamId != null ? playerRepo.getPlayersForTeam(selectedTeamId!) as List<Player> : <Player>[];
-    final matches = selectedTeamId != null ? matchRepo.getMatchesForTeam(selectedTeamId!) as List<Match> : <Match>[];
+    // Watch streams for players and matches
+    final playersAsync = selectedTeamId != null
+        ? ref.watch(playersForTeamStreamProvider(selectedTeamId))
+        : const AsyncValue<List<Player>>.data([]);
+    final matchesAsync = selectedTeamId != null
+        ? ref.watch(matchesForTeamStreamProvider(selectedTeamId))
+        : const AsyncValue<List<Match>>.data([]);
 
+    return playersAsync.when(
+      data: (players) => matchesAsync.when(
+        data: (matches) => _buildScaffold(selectedTeam, players, matches),
+        loading: () => Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          body: const Center(child: CircularProgressIndicator()),
+        ),
+        error: (error, stack) => Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          body: Center(child: Text('Error loading matches: $error')),
+        ),
+      ),
+      loading: () => Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: Center(child: Text('Error loading players: $error')),
+      ),
+    );
+  }
 
-    final result = Scaffold(
+  Widget _buildScaffold(Team? selectedTeam, List<Player> players, List<Match> matches) {
+    return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
@@ -203,10 +185,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             const SizedBox(width: 8),
             const Text('Coach Master'),
-            if (selectedSeason != null) ...[
+            if (selectedTeam != null) ...[
               const Text(' — '),
               Text(
-                '${AppLocalizations.of(context)!.season} ${selectedSeason.name}',
+                selectedTeam.name,
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey[600],
@@ -238,30 +220,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            if (seasons.isEmpty) ...[
+            if (selectedTeam == null) ...[
               _buildWelcomeMessage(),
-            ] else if (selectedTeamId == null || selectedTeam == null) ...[
-              // Show loading or team selection state instead of "empty teams"
-              if (teams.isEmpty && seasons.isNotEmpty) ...[
-                _buildEmptyTeamsMessage(),
-              ] else ...[
-                // Teams exist but none selected - show loading or selection
-                Center(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 40),
-                      const CircularProgressIndicator(),
-                      const SizedBox(height: 16),
-                      Text(
-                        AppLocalizations.of(context)!.loadingTeamData,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
             ] else if (selectedTeam != null && players.isNotEmpty) ...[
               TeamStatisticsCard(
                 team: selectedTeam,
@@ -286,10 +246,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ],
         ),
       ),
-      floatingActionButton: _buildSpeedDial(),
+      floatingActionButton: _buildSpeedDial(selectedTeam),
     );
-    
-    return result;
   }
 
   Widget _buildWelcomeMessage() {
@@ -380,7 +338,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildSpeedDial() {
+  Widget _buildSpeedDial(Team? selectedTeam) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       child: Column(
@@ -467,13 +425,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   void _showAddPlayerDialog() {
+    final selectedTeamId = ref.read(selectedTeamIdProvider);
+
     if (selectedTeamId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectTeamFirst)),
       );
       return;
     }
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -481,7 +441,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => PlayerFormBottomSheet(
-        teamId: selectedTeamId!,
+        teamId: selectedTeamId,
         onSaved: () {
           // Refresh dashboard data
           ref.read(refreshCounterProvider.notifier).increment();
@@ -493,41 +453,29 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   void _showAddTrainingDialog() {
+    final selectedTeamId = ref.read(selectedTeamIdProvider);
+
     if (selectedTeamId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectTeamFirst)),
       );
       return;
     }
-    
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => TrainingFormBottomSheet(
-        teamId: selectedTeamId!,
-        onSaved: () {
-          // Refresh dashboard data
-          ref.read(refreshCounterProvider.notifier).increment();
-        },
-        onTrainingCreated: (trainingId) {
-          // Navigate directly to training detail
-          context.go('/trainings/$trainingId');
-        },
-      ),
-    );
+
+    // Navigate to trainings screen where user can add training
+    context.go('/trainings');
   }
 
   void _showAddMatchDialog() {
+    final selectedTeamId = ref.read(selectedTeamIdProvider);
+
     if (selectedTeamId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectTeamFirst)),
       );
       return;
     }
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -535,7 +483,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => MatchFormBottomSheet(
-        teamId: selectedTeamId!,
+        teamId: selectedTeamId,
         onSaved: () {
           // Refresh dashboard data
           ref.read(refreshCounterProvider.notifier).increment();

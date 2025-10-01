@@ -1,34 +1,17 @@
-import 'package:hive/hive.dart';
-
-part 'note.g.dart';
-
-@HiveType(typeId: 15)
 enum NoteType {
-  @HiveField(0)
   player,
-  @HiveField(1)
   training,
-  @HiveField(2)
   general,
-  @HiveField(3)
   match,
 }
 
-@HiveType(typeId: 16)
 class Note {
-  @HiveField(0)
   final String id;
-  @HiveField(1)
   final String content;
-  @HiveField(2)
   final DateTime createdAt;
-  @HiveField(3)
   final DateTime updatedAt;
-  @HiveField(4)
   final NoteType type;
-  @HiveField(5)
   final String? linkedId; // playerId, trainingId, etc.
-  @HiveField(6)
   final String? linkedType; // 'player', 'training', etc.
 
   Note({
@@ -76,6 +59,31 @@ class Note {
       type: type ?? this.type,
       linkedId: linkedId ?? this.linkedId,
       linkedType: linkedType ?? this.linkedType,
+    );
+  }
+
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'content': content,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'type': type.name,
+      'linkedId': linkedId,
+      'linkedType': linkedType,
+    };
+  }
+
+  factory Note.fromJson(Map<String, dynamic> json) {
+    return Note(
+      id: json['id'] as String,
+      content: json['content'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      type: NoteType.values.firstWhere((e) => e.name == json['type']),
+      linkedId: json['linkedId'] as String?,
+      linkedType: json['linkedType'] as String?,
     );
   }
 }

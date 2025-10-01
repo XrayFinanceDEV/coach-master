@@ -1,19 +1,7 @@
-import 'package:hive/hive.dart';
-
-part 'onboarding_settings.g.dart';
-
-@HiveType(typeId: 9)
-class OnboardingSettings extends HiveObject {
-  @HiveField(0)
+class OnboardingSettings {
   final String coachName;
-  
-  @HiveField(1)
   final String seasonName;
-  
-  @HiveField(2)
   final String teamName;
-  
-  @HiveField(3)
   final bool isCompleted;
 
   OnboardingSettings({
@@ -33,6 +21,25 @@ class OnboardingSettings extends HiveObject {
       seasonName: seasonName,
       teamName: teamName,
       isCompleted: true,
+    );
+  }
+
+  // JSON serialization for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'coachName': coachName,
+      'seasonName': seasonName,
+      'teamName': teamName,
+      'isCompleted': isCompleted,
+    };
+  }
+
+  factory OnboardingSettings.fromJson(Map<String, dynamic> json) {
+    return OnboardingSettings(
+      coachName: json['coachName'] as String,
+      seasonName: json['seasonName'] as String,
+      teamName: json['teamName'] as String,
+      isCompleted: json['isCompleted'] as bool,
     );
   }
 }

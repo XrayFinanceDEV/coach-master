@@ -146,12 +146,24 @@ class FirestoreMatchRepository {
 
   Match _fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
+
+    // Handle both old string dates and new Timestamp dates
+    DateTime matchDate;
+    final dateField = data['date'];
+    if (dateField is Timestamp) {
+      matchDate = dateField.toDate();
+    } else if (dateField is String) {
+      matchDate = DateTime.parse(dateField);
+    } else {
+      throw TypeError();
+    }
+
     return Match(
       id: data['id'] as String,
       teamId: data['teamId'] as String,
       seasonId: data['seasonId'] as String,
       opponent: data['opponent'] as String,
-      date: (data['date'] as Timestamp).toDate(),
+      date: matchDate,
       location: data['location'] as String,
       isHome: data['isHome'] as bool,
       status: MatchStatus.values.firstWhere(

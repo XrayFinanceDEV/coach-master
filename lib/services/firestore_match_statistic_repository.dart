@@ -21,7 +21,7 @@ class FirestoreMatchStatisticRepository {
 
   Future<void> addStatistic(MatchStatistic statistic) async {
     try {
-      await _collection.doc(statistic.id).set(_toFirestore(statistic));
+      await _collection.doc(statistic.id).set(toFirestore(statistic));
       if (kDebugMode) {
         print('🟢 FirestoreMatchStatisticRepository: Added statistic ${statistic.id}');
       }
@@ -35,7 +35,7 @@ class FirestoreMatchStatisticRepository {
 
   Future<void> updateStatistic(MatchStatistic statistic) async {
     try {
-      await _collection.doc(statistic.id).set(_toFirestore(statistic));
+      await _collection.doc(statistic.id).set(toFirestore(statistic));
       if (kDebugMode) {
         print('🟢 FirestoreMatchStatisticRepository: Updated statistic ${statistic.id}');
       }
@@ -153,8 +153,8 @@ class FirestoreMatchStatisticRepository {
     });
   }
 
-  // Serialization
-  Map<String, dynamic> _toFirestore(MatchStatistic statistic) {
+  // Serialization (public for batch operations)
+  Map<String, dynamic> toFirestore(MatchStatistic statistic) {
     return {
       'id': statistic.id,
       'matchId': statistic.matchId,

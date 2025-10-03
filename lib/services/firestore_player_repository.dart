@@ -32,7 +32,11 @@ class FirestorePlayerRepository {
   /// Add a new player
   Future<void> addPlayer(Player player) async {
     try {
-      await _collection.doc(player.id).set(_toFirestore(player));
+      // Write to cache immediately, sync to server in background
+      await _collection.doc(player.id).set(
+        _toFirestore(player),
+        SetOptions(merge: true),
+      );
 
       if (kDebugMode) {
         print('🟢 FirestorePlayerRepository: Added player ${player.id}');
@@ -48,7 +52,11 @@ class FirestorePlayerRepository {
   /// Update an existing player
   Future<void> updatePlayer(Player player) async {
     try {
-      await _collection.doc(player.id).set(_toFirestore(player));
+      // Write to cache immediately, sync to server in background
+      await _collection.doc(player.id).set(
+        _toFirestore(player),
+        SetOptions(merge: true),
+      );
 
       if (kDebugMode) {
         print('🟢 FirestorePlayerRepository: Updated player ${player.id}');
@@ -172,6 +180,9 @@ class FirestorePlayerRepository {
 
     final totalGoals = playerStats.fold<int>(0, (total, stat) => total + stat.goals);
     final totalAssists = playerStats.fold<int>(0, (total, stat) => total + stat.assists);
+    final totalYellowCards = playerStats.fold<int>(0, (total, stat) => total + stat.yellowCards);
+    final totalRedCards = playerStats.fold<int>(0, (total, stat) => total + stat.redCards);
+    final totalMinutes = playerStats.fold<int>(0, (total, stat) => total + stat.minutesPlayed);
     final ratingsCount = playerStats.where((stat) => stat.rating != null && stat.rating! > 0).length;
     final avgRating = ratingsCount > 0
         ? playerStats.fold<double>(0, (total, stat) => total + (stat.rating ?? 0.0)) / ratingsCount
@@ -180,15 +191,16 @@ class FirestorePlayerRepository {
     if (kDebugMode) {
       print('🟠 FirestorePlayerRepository: Updating stats for ${player.firstName} ${player.lastName}');
       print('   Goals: $totalGoals, Assists: $totalAssists, Avg Rating: ${avgRating?.toStringAsFixed(1) ?? "N/A"}');
+      print('   Yellow Cards: $totalYellowCards, Red Cards: $totalRedCards, Minutes: $totalMinutes');
     }
 
     // Update player with new statistics
     final updatedPlayer = player.updateStatistics(
       goals: totalGoals,
       assists: totalAssists,
-      yellowCards: player.yellowCards,
-      redCards: player.redCards,
-      totalMinutes: player.totalMinutes,
+      yellowCards: totalYellowCards,
+      redCards: totalRedCards,
+      totalMinutes: totalMinutes,
       avgRating: avgRating,
       absences: player.absences,
     );

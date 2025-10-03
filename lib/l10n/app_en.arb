@@ -8,6 +8,8 @@
   "players": "Players",
   "trainings": "Trainings",
   "matches": "Matches",
+  "playersTitle": "Players",
+  "trainingsTitle": "Trainings",
   "settings": "Settings",
   "dashboard": "Dashboard",
   "teamStatistics": "Team Statistics",
@@ -358,5 +360,7 @@
   "noDataYetShort": "No data yet",
   "statsWillAppearAfterMatches": "Stats will appear after matches",
   "mostAbsences": "Most Absences",
-  "errorLoadingLeaderboards": "Error loading leaderboards. Please try again."
+  "errorLoadingLeaderboards": "Error loading leaderboards. Please try again.",
+  "confirm": "Confirm",
+  "completeMatch": "Complete Match"
 }

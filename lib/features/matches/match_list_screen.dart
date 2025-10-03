@@ -511,28 +511,46 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
               final convocationRepository = ref.read(matchConvocationRepositoryProvider);
               final statisticRepository = ref.read(matchStatisticRepositoryProvider);
               final noteRepository = ref.read(noteRepositoryProvider);
-              
+              final playerRepository = ref.read(playerRepositoryProvider);
+
+              // Get statistics before deletion for stats refresh
+              final statistics = await statisticRepository.getStatisticsForMatch(match.id);
+
               // Delete related data
               await statisticRepository.deleteStatisticsForMatch(match.id);
               await convocationRepository.deleteConvocationsForMatch(match.id);
-              
+
               // Delete notes for this match
               await noteRepository.deleteNotesForLinkedItem(match.id, linkedType: 'match');
-              
+
               // Delete the match
               await matchRepository.deleteMatch(match.id);
-              
+
+              // Refresh player stats for all affected players
+              final playersAsync = ref.read(playersForTeamStreamProvider(widget.teamId));
+              playersAsync.whenData((players) async {
+                final allStatistics = await statisticRepository.getStatistics();
+                for (final statistic in statistics) {
+                  if (players.any((p) => p.id == statistic.playerId)) {
+                    await playerRepository.updatePlayerStatisticsFromMatchStats(
+                      statistic.playerId,
+                      allStatistics,
+                    );
+                  }
+                }
+              });
+
               // Invalidate providers to refresh UI
               ref.invalidate(matchRepositoryProvider);
               ref.invalidate(matchConvocationRepositoryProvider);
               ref.invalidate(matchStatisticRepositoryProvider);
               ref.invalidate(noteRepositoryProvider);
-              
+
               // Force a rebuild to ensure UI updates
               if (mounted) {
                 setState(() {});
               }
-              
+
               if (context.mounted) {
                 context.pop();
               }

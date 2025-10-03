@@ -409,7 +409,31 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
                               ),
                               const SizedBox(width: 12),
                               Expanded(
+                                child: _buildStatCard(context, 'Avg Rating', player.avgRating?.toStringAsFixed(1) ?? '-', Icons.star),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildStatCard(context, 'Minutes', player.totalMinutes.toString(), Icons.timer),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
                                 child: _buildStatCard(context, 'Absences', player.absences.toString(), Icons.cancel),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildStatCard(context, 'Yellow Cards', player.yellowCards.toString(), Icons.square, cardColor: Colors.yellow[700]),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildStatCard(context, 'Red Cards', player.redCards.toString(), Icons.square, cardColor: Colors.red),
                               ),
                             ],
                           ),
@@ -937,21 +961,23 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon) {
+  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, {Color? cardColor}) {
+    final displayColor = cardColor ?? Theme.of(context).colorScheme.primary;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+        color: displayColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+          color: displayColor.withValues(alpha: 0.1),
         ),
       ),
       child: Column(
         children: [
           Icon(
             icon,
-            color: Theme.of(context).colorScheme.primary,
+            color: displayColor,
             size: 28,
           ),
           const SizedBox(height: 8),
@@ -959,7 +985,7 @@ class _PlayerDetailScreenState extends ConsumerState<PlayerDetailScreen> {
             value,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
+              color: displayColor,
             ),
           ),
           const SizedBox(height: 4),

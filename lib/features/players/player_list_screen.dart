@@ -41,7 +41,7 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
             children: [
               Icon(Icons.people, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 8),
-              Text(localizations?.players ?? 'Players'),
+              Text(localizations?.playersTitle ?? 'Players'),
             ],
           ),
         ),
@@ -70,7 +70,7 @@ class _PlayerListScreenState extends ConsumerState<PlayerListScreen> {
           children: [
             Icon(Icons.people, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 8),
-            Text(localizations?.players ?? 'Players'),
+            Text(localizations?.playersTitle ?? 'Players'),
           ],
         ),
       ),

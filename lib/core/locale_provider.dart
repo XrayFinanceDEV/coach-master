@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-const String _localeKey = 'selected_locale';
+import 'package:coachmaster/services/firestore_user_settings_repository.dart';
+import 'package:coachmaster/core/firestore_repository_providers.dart';
 
 class LocaleNotifier extends Notifier<Locale> {
   @override
@@ -13,8 +12,8 @@ class LocaleNotifier extends Notifier<Locale> {
 
   Future<void> _loadLocale() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final localeCode = prefs.getString(_localeKey) ?? 'it';
+      final userSettingsRepo = ref.read(userSettingsRepositoryProvider);
+      final localeCode = await userSettingsRepo.getSelectedLocale();
       state = Locale(localeCode);
     } catch (e) {
       // If there's an error, fallback to Italian
@@ -24,8 +23,8 @@ class LocaleNotifier extends Notifier<Locale> {
 
   Future<void> setLocale(Locale locale) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_localeKey, locale.languageCode);
+      final userSettingsRepo = ref.read(userSettingsRepositoryProvider);
+      await userSettingsRepo.setSelectedLocale(locale.languageCode);
       state = locale;
     } catch (e) {
       // Handle error silently, keep current locale

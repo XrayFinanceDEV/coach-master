@@ -5,6 +5,8 @@
 ## Project Overview
 CoachMaster - Flutter sports team management app for coaches. Dark theme with orange (#FFA700) accents, Firebase-only architecture (Auth + Firestore + Storage), Italian default locale.
 
+**Version History**: See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
+
 ## Quick Commands
 ```bash
 flutter run                                                      # Run app

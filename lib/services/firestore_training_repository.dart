@@ -22,7 +22,11 @@ class FirestoreTrainingRepository {
 
   Future<void> addTraining(Training training) async {
     try {
-      await _collection.doc(training.id).set(_toFirestore(training));
+      // Write to cache immediately, sync to server in background
+      await _collection.doc(training.id).set(
+        _toFirestore(training),
+        SetOptions(merge: true),
+      );
       if (kDebugMode) {
         print('🟢 FirestoreTrainingRepository: Added training ${training.id}');
       }
@@ -36,7 +40,11 @@ class FirestoreTrainingRepository {
 
   Future<void> updateTraining(Training training) async {
     try {
-      await _collection.doc(training.id).set(_toFirestore(training));
+      // Write to cache immediately, sync to server in background
+      await _collection.doc(training.id).set(
+        _toFirestore(training),
+        SetOptions(merge: true),
+      );
       if (kDebugMode) {
         print('🟢 FirestoreTrainingRepository: Updated training ${training.id}');
       }

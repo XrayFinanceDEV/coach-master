@@ -6,6 +6,7 @@ import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/training_attendance.dart';
 import 'package:coachmaster/core/firestore_repository_providers.dart';
 import 'package:coachmaster/features/trainings/training_detail_screen.dart';
+import 'package:coachmaster/l10n/app_localizations.dart';
 
 class TrainingListScreen extends ConsumerStatefulWidget {
   final String teamId;
@@ -30,7 +31,7 @@ class _TrainingListScreenState extends ConsumerState<TrainingListScreen> {
           children: [
             Icon(Icons.fitness_center, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 8),
-            const Text('Training Sessions'),
+            Text(AppLocalizations.of(context)!.trainingsTitle),
           ],
         ),
       ),
@@ -59,7 +60,7 @@ class _TrainingListScreenState extends ConsumerState<TrainingListScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddTrainingDialog(),
         icon: const Icon(Icons.add),
-        label: const Text('Add Training'),
+        label: Text(AppLocalizations.of(context)!.addTraining),
       ),
     );
   }
@@ -270,6 +271,10 @@ class _TrainingListScreenState extends ConsumerState<TrainingListScreen> {
               final trainingRepository = ref.read(trainingRepositoryProvider);
               final attendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
               final noteRepository = ref.read(noteRepositoryProvider);
+              final playerRepository = ref.read(playerRepositoryProvider);
+
+              // Get attendance records before deletion for stats refresh
+              final attendances = await attendanceRepository.getAttendancesForTraining(training.id);
 
               // Delete related data
               await attendanceRepository.deleteAttendancesForTraining(training.id);
@@ -279,6 +284,20 @@ class _TrainingListScreenState extends ConsumerState<TrainingListScreen> {
 
               // Delete the training
               await trainingRepository.deleteTraining(training.id);
+
+              // Refresh player stats for all affected players
+              final playersAsync = ref.read(playersForTeamStreamProvider(widget.teamId));
+              playersAsync.whenData((players) async {
+                final allAttendances = await attendanceRepository.getAttendances();
+                for (final attendance in attendances) {
+                  if (players.any((p) => p.id == attendance.playerId)) {
+                    await playerRepository.updatePlayerAbsences(
+                      attendance.playerId,
+                      allAttendances,
+                    );
+                  }
+                }
+              });
 
               // Close attendance management if this training was selected
               if (selectedTrainingId == training.id && mounted) {

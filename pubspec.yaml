@@ -21,7 +21,7 @@ dependencies:
   firebase_storage: ^13.0.2
   firebase_analytics: ^12.0.2
   connectivity_plus: ^7.0.0
-  google_sign_in: ^6.3.0
+  google_sign_in: ^6.3.0  # v7.x has breaking changes, staying on v6 for stability
   # Image handling dependencies
   image_picker: ^1.1.2
   flutter_image_compress: ^2.3.0

@@ -24,6 +24,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get matches => 'Matches';
 
   @override
+  String get playersTitle => 'Players';
+
+  @override
+  String get trainingsTitle => 'Trainings';
+
+  @override
   String get settings => 'Settings';
 
   @override
@@ -794,4 +800,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorLoadingLeaderboards =>
       'Error loading leaderboards. Please try again.';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get completeMatch => 'Complete Match';
 }

@@ -128,6 +128,18 @@ abstract class AppLocalizations {
   /// **'Matches'**
   String get matches;
 
+  /// No description provided for @playersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get playersTitle;
+
+  /// No description provided for @trainingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainings'**
+  String get trainingsTitle;
+
   /// No description provided for @settings.
   ///
   /// In en, this message translates to:
@@ -1591,6 +1603,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error loading leaderboards. Please try again.'**
   String get errorLoadingLeaderboards;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// No description provided for @completeMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Match'**
+  String get completeMatch;
 }
 
 class _AppLocalizationsDelegate

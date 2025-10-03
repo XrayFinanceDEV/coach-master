@@ -5,6 +5,8 @@
   "players": "Giocatori",
   "trainings": "Allenamenti",
   "matches": "Partite",
+  "playersTitle": "Giocatori",
+  "trainingsTitle": "Allenamenti",
   "settings": "Impostazioni",
   "dashboard": "Dashboard",
   "teamStatistics": "Statistiche Squadra",
@@ -260,5 +262,7 @@
   "noDataYetShort": "Nessun dato ancora",
   "statsWillAppearAfterMatches": "Le statistiche appariranno dopo le partite",
   "mostAbsences": "Più Assenze",
-  "errorLoadingLeaderboards": "Errore caricamento classifiche. Riprova."
+  "errorLoadingLeaderboards": "Errore caricamento classifiche. Riprova.",
+  "confirm": "Conferma",
+  "completeMatch": "Completa Partita"
 }

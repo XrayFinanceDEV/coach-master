@@ -574,16 +574,34 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
               final convocationRepository = ref.read(matchConvocationRepositoryProvider);
               final statisticRepository = ref.read(matchStatisticRepositoryProvider);
               final noteRepository = ref.read(noteRepositoryProvider);
-              
+              final playerRepository = ref.read(playerRepositoryProvider);
+
+              // Get statistics before deletion for stats refresh
+              final statistics = await statisticRepository.getStatisticsForMatch(match.id);
+
               // Delete related data
               await statisticRepository.deleteStatisticsForMatch(match.id);
               await convocationRepository.deleteConvocationsForMatch(match.id);
-              
+
               // Delete notes for this match
               await noteRepository.deleteNotesForLinkedItem(match.id, linkedType: 'match');
-              
+
               // Delete the match
               await matchRepository.deleteMatch(match.id);
+
+              // Refresh player stats for all affected players
+              final playersAsync = ref.read(playersForTeamStreamProvider(match.teamId));
+              playersAsync.whenData((players) async {
+                final allStatistics = await statisticRepository.getStatistics();
+                for (final statistic in statistics) {
+                  if (players.any((p) => p.id == statistic.playerId)) {
+                    await playerRepository.updatePlayerStatisticsFromMatchStats(
+                      statistic.playerId,
+                      allStatistics,
+                    );
+                  }
+                }
+              });
 
               // Streams auto-update UI, no need for manual invalidation
 

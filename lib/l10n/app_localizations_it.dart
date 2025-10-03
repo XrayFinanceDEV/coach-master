@@ -24,6 +24,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get matches => 'Partite';
 
   @override
+  String get playersTitle => 'Giocatori';
+
+  @override
+  String get trainingsTitle => 'Allenamenti';
+
+  @override
   String get settings => 'Impostazioni';
 
   @override
@@ -802,4 +808,10 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get errorLoadingLeaderboards =>
       'Errore caricamento classifiche. Riprova.';
+
+  @override
+  String get confirm => 'Conferma';
+
+  @override
+  String get completeMatch => 'Completa Partita';
 }

@@ -89,6 +89,10 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
                         final trainingRepository = ref.read(trainingRepositoryProvider);
                         final attendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
                         final noteRepository = ref.read(noteRepositoryProvider);
+                        final playerRepository = ref.read(playerRepositoryProvider);
+
+                        // Get attendance records before deletion for stats refresh
+                        final attendances = await attendanceRepository.getAttendancesForTraining(training.id);
 
                         // Delete related data first
                         await attendanceRepository.deleteAttendancesForTraining(training.id);
@@ -96,6 +100,20 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
 
                         // Delete the training
                         await trainingRepository.deleteTraining(training.id);
+
+                        // Refresh player stats for all affected players
+                        final playersAsync = ref.read(playersForTeamStreamProvider(training.teamId));
+                        playersAsync.whenData((players) async {
+                          final allAttendances = await attendanceRepository.getAttendances();
+                          for (final attendance in attendances) {
+                            if (players.any((p) => p.id == attendance.playerId)) {
+                              await playerRepository.updatePlayerAbsences(
+                                attendance.playerId,
+                                allAttendances,
+                              );
+                            }
+                          }
+                        });
 
                         // Streams auto-update UI
                         if (context.mounted) {
@@ -1260,9 +1278,9 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
                 Icon(Icons.fitness_center, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  isEditMode 
+                  isEditMode
                       ? (localizations?.editTraining ?? 'Edit Training')
-                      : '+Add',
+                      : (localizations?.addTraining ?? 'Add Training'),
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -1374,9 +1392,7 @@ class _TrainingFormBottomSheetState extends ConsumerState<TrainingFormBottomShee
                 Expanded(
                   child: FilledButton(
                     onPressed: _saveTraining,
-                    child: Text(isEditMode 
-                        ? (localizations?.save ?? 'Save')
-                        : 'Create Training'),
+                    child: Text(localizations?.confirm ?? 'Confirm'),
                   ),
                 ),
               ],

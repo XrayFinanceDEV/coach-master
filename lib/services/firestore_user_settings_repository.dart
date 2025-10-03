@@ -28,13 +28,14 @@ class FirestoreUserSettingsRepository {
         if (kDebugMode) {
           print('🟡 FirestoreUserSettingsRepository: No settings found, creating defaults');
         }
-        // Create default settings
+        // Create default settings with Italian locale
         await _userDoc.set({
           'selectedTeamId': null,
           'selectedSeasonId': null,
+          'selectedLocale': 'it', // Italian by default
           'updatedAt': FieldValue.serverTimestamp(),
         });
-        return null;
+        return {'selectedLocale': 'it'};
       }
       return doc.data();
     } catch (e) {
@@ -104,6 +105,38 @@ class FirestoreUserSettingsRepository {
     } catch (e) {
       if (kDebugMode) {
         print('🔴 FirestoreUserSettingsRepository: Failed to save selected season - $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Get selected locale
+  Future<String> getSelectedLocale() async {
+    try {
+      final settings = await getSettings();
+      return settings?['selectedLocale'] as String? ?? 'it'; // Default to Italian
+    } catch (e) {
+      if (kDebugMode) {
+        print('🔴 FirestoreUserSettingsRepository: Failed to get selected locale - $e');
+      }
+      return 'it'; // Default to Italian
+    }
+  }
+
+  /// Set selected locale
+  Future<void> setSelectedLocale(String locale) async {
+    try {
+      await _userDoc.set({
+        'selectedLocale': locale,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      if (kDebugMode) {
+        print('🟢 FirestoreUserSettingsRepository: Saved selected locale: $locale');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('🔴 FirestoreUserSettingsRepository: Failed to save selected locale - $e');
       }
       rethrow;
     }

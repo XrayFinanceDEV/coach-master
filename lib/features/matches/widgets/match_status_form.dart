@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coachmaster/models/match.dart';
 import 'package:coachmaster/models/player.dart';
 import 'package:coachmaster/models/match_statistic.dart';
 import 'package:coachmaster/core/repository_instances.dart';
+import 'package:coachmaster/core/firebase_auth_providers.dart';
 import 'package:coachmaster/core/image_cache_utils.dart';
 import 'package:coachmaster/core/image_utils.dart';
 import 'package:coachmaster/l10n/app_localizations.dart';
@@ -1141,13 +1143,13 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
           Expanded(
             child: FilledButton(
               onPressed: _isLoading ? null : (isLastStep ? _saveMatchStatus : _nextStep),
-              child: _isLoading 
+              child: _isLoading
                 ? const SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : Text(isLastStep ? 'Complete Match' : 'Next'),
+                : Text(isLastStep ? AppLocalizations.of(context)!.completeMatch : AppLocalizations.of(context)!.next),
             ),
           ),
         ],
@@ -1210,18 +1212,20 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
 
   Future<void> _saveMatchStatus() async {
     setState(() => _isLoading = true);
-    
+
     try {
       final matchRepository = ref.read(matchRepositoryProvider);
       final statisticRepository = ref.read(matchStatisticRepositoryProvider);
-      
+      final authState = ref.read(firebaseAuthProvider);
+      final userId = authState.firebaseUser!.uid;
+
       // Update match with result
-      final result = _goalsFor > _goalsAgainst 
+      final result = _goalsFor > _goalsAgainst
           ? MatchResult.win
-          : _goalsFor == _goalsAgainst 
-              ? MatchResult.draw 
+          : _goalsFor == _goalsAgainst
+              ? MatchResult.draw
               : MatchResult.loss;
-      
+
       final updatedMatch = Match(
         id: widget.match.id,
         teamId: widget.match.teamId,
@@ -1236,16 +1240,40 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
         goalsAgainst: _goalsAgainst,
         tactics: widget.match.tactics,
       );
-      
-      await matchRepository.updateMatch(updatedMatch);
-      
-      // Delete existing statistics first to avoid duplicates
+
+      // Get existing statistics before batch operation
       final existingStats = await statisticRepository.getStatisticsForMatch(widget.match.id);
-      for (final stat in existingStats) {
-        await statisticRepository.deleteStatistic(stat.id);
+
+      // Use Firestore batch for atomic write operation (single network round-trip)
+      final batch = FirebaseFirestore.instance.batch();
+
+      // Add match update to batch
+      final matchRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('matches')
+          .doc(widget.match.id);
+      batch.set(matchRef, matchRepository.toFirestore(updatedMatch));
+
+      if (kDebugMode) {
+        print('🔥 Batch: Adding match update for ${widget.match.id}');
       }
-      
-      // Create new player statistics
+
+      // Delete existing statistics in batch
+      for (final stat in existingStats) {
+        final statRef = FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('matchStatistics')
+            .doc(stat.id);
+        batch.delete(statRef);
+
+        if (kDebugMode) {
+          print('🔥 Batch: Deleting statistic ${stat.id}');
+        }
+      }
+
+      // Add new player statistics to batch
       for (final player in _convocatedPlayers) {
         final statistic = MatchStatistic.create(
           matchId: widget.match.id,
@@ -1257,11 +1285,30 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
           minutesPlayed: _addPlayingTime ? (_playerMinutes[player.id] ?? 90) : 90,
           rating: _playerRatings[player.id],
         );
-        
-        await statisticRepository.addStatistic(statistic);
+
+        final statRef = FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('matchStatistics')
+            .doc(statistic.id);
+        batch.set(statRef, statisticRepository.toFirestore(statistic));
+
+        if (kDebugMode) {
+          print('🔥 Batch: Adding statistic for ${player.firstName} ${player.lastName}');
+        }
       }
-      
+
+      // Commit all writes atomically in a single operation
+      if (kDebugMode) {
+        print('🚀 Committing batch with ${1 + existingStats.length + _convocatedPlayers.length} operations...');
+      }
+      await batch.commit();
+      if (kDebugMode) {
+        print('✅ Batch commit successful!');
+      }
+
       // Update player aggregate statistics from all their match stats
+      // This happens after the batch commit to ensure data consistency
       final playerRepository = ref.read(playerRepositoryProvider);
       final allMatchStats = await statisticRepository.getStatistics();
 
@@ -1270,12 +1317,12 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
       for (final player in teamPlayers) {
         await playerRepository.updatePlayerStatisticsFromMatchStats(player.id, allMatchStats);
       }
-      
+
       // Increment refresh counter to trigger UI rebuilds across all screens
       ref.read(refreshCounterProvider.notifier).increment();
-      
+
       widget.onCompleted();
-      
+
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1286,6 +1333,9 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
         );
       }
     } catch (e) {
+      if (kDebugMode) {
+        print('❌ Batch commit failed: $e');
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

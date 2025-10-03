@@ -21,7 +21,7 @@ class FirestoreMatchRepository {
 
   Future<void> addMatch(Match match) async {
     try {
-      await _collection.doc(match.id).set(_toFirestore(match));
+      await _collection.doc(match.id).set(toFirestore(match));
       if (kDebugMode) {
         print('🟢 FirestoreMatchRepository: Added match ${match.id}');
       }
@@ -35,7 +35,7 @@ class FirestoreMatchRepository {
 
   Future<void> updateMatch(Match match) async {
     try {
-      await _collection.doc(match.id).set(_toFirestore(match));
+      await _collection.doc(match.id).set(toFirestore(match));
       if (kDebugMode) {
         print('🟢 FirestoreMatchRepository: Updated match ${match.id}');
       }
@@ -125,8 +125,8 @@ class FirestoreMatchRepository {
     });
   }
 
-  // Serialization
-  Map<String, dynamic> _toFirestore(Match match) {
+  // Serialization (public for batch operations)
+  Map<String, dynamic> toFirestore(Match match) {
     return {
       'id': match.id,
       'teamId': match.teamId,

@@ -86,37 +86,16 @@ class _PlayerCardsGridState extends ConsumerState<PlayerCardsGrid> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.people,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${AppLocalizations.of(context)!.players} - ${widget.teamName}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                Icon(
+                  Icons.people,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      sortMode = sortMode == 'position' ? 'name' : 'position';
-                    });
-                  },
-                  icon: const Icon(Icons.sort, size: 16),
-                  label: Text(
-                    sortMode == 'position' ? AppLocalizations.of(context)!.sortByName : AppLocalizations.of(context)!.sortByPosition,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    minimumSize: const Size(0, 32),
+                const SizedBox(width: 8),
+                Text(
+                  '${AppLocalizations.of(context)!.players} - ${widget.teamName}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],

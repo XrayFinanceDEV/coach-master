@@ -362,5 +362,16 @@
   "mostAbsences": "Most Absences",
   "errorLoadingLeaderboards": "Error loading leaderboards. Please try again.",
   "confirm": "Confirm",
-  "completeMatch": "Complete Match"
+  "completeMatch": "Complete Match",
+  "absences": "{count, plural, =0{0 absent} =1{1 absent} other{{count} absent}}",
+  "@absences": {
+    "description": "Number of absent players",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "compact"
+      }
+    }
+  },
+  "statisticsWillBeGenerated": "Statistics will be generated automatically after updating match status"
 }

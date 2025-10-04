@@ -248,7 +248,7 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                match.location,
+                                _translateLocation(match.location),
                                 style: TextStyle(color: Colors.grey[600], fontSize: 12),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -369,29 +369,6 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
                       ],
                     ),
                   ),
-                  if (hasStatistics)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[100],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.analytics, size: 14, color: Colors.blue[700]),
-                          const SizedBox(width: 4),
-                          Text(
-                            AppLocalizations.of(context)!.statsSaved,
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                 ],
               ),
             ],
@@ -495,74 +472,119 @@ class _MatchListScreenState extends ConsumerState<MatchListScreen> {
   }
 
   void _deleteMatch(Match match) {
+    bool isDeleting = false;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.deleteMatch),
-        content: Text(AppLocalizations.of(context)!.deleteMatchConfirm(match.opponent)),
-        actions: [
-          TextButton(
-            onPressed: () => context.pop(),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final matchRepository = ref.read(matchRepositoryProvider);
-              final convocationRepository = ref.read(matchConvocationRepositoryProvider);
-              final statisticRepository = ref.read(matchStatisticRepositoryProvider);
-              final noteRepository = ref.read(noteRepositoryProvider);
-              final playerRepository = ref.read(playerRepositoryProvider);
+      barrierDismissible: false, // Prevent dismissing while deleting
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(AppLocalizations.of(context)!.deleteMatch),
+            content: Text(AppLocalizations.of(context)!.deleteMatchConfirm(match.opponent)),
+            actions: [
+              TextButton(
+                onPressed: isDeleting ? null : () => context.pop(),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              FilledButton(
+                onPressed: isDeleting ? null : () async {
+                  setState(() => isDeleting = true);
 
-              // Get statistics before deletion for stats refresh
-              final statistics = await statisticRepository.getStatisticsForMatch(match.id);
+                  try {
+                    final matchRepository = ref.read(matchRepositoryProvider);
+                    final convocationRepository = ref.read(matchConvocationRepositoryProvider);
+                    final statisticRepository = ref.read(matchStatisticRepositoryProvider);
+                    final noteRepository = ref.read(noteRepositoryProvider);
+                    final playerRepository = ref.read(playerRepositoryProvider);
 
-              // Delete related data
-              await statisticRepository.deleteStatisticsForMatch(match.id);
-              await convocationRepository.deleteConvocationsForMatch(match.id);
+                    // Get statistics and affected players before deletion
+                    final statistics = await statisticRepository.getStatisticsForMatch(match.id);
+                    final affectedPlayerIds = statistics.map((s) => s.playerId).toSet();
 
-              // Delete notes for this match
-              await noteRepository.deleteNotesForLinkedItem(match.id, linkedType: 'match');
+                    // Delete related data
+                    await statisticRepository.deleteStatisticsForMatch(match.id);
+                    await convocationRepository.deleteConvocationsForMatch(match.id);
 
-              // Delete the match
-              await matchRepository.deleteMatch(match.id);
+                    // Delete notes for this match
+                    await noteRepository.deleteNotesForLinkedItem(match.id, linkedType: 'match');
 
-              // Refresh player stats for all affected players
-              final playersAsync = ref.read(playersForTeamStreamProvider(widget.teamId));
-              playersAsync.whenData((players) async {
-                final allStatistics = await statisticRepository.getStatistics();
-                for (final statistic in statistics) {
-                  if (players.any((p) => p.id == statistic.playerId)) {
-                    await playerRepository.updatePlayerStatisticsFromMatchStats(
-                      statistic.playerId,
-                      allStatistics,
-                    );
+                    // Delete the match
+                    await matchRepository.deleteMatch(match.id);
+
+                    // Refresh player stats for all affected players
+                    // CRITICAL: Fetch all statistics AFTER deletion to recalculate correctly
+                    final allStatistics = await statisticRepository.getStatistics();
+                    for (final playerId in affectedPlayerIds) {
+                      await playerRepository.updatePlayerStatisticsFromMatchStats(
+                        playerId,
+                        allStatistics,
+                      );
+                    }
+
+                    // Small delay to allow Firestore streams to propagate updates
+                    await Future.delayed(const Duration(milliseconds: 500));
+
+                    // Invalidate providers to refresh UI
+                    ref.invalidate(matchRepositoryProvider);
+                    ref.invalidate(matchConvocationRepositoryProvider);
+                    ref.invalidate(matchStatisticRepositoryProvider);
+                    ref.invalidate(noteRepositoryProvider);
+                    ref.invalidate(playerRepositoryProvider);
+
+                    // Explicitly invalidate the team players stream to force fresh data
+                    ref.invalidate(playersForTeamStreamProvider(widget.teamId));
+
+                    // Force a rebuild to ensure UI updates
+                    if (mounted) {
+                      this.setState(() {});
+                    }
+
+                    if (context.mounted) {
+                      context.pop();
+                    }
+                  } catch (e) {
+                    setState(() => isDeleting = false);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${AppLocalizations.of(context)!.error}: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   }
-                }
-              });
-
-              // Invalidate providers to refresh UI
-              ref.invalidate(matchRepositoryProvider);
-              ref.invalidate(matchConvocationRepositoryProvider);
-              ref.invalidate(matchStatisticRepositoryProvider);
-              ref.invalidate(noteRepositoryProvider);
-
-              // Force a rebuild to ensure UI updates
-              if (mounted) {
-                setState(() {});
-              }
-
-              if (context.mounted) {
-                context.pop();
-              }
-            },
-            child: Text(AppLocalizations.of(context)!.delete),
-          ),
-        ],
+                },
+                child: isDeleting
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(AppLocalizations.of(context)!.delete),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
+  String _translateLocation(String location) {
+    // Translate legacy English location strings to current locale
+    if (location == 'Home Ground' || location == 'Home' || location == 'Casa' || location == 'In Casa') {
+      return AppLocalizations.of(context)!.home;
+    } else if (location == 'Away Ground' || location == 'Away' || location == 'Trasferta' || location == 'Fuori Casa') {
+      return AppLocalizations.of(context)!.away;
+    }
+    // Return original location for custom locations
+    return location;
   }
 }

@@ -12,7 +12,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get appTitle => 'CoachMaster';
 
   @override
-  String get home => 'Casa';
+  String get home => 'In Casa';
 
   @override
   String get players => 'giocatori';
@@ -462,7 +462,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get setMinutesEachPlayer => 'Imposta minuti per ogni giocatore';
 
   @override
-  String get playerRatings => 'Valutazioni Giocatori';
+  String get playerRatings => 'Pagelle';
 
   @override
   String get ratePlayerPerformance =>
@@ -660,7 +660,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get matchType => 'Tipo Partita';
 
   @override
-  String get away => 'Trasferta';
+  String get away => 'Fuori Casa';
 
   @override
   String get editMatch => 'Modifica Partita';
@@ -814,4 +814,25 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get completeMatch => 'Completa Partita';
+
+  @override
+  String absences(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString assenti',
+      one: '1 assente',
+      zero: '0 assenti',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statisticsWillBeGenerated =>
+      'Le statistiche saranno generate automaticamente dopo l\'aggiornamento dello stato della partita';
 }

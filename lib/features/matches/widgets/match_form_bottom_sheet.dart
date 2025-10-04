@@ -385,7 +385,7 @@ class _MatchFormBottomSheetState extends ConsumerState<MatchFormBottomSheet> {
           seasonId: team.seasonId,
           opponent: _opponentController.text.trim(),
           date: _selectedDate,
-          location: _isHome ? 'Home Ground' : 'Away Ground', // Default location based on home/away
+          location: _isHome ? AppLocalizations.of(context)!.home : AppLocalizations.of(context)!.away, // Default location based on home/away
           isHome: _isHome,
         );
         

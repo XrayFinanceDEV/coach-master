@@ -37,8 +37,13 @@ class MatchStatistic {
     String? position,
     String? notes,
   }) {
+    // Use compound key to ensure uniqueness: matchId_playerId_timestamp
+    // This prevents ID collisions when creating multiple statistics in quick succession
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final uniqueId = '${matchId}_${playerId}_$timestamp';
+
     return MatchStatistic(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: uniqueId,
       matchId: matchId,
       playerId: playerId,
       goals: goals,

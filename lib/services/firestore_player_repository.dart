@@ -52,10 +52,9 @@ class FirestorePlayerRepository {
   /// Update an existing player
   Future<void> updatePlayer(Player player) async {
     try {
-      // Write to cache immediately, sync to server in background
+      // Use set without merge to ensure null values overwrite existing data
       await _collection.doc(player.id).set(
         _toFirestore(player),
-        SetOptions(merge: true),
       );
 
       if (kDebugMode) {

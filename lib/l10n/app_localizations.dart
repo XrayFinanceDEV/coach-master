@@ -1615,6 +1615,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Complete Match'**
   String get completeMatch;
+
+  /// Number of absent players
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 absent} =1{1 absent} other{{count} absent}}'**
+  String absences(int count);
+
+  /// No description provided for @statisticsWillBeGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics will be generated automatically after updating match status'**
+  String get statisticsWillBeGenerated;
 }
 
 class _AppLocalizationsDelegate

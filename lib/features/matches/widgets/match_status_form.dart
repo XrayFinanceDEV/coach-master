@@ -400,6 +400,19 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
   }
 
   Widget _buildCardsStep() {
+    // Group players by position matching the exact same logic as other steps
+    // Attacco (Attack)
+    final attackPlayers = _convocatedPlayers.where((p) =>
+        _isAttackPosition(p.position) == true).toList();
+
+    // Centro Campo (Midfield)
+    final midfieldPlayers = _convocatedPlayers.where((p) =>
+        _isMidfieldPosition(p.position) == true).toList();
+
+    // Difesa (Defense) - all remaining players including goalkeepers
+    final defenseePlayers = _convocatedPlayers.where((p) =>
+        _isDefensePosition(p.position) == true).toList();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: Column(
@@ -410,7 +423,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             color: Theme.of(context).colorScheme.primary,
           ),
           const SizedBox(height: 16),
-          
+
           Text(
             AppLocalizations.of(context)!.cardsAndPenalties,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -426,21 +439,68 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             ),
             textAlign: TextAlign.center,
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           Expanded(
-            child: ListView.separated(
-              itemCount: _convocatedPlayers.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final player = _convocatedPlayers[index];
-                return _buildPlayerCardRow(player);
-              },
+            child: ListView(
+              children: [
+                // Always show all 3 position categories (Attack → Midfield → Defense)
+                _buildCardPositionSection(_getLocalizedPositionName(context, 'attack'), attackPlayers),
+                const SizedBox(height: 16),
+
+                _buildCardPositionSection(_getLocalizedPositionName(context, 'midfield'), midfieldPlayers),
+                const SizedBox(height: 16),
+
+                _buildCardPositionSection(_getLocalizedPositionName(context, 'defense'), defenseePlayers),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCardPositionSection(String positionTitle, List<Player> players) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          positionTitle,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (players.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.grey[600], size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'No players in this category',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ...players.map((player) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _buildPlayerCardRow(player),
+          )),
+      ],
     );
   }
 
@@ -640,6 +700,14 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
   }
 
   Widget _buildPlayingTimeStep() {
+    // Group players by position matching the exact same logic as other steps
+    final attackPlayers = _convocatedPlayers.where((p) =>
+        _isAttackPosition(p.position) == true).toList();
+    final midfieldPlayers = _convocatedPlayers.where((p) =>
+        _isMidfieldPosition(p.position) == true).toList();
+    final defenseePlayers = _convocatedPlayers.where((p) =>
+        _isDefensePosition(p.position) == true).toList();
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -650,7 +718,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             color: Theme.of(context).colorScheme.primary,
           ),
           const SizedBox(height: 16),
-          
+
           Text(
             AppLocalizations.of(context)!.playingTime,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -665,21 +733,67 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             ),
             textAlign: TextAlign.center,
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           Expanded(
-            child: ListView.separated(
-              itemCount: _convocatedPlayers.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final player = _convocatedPlayers[index];
-                return _buildPlayerMinutesSlider(player);
-              },
+            child: ListView(
+              children: [
+                _buildMinutesPositionSection(_getLocalizedPositionName(context, 'attack'), attackPlayers),
+                const SizedBox(height: 16),
+
+                _buildMinutesPositionSection(_getLocalizedPositionName(context, 'midfield'), midfieldPlayers),
+                const SizedBox(height: 16),
+
+                _buildMinutesPositionSection(_getLocalizedPositionName(context, 'defense'), defenseePlayers),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMinutesPositionSection(String positionTitle, List<Player> players) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          positionTitle,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (players.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.grey[600], size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'No players in this category',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ...players.map((player) => Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: _buildPlayerMinutesSlider(player),
+          )),
+      ],
     );
   }
 
@@ -738,6 +852,14 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
   }
 
   Widget _buildRatingStep() {
+    // Group players by position matching the exact same logic as other steps
+    final attackPlayers = _convocatedPlayers.where((p) =>
+        _isAttackPosition(p.position) == true).toList();
+    final midfieldPlayers = _convocatedPlayers.where((p) =>
+        _isMidfieldPosition(p.position) == true).toList();
+    final defenseePlayers = _convocatedPlayers.where((p) =>
+        _isDefensePosition(p.position) == true).toList();
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -748,7 +870,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             color: Theme.of(context).colorScheme.primary,
           ),
           const SizedBox(height: 16),
-          
+
           Text(
             AppLocalizations.of(context)!.playerRatings,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -763,17 +885,20 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             ),
             textAlign: TextAlign.center,
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           Expanded(
-            child: ListView.separated(
-              itemCount: _convocatedPlayers.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                final player = _convocatedPlayers[index];
-                return _buildPlayerRatingSlider(player);
-              },
+            child: ListView(
+              children: [
+                _buildRatingPositionSection(_getLocalizedPositionName(context, 'attack'), attackPlayers),
+                const SizedBox(height: 16),
+
+                _buildRatingPositionSection(_getLocalizedPositionName(context, 'midfield'), midfieldPlayers),
+                const SizedBox(height: 16),
+
+                _buildRatingPositionSection(_getLocalizedPositionName(context, 'defense'), defenseePlayers),
+              ],
             ),
           ),
         ],
@@ -781,9 +906,52 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
     );
   }
 
+  Widget _buildRatingPositionSection(String positionTitle, List<Player> players) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          positionTitle,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (players.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.grey[600], size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'No players in this category',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ...players.map((player) => Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: _buildPlayerRatingSlider(player),
+          )),
+      ],
+    );
+  }
+
   Widget _buildPlayerRatingSlider(Player player) {
     final rating = _playerRatings[player.id];
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -813,12 +981,12 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
                 ),
               ),
               if (rating != null) ...[
-                _buildStars(rating),
+                _buildRatingSymbol(rating),
                 const SizedBox(width: 8),
                 Text(
                   rating.toStringAsFixed(1),
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: _getRatingColor(rating),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -830,7 +998,7 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             ],
           ),
           const SizedBox(height: 12),
-          
+
           // Always show slider (empty bar when rating is null)
           Slider(
             value: rating ?? 1.0, // Default to 1.0 when null for display purposes
@@ -838,11 +1006,11 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
             max: 10.0,
             divisions: 18, // (10-1) * 2 = 18 divisions for 0.5 increments
             onChanged: (value) => setState(() => _playerRatings[player.id] = value),
-            activeColor: rating != null ? Theme.of(context).colorScheme.primary : Colors.grey[300],
+            activeColor: rating != null ? _getRatingColor(rating) : Colors.grey[300],
             inactiveColor: Colors.grey[300],
-            thumbColor: rating != null ? Theme.of(context).colorScheme.primary : Colors.grey,
+            thumbColor: rating != null ? _getRatingColor(rating) : Colors.grey,
           ),
-          
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -869,22 +1037,48 @@ class _MatchStatusFormState extends ConsumerState<MatchStatusForm> {
     );
   }
 
-  Widget _buildStars(double rating) {
-    final fullStars = rating.floor();
-    final hasHalfStar = rating - fullStars >= 0.5;
-    
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(5, (index) {
-        if (index < fullStars) {
-          return const Icon(Icons.star, color: Colors.amber, size: 14);
-        } else if (index == fullStars && hasHalfStar) {
-          return const Icon(Icons.star_half, color: Colors.amber, size: 14);
-        } else {
-          return Icon(Icons.star_border, color: Colors.grey[400], size: 14);
-        }
-      }),
-    );
+  Widget _buildRatingSymbol(double rating) {
+    // < 5: down triangle (▼)
+    // 5-6: dash (-)
+    // > 7: up triangle (▲)
+    if (rating < 5) {
+      return Text(
+        '▼',
+        style: TextStyle(
+          color: Colors.red,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    } else if (rating <= 6) {
+      return Text(
+        '−',
+        style: TextStyle(
+          color: Colors.orange,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    } else {
+      return Text(
+        '▲',
+        style: TextStyle(
+          color: Colors.green,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    }
+  }
+
+  Color _getRatingColor(double rating) {
+    if (rating < 5) {
+      return Colors.red;
+    } else if (rating <= 6) {
+      return Colors.orange;
+    } else {
+      return Colors.green;
+    }
   }
 
   Widget _buildPlayerStatStep({

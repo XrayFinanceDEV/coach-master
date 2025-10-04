@@ -159,6 +159,14 @@ class LeaderboardsSection extends ConsumerWidget {
   }) {
     debugPrint('Building leaderboard card: $title with ${players.length} players');
 
+    // Debug: Print player ratings to see what data we're receiving
+    if (statLabel == 'rating') {
+      debugPrint('🔍 Rating data for players:');
+      for (final player in players) {
+        debugPrint('  ${player.firstName} ${player.lastName}: avgRating=${player.avgRating}');
+      }
+    }
+
     // Filter players with stats > 0
     final filteredPlayers = players.where((player) {
       if (statLabel == 'goals') return player.goals > 0;
@@ -167,6 +175,8 @@ class LeaderboardsSection extends ConsumerWidget {
       if (statLabel == 'absences') return player.absences > 0;
       return true;
     }).take(5).toList();
+
+    debugPrint('Filtered players for $title: ${filteredPlayers.length}');
 
     return Card(
       elevation: 4,

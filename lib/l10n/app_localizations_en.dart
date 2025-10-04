@@ -806,4 +806,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get completeMatch => 'Complete Match';
+
+  @override
+  String absences(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString absent',
+      one: '1 absent',
+      zero: '0 absent',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statisticsWillBeGenerated =>
+      'Statistics will be generated automatically after updating match status';
 }

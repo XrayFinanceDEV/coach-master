@@ -216,7 +216,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                       const SizedBox(width: 16),
                       const Icon(Icons.location_on, size: 16),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(match.location)),
+                      Expanded(child: Text(_translateLocation(match.location))),
                     ],
                   ),
                 ],
@@ -256,7 +256,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Statistics will be generated automatically after updating match status',
+                        AppLocalizations.of(context)!.statisticsWillBeGenerated,
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                     ),
@@ -540,6 +540,17 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
+  String _translateLocation(String location) {
+    // Translate legacy English location strings to current locale
+    if (location == 'Home Ground' || location == 'Home' || location == 'Casa' || location == 'In Casa') {
+      return AppLocalizations.of(context)!.home;
+    } else if (location == 'Away Ground' || location == 'Away' || location == 'Trasferta' || location == 'Fuori Casa') {
+      return AppLocalizations.of(context)!.away;
+    }
+    // Return original location for custom locations
+    return location;
+  }
+
   void _showEditMatchBottomSheet(Match match) {
     showModalBottomSheet(
       context: context,
@@ -560,59 +571,92 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
   void _showDeleteDialog(Match match) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.deleteMatch),
-        content: Text(AppLocalizations.of(context)!.deleteMatchConfirm(match.opponent)),
-        actions: [
-          TextButton(
-            onPressed: () => context.pop(),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final matchRepository = ref.read(matchRepositoryProvider);
-              final convocationRepository = ref.read(matchConvocationRepositoryProvider);
-              final statisticRepository = ref.read(matchStatisticRepositoryProvider);
-              final noteRepository = ref.read(noteRepositoryProvider);
-              final playerRepository = ref.read(playerRepositoryProvider);
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          bool isDeleting = false;
 
-              // Get statistics before deletion for stats refresh
-              final statistics = await statisticRepository.getStatisticsForMatch(match.id);
+          return AlertDialog(
+            title: Text(AppLocalizations.of(context)!.deleteMatch),
+            content: Text(AppLocalizations.of(context)!.deleteMatchConfirm(match.opponent)),
+            actions: [
+              TextButton(
+                onPressed: isDeleting ? null : () => context.pop(),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              FilledButton(
+                onPressed: isDeleting ? null : () async {
+                  setState(() => isDeleting = true);
 
-              // Delete related data
-              await statisticRepository.deleteStatisticsForMatch(match.id);
-              await convocationRepository.deleteConvocationsForMatch(match.id);
+                  try {
+                    final matchRepository = ref.read(matchRepositoryProvider);
+                    final convocationRepository = ref.read(matchConvocationRepositoryProvider);
+                    final statisticRepository = ref.read(matchStatisticRepositoryProvider);
+                    final noteRepository = ref.read(noteRepositoryProvider);
+                    final playerRepository = ref.read(playerRepositoryProvider);
 
-              // Delete notes for this match
-              await noteRepository.deleteNotesForLinkedItem(match.id, linkedType: 'match');
+                    // Get statistics and affected players before deletion
+                    final statistics = await statisticRepository.getStatisticsForMatch(match.id);
+                    final affectedPlayerIds = statistics.map((s) => s.playerId).toSet();
 
-              // Delete the match
-              await matchRepository.deleteMatch(match.id);
+                    // Delete related data
+                    await statisticRepository.deleteStatisticsForMatch(match.id);
+                    await convocationRepository.deleteConvocationsForMatch(match.id);
 
-              // Refresh player stats for all affected players
-              final playersAsync = ref.read(playersForTeamStreamProvider(match.teamId));
-              playersAsync.whenData((players) async {
-                final allStatistics = await statisticRepository.getStatistics();
-                for (final statistic in statistics) {
-                  if (players.any((p) => p.id == statistic.playerId)) {
-                    await playerRepository.updatePlayerStatisticsFromMatchStats(
-                      statistic.playerId,
-                      allStatistics,
-                    );
+                    // Delete notes for this match
+                    await noteRepository.deleteNotesForLinkedItem(match.id, linkedType: 'match');
+
+                    // Delete the match
+                    await matchRepository.deleteMatch(match.id);
+
+                    // Refresh player stats for all affected players
+                    // CRITICAL: Fetch all statistics AFTER deletion to recalculate correctly
+                    final allStatistics = await statisticRepository.getStatistics();
+                    for (final playerId in affectedPlayerIds) {
+                      await playerRepository.updatePlayerStatisticsFromMatchStats(
+                        playerId,
+                        allStatistics,
+                      );
+                    }
+
+                    // Small delay to allow Firestore streams to propagate updates
+                    await Future.delayed(const Duration(milliseconds: 500));
+
+                    // Invalidate player provider to refresh UI with updated stats
+                    ref.invalidate(playerRepositoryProvider);
+
+                    // Explicitly invalidate the team players stream to force fresh data
+                    ref.invalidate(playersForTeamStreamProvider(match.teamId));
+
+                    if (context.mounted) {
+                      context.pop();
+                      context.go('/matches');
+                    }
+                  } catch (e) {
+                    setState(() => isDeleting = false);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${AppLocalizations.of(context)!.error}: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   }
-                }
-              });
-
-              // Streams auto-update UI, no need for manual invalidation
-
-              if (context.mounted) {
-                context.pop();
-                context.go('/matches');
-              }
-            },
-            child: Text(AppLocalizations.of(context)!.delete),
-          ),
-        ],
+                },
+                child: isDeleting
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(AppLocalizations.of(context)!.delete),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -79,13 +79,13 @@ class Player {
 
   // Convenience method to update statistics
   Player updateStatistics({
-    int? goals,
-    int? assists,
-    int? yellowCards,
-    int? redCards,
-    int? totalMinutes,
-    double? avgRating,
-    int? absences,
+    required int goals,
+    required int assists,
+    required int yellowCards,
+    required int redCards,
+    required int totalMinutes,
+    required double? avgRating,
+    required int absences,
   }) {
     return Player(
       id: id,
@@ -98,13 +98,13 @@ class Player {
       photoPath: photoPath,
       medicalInfo: medicalInfo,
       emergencyContact: emergencyContact,
-      goals: goals ?? this.goals,
-      assists: assists ?? this.assists,
-      yellowCards: yellowCards ?? this.yellowCards,
-      redCards: redCards ?? this.redCards,
-      totalMinutes: totalMinutes ?? this.totalMinutes,
-      avgRating: avgRating ?? this.avgRating,
-      absences: absences ?? this.absences,
+      goals: goals,
+      assists: assists,
+      yellowCards: yellowCards,
+      redCards: redCards,
+      totalMinutes: totalMinutes,
+      avgRating: avgRating,
+      absences: absences,
     );
   }
 

@@ -74,56 +74,86 @@ class _TrainingDetailScreenState extends ConsumerState<TrainingDetailScreen> {
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () {
+              bool isDeleting = false;
+
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: Text(localizations?.deleteTraining ?? 'Delete Training'),
-                  content: Text(localizations?.deleteTrainingConfirm ?? 'Are you sure you want to delete this training?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => context.pop(),
-                      child: Text(localizations?.cancel ?? 'Cancel'),
-                    ),
-                    FilledButton(
-                      onPressed: () async {
-                        final trainingRepository = ref.read(trainingRepositoryProvider);
-                        final attendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
-                        final noteRepository = ref.read(noteRepositoryProvider);
-                        final playerRepository = ref.read(playerRepositoryProvider);
+                barrierDismissible: false, // Prevent dismissing while deleting
+                builder: (context) => StatefulBuilder(
+                  builder: (context, setState) {
+                    return AlertDialog(
+                      title: Text(localizations?.deleteTraining ?? 'Delete Training'),
+                      content: Text(localizations?.deleteTrainingConfirm ?? 'Are you sure you want to delete this training?'),
+                      actions: [
+                        TextButton(
+                          onPressed: isDeleting ? null : () => context.pop(),
+                          child: Text(localizations?.cancel ?? 'Cancel'),
+                        ),
+                        FilledButton(
+                          onPressed: isDeleting ? null : () async {
+                            setState(() => isDeleting = true);
 
-                        // Get attendance records before deletion for stats refresh
-                        final attendances = await attendanceRepository.getAttendancesForTraining(training.id);
+                            try {
+                              final trainingRepository = ref.read(trainingRepositoryProvider);
+                              final attendanceRepository = ref.read(trainingAttendanceRepositoryProvider);
+                              final noteRepository = ref.read(noteRepositoryProvider);
+                              final playerRepository = ref.read(playerRepositoryProvider);
 
-                        // Delete related data first
-                        await attendanceRepository.deleteAttendancesForTraining(training.id);
-                        await noteRepository.deleteNotesForLinkedItem(training.id, linkedType: 'training');
+                              // Get attendance records before deletion for stats refresh
+                              final attendances = await attendanceRepository.getAttendancesForTraining(training.id);
 
-                        // Delete the training
-                        await trainingRepository.deleteTraining(training.id);
+                              // Delete related data first
+                              await attendanceRepository.deleteAttendancesForTraining(training.id);
+                              await noteRepository.deleteNotesForLinkedItem(training.id, linkedType: 'training');
 
-                        // Refresh player stats for all affected players
-                        final playersAsync = ref.read(playersForTeamStreamProvider(training.teamId));
-                        playersAsync.whenData((players) async {
-                          final allAttendances = await attendanceRepository.getAttendances();
-                          for (final attendance in attendances) {
-                            if (players.any((p) => p.id == attendance.playerId)) {
-                              await playerRepository.updatePlayerAbsences(
-                                attendance.playerId,
-                                allAttendances,
-                              );
+                              // Delete the training
+                              await trainingRepository.deleteTraining(training.id);
+
+                              // Refresh player stats for all affected players
+                              final playersAsync = ref.read(playersForTeamStreamProvider(training.teamId));
+                              playersAsync.whenData((players) async {
+                                final allAttendances = await attendanceRepository.getAttendances();
+                                for (final attendance in attendances) {
+                                  if (players.any((p) => p.id == attendance.playerId)) {
+                                    await playerRepository.updatePlayerAbsences(
+                                      attendance.playerId,
+                                      allAttendances,
+                                    );
+                                  }
+                                }
+                              });
+
+                              // Streams auto-update UI
+                              if (context.mounted) {
+                                context.pop(); // Close dialog
+                                context.go('/trainings'); // Navigate back to training list
+                              }
+                            } catch (e) {
+                              setState(() => isDeleting = false);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             }
-                          }
-                        });
-
-                        // Streams auto-update UI
-                        if (context.mounted) {
-                          context.pop(); // Close dialog
-                          context.go('/trainings'); // Navigate back to training list
-                        }
-                      },
-                      child: Text(localizations?.delete ?? 'Delete'),
-                    ),
-                  ],
+                          },
+                          child: isDeleting
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : Text(localizations?.delete ?? 'Delete'),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               );
             },

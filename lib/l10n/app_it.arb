@@ -151,7 +151,7 @@
   "playingTime": "Tempo di Gioco",
   "choosePlayingTimeTracking": "Scegli il tracciamento del tempo di gioco",
   "setMinutesEachPlayer": "Imposta minuti per ogni giocatore",
-  "playerRatings": "Valutazioni Giocatori",
+  "playerRatings": "Pagelle",
   "ratePlayerPerformance": "Valuta le prestazioni di ogni giocatore (1-10)",
   "yesTrackPlayingTime": "Sì, traccia tempo di gioco",
   "noSkipPlayingTime": "No, salta tempo di gioco",
@@ -201,7 +201,7 @@
   "cardsDetail": "Dettaglio Cartellini",
   "playingTimeChoice": "Scelta Tempo di Gioco",
   "playingTimeDetail": "Dettaglio Tempo di Gioco",
-  "playerRatings": "Valutazioni Giocatori",
+  "playerRatings": "Pagelle",
   "scheduled": "Programmata",
   "live": "In Corso",
   "completed": "Completata",
@@ -215,8 +215,8 @@
   "matchDate": "Data Partita",
   "pleaseEnterMatchLocation": "Inserisci il luogo della partita",
   "matchType": "Tipo Partita",
-  "home": "Casa",
-  "away": "Trasferta",
+  "home": "In Casa",
+  "away": "Fuori Casa",
   "editMatch": "Modifica Partita",
   "updateMatch": "Aggiorna Partita",
   "createMatch": "Crea Partita",
@@ -264,5 +264,16 @@
   "mostAbsences": "Più Assenze",
   "errorLoadingLeaderboards": "Errore caricamento classifiche. Riprova.",
   "confirm": "Conferma",
-  "completeMatch": "Completa Partita"
+  "completeMatch": "Completa Partita",
+  "absences": "{count, plural, =0{0 assenti} =1{1 assente} other{{count} assenti}}",
+  "@absences": {
+    "description": "Number of absent players",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "compact"
+      }
+    }
+  },
+  "statisticsWillBeGenerated": "Le statistiche saranno generate automaticamente dopo l'aggiornamento dello stato della partita"
 }
